@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "823963316437",
+    "project_id": "bdmi-ba7c4",
+    "storage_bucket": "bdmi-ba7c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:823963316437:android:30ed70039cbdd930e4325c",
+        "android_client_info": {
+          "package_name": "com.example.bdmi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOpcP8oM3DZ8OGD9_4j5qIp2E9b6L9wEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
