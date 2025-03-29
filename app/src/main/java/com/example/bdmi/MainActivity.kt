@@ -13,25 +13,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.bdmi.ui.theme.BDMiTheme
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 
-private const val TAG = "BDMi"
 
 class MainActivity : ComponentActivity() {
     private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        try {
-//            db = initializeFirestore()
-//            Log.d("MainActivity", "Firestore initialized")
-//        } catch (e: Exception) {
-//            Log.w("MainActivity", "Error initializing Firestore", e)
-//        }
+        try {
+            db = initializeFirestore()
+            Log.d("MainActivity", "Firestore initialized")
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Error initializing Firestore", e)
+        }
 //        addData(db)
-//        readData(db)
+        readData(db)
 
         enableEdgeToEdge()
         setContent {
