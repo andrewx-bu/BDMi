@@ -27,8 +27,6 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.w("MainActivity", "Error initializing Firestore", e)
         }
-//        addData(db)
-        readData(db)
 
         enableEdgeToEdge()
         setContent {
