@@ -9,20 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.bdmi.ui.theme.BDMiTheme
 import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var db: FirebaseFirestore
+    @Inject lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            db = initializeFirestore()
-            Log.d("MainActivity", "Firestore initialized")
-        } catch (e: Exception) {
-            Log.w("MainActivity", "Error initializing Firestore", e)
-        }
-
         enableEdgeToEdge()
         setContent {
             BDMiTheme {
