@@ -1,16 +1,19 @@
 package com.example.bdmi
 
 import android.util.Log
-import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-/* Consider using Repository Pattern (i.e. injecting a class of functions into a view model) */
+/* Consider using Repository Pattern (i.e. injecting a class of functions into a view model) Hilt? for dependency injection */
 
 // Constants
 private const val TAG = "FirestoreUtils"
+const val USERS_COLLECTION = "users"
+const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
+const val FRIENDS_SUBCOLLECTION = "friends"
 
 // Initialize Firestore
 fun initializeFirestore(): FirebaseFirestore {
@@ -19,7 +22,7 @@ fun initializeFirestore(): FirebaseFirestore {
 
 //Adds a user to the users collection. Information should already be validated and password hashed
 //Checks for unique email before adding
-fun addUser(
+fun createUser(
     db : FirebaseFirestore,
     userInformation : HashMap<String, Any>,
     onComplete: (Boolean) -> Unit
@@ -27,7 +30,7 @@ fun addUser(
     val dbFunction = "addUser"
 
     // Check for email uniqueness
-    db.collection("users")
+    db.collection(USERS_COLLECTION)
         .whereEqualTo("email", userInformation["email"])
         .get()
         .addOnSuccessListener { querySnapshot ->
@@ -37,7 +40,7 @@ fun addUser(
                 onComplete(false)
             } else {
                 // Add the new user
-                db.collection("users")
+                db.collection(USERS_COLLECTION)
                     .add(userInformation)
                     .addOnSuccessListener { documentReference ->
                         val documentId = documentReference.id
@@ -46,6 +49,17 @@ fun addUser(
                         documentReference.update("user_id", documentId)
                             .addOnSuccessListener {
                                 Log.d("$TAG$dbFunction", "User added successfully with ID: $documentId")
+                                //Create a public profile for the user
+                                val profileInfo : HashMap<String, Any?> = hashMapOf(
+                                    "userId" to documentId,
+                                    "displayName" to userInformation["displayName"],
+                                    "isPublic" to true,
+                                    "reviewCount" to 0,
+                                    "friendCount" to 0,
+                                    "listCount" to 0,
+                                    "profilePicture" to "" //Will be default profile picture
+                                )
+                                createPublicProfile(db, documentId, profileInfo)
                                 onComplete(true)
                             }
                             .addOnFailureListener { e ->
@@ -65,23 +79,41 @@ fun addUser(
         }
 }
 
+//Creates a public profile for a user.
+//Called from the createUser function when a user is created
+private fun createPublicProfile(
+    db: FirebaseFirestore,
+    userId: String,
+    profileInfo: HashMap<String, Any?>
+) {
+    val dbFunction = "addPublicProfile"
+    db.collection(PUBLIC_PROFILES_COLLECTION).document(userId) //Use userID as document ID
+        .set(profileInfo)
+        .addOnSuccessListener {
+            Log.d("$TAG$dbFunction", "Public profile added successfully for userID: $userId")
+        }
+        .addOnFailureListener { e ->
+            Log.e("$TAG$dbFunction", "Error adding public profile", e)
+        }
+}
+
 //Authenticates a user during the login process
 //Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
 fun authenticateUser(
     db: FirebaseFirestore,
     loginInformation: HashMap<String, String>,
-    onComplete: (HashMap<*, *>?) -> Unit
+    onComplete: (HashMap<String, Any?>?) -> Unit
 ) {
     val dbFunction = "loadUser"
 
-    db.collection("users")
+    db.collection(USERS_COLLECTION)
         .whereEqualTo("email", loginInformation["email"]) //Change field if needed
         .whereEqualTo("password", loginInformation["password"])
         .get()
         .addOnSuccessListener { user: QuerySnapshot ->
             if (user.documents.isNotEmpty()) {
                 Log.d("$TAG$dbFunction", "User found")
-                val userInfo = user.documents[0].data as HashMap<*, *>
+                val userInfo = user.documents[0].data as HashMap<String, Any?>
                 onComplete(userInfo) //Return the user information via the callback
             } else {
                 Log.d("$TAG$dbFunction", "No user found")
@@ -104,7 +136,7 @@ fun updateUserInfo(
     val dbFunction = "updateUserInfo"
     //Unsure to use this for identifying users or not
     val userId = userInfo["user_id"] ?: return onComplete(false) //Ensure 'id' exists
-    val userRef = db.collection("users").document(userId.toString())
+    val userRef = db.collection(USERS_COLLECTION).document(userId.toString())
     userRef.update(userInfo) //Update fields in the document
         .addOnSuccessListener {
             Log.d("$TAG$dbFunction", "User information updated successfully")
@@ -124,7 +156,7 @@ fun deleteUser(
     onComplete: (Boolean) -> Unit
 ) {
     val dbFunction = "deleteUser"
-    val userRef = db.collection("users").document(userId)
+    val userRef = db.collection(USERS_COLLECTION).document(userId)
     userRef.delete()
         .addOnSuccessListener {
             Log.d("$TAG$dbFunction", "User deleted successfully")
@@ -134,6 +166,99 @@ fun deleteUser(
             Log.e("$TAG$dbFunction", "Error deleting user", e)
             onComplete(false)
         }
+}
+
+/*
+* Adds a friend to a user's friend list.
+* Returns true if the friend was added successfully, false otherwise
+* Uses transactions to ensure friends are added atomically
+* */
+fun addFriend(
+    db: FirebaseFirestore,
+    userId: String,
+    friendId: String,
+    onComplete: (Boolean) -> Unit
+) {
+    val dbFunction = "addFriend"
+    val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+    val friendRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId)
+
+    db.runTransaction { transaction ->
+        // Get user and friend documents
+        val userDoc = transaction.get(userRef)
+        val friendDoc = transaction.get(friendRef)
+
+        if (!userDoc.exists() || !friendDoc.exists()) {
+            throw Exception("User document for $userId or Friend document for $friendId does not exist")
+        }
+
+        // Extract user and friend info
+        val userInfo = mapOf(
+            "userId" to userDoc.getString("userId"),
+            "profilePicture" to userDoc.getString("profilePicture"),
+            "displayName" to userDoc.getString("displayName"),
+            "friendCount" to userDoc.getLong("friendCount"),
+            "listCount" to userDoc.getLong("listCount"),
+            "reviewCount" to userDoc.getLong("reviewCount")
+        )
+
+        val friendInfo = mapOf(
+            "userId" to friendDoc.getString("userId"),
+            "profilePicture" to friendDoc.getString("profilePicture"),
+            "displayName" to friendDoc.getString("displayName"),
+            "friendCount" to friendDoc.getLong("friendCount"),
+            "listCount" to friendDoc.getLong("listCount"),
+            "reviewCount" to friendDoc.getLong("reviewCount")
+        )
+
+        //Add friend to user's 'friends' subcollection
+        val userFriendsRef = db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
+        transaction.set(userFriendsRef, friendInfo)
+
+        //Add user to friend's 'friends' subcollection
+        val friendFriendsRef = db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
+        transaction.set(friendFriendsRef, userInfo)
+
+        //Increment friend counts for both profiles
+        transaction.update(userRef, "friendCount", FieldValue.increment(1)) //Copilot assisted with these 2 lines
+        transaction.update(friendRef, "friendCount", FieldValue.increment(1))
+
+    }.addOnSuccessListener {
+        Log.d("$TAG$dbFunction", "Friend relationship added successfully")
+        onComplete(true)
+    }.addOnFailureListener { e ->
+        Log.e("$TAG$dbFunction", "Error adding friend", e)
+        onComplete(false)
+    }
+}
+
+/*
+* Adds a friend to a user's friend list.
+* Returns true if the friend was added successfully, false otherwise
+* Uses batch writes to ensure friends are removed atomically
+* */
+fun removeFriend(
+    db: FirebaseFirestore,
+    userId: String,
+    friendId: String,
+    onComplete: (Boolean) -> Unit
+) {
+    val dbFunction = "removeFriend"
+    val userRef = db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
+    val friendRef = db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
+    db.runBatch { batch ->
+        batch.delete(userRef)
+        batch.delete(friendRef)
+        batch.update(db.collection(PUBLIC_PROFILES_COLLECTION).document(userId), "friendCount", FieldValue.increment(-1))
+        batch.update(db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId), "friendCount", FieldValue.increment(-1))
+    }.addOnSuccessListener {
+        Log.d("$TAG$dbFunction", "Friend relationship between $userId and $friendId removed successfully")
+        onComplete(true)
+    }.addOnFailureListener { e ->
+        Log.e("$TAG$dbFunction", "Error removing friend relationship between $userId and $friendId", e)
+        onComplete(false)
+    }
+
 }
 
 /*
@@ -153,81 +278,3 @@ fun deleteUser(
 * startAt(), startAfter(), endAt(), endBefore() functions allow you to specify a range of values
 * - Helpful for pagination
 * */
-
-
-// Add data to Firestore
-fun addData(db: FirebaseFirestore) {
-    val user = hashMapOf(
-        "first_name" to "John",
-        "last_name" to "Doe",
-        "email" to "john.doe@gmail.com"
-    )
-
-    db.collection("users")
-        .add(user)
-        .addOnSuccessListener { documentReference: DocumentReference ->
-            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-        }
-        .addOnFailureListener { e: Exception ->
-            Log.w(TAG, "Error adding document", e)
-        }
-
-    val user2 = hashMapOf(
-        "first" to "Alan",
-        "middle" to "Mathison",
-        "last" to "Turing",
-        "born" to 1912,
-    )
-
-    db.collection("users")
-        .add(user2)
-        .addOnSuccessListener { documentReference: DocumentReference ->
-            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-        }
-        .addOnFailureListener { e: Exception ->
-            Log.w(TAG, "Error adding document", e)
-        }
-}
-
-// Read data from Firestore
-fun readData(db: FirebaseFirestore) {
-    // Retrieves all documents in the "users" collection
-    db.collection("users")
-        .get()
-        .addOnSuccessListener { result: QuerySnapshot ->
-            for (document in result) {
-                Log.d(TAG, "${document.id} => ${document.data}")
-            }
-        }
-        .addOnFailureListener { e: Exception ->
-            Log.w(TAG, "Error getting documents.", e)
-        }
-
-    // Query that uses a where clause
-    db.collection("cities")
-        .whereEqualTo("capital", true)
-        .get()
-        .addOnSuccessListener { documents ->
-            for (document in documents) {
-                Log.d(TAG, "${document.id} => ${document.data}")
-            }
-        }
-        .addOnFailureListener { exception ->
-            Log.w(TAG, "Error getting documents: ", exception)
-        }
-
-    // Retrieves all documents in a subcollection
-    // Must alternate between collection then document to get to the correct document/collection
-    db.collection("cities")
-        .document("SF")
-        .collection("landmarks")
-        .get()
-        .addOnSuccessListener { result ->
-            for (document in result) {
-                Log.d(TAG, "${document.id} => ${document.data}")
-            }
-        }
-        .addOnFailureListener { exception ->
-            Log.d(TAG, "Error getting documents: ", exception)
-        }
-}
