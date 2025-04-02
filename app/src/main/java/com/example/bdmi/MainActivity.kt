@@ -3,6 +3,7 @@ package com.example.bdmi
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,11 @@ class MainActivity : ComponentActivity() {
                 Log.d("MainActivity", "User registration failed")
             }
         } */
+        setContent {
+            BDMiTheme {
+                MainScreen()
+            }
+        }
     }
 }
 
