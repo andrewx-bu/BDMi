@@ -301,12 +301,6 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
     }
 }
 
-// Initialize Firestore
-fun initializeFirestore(): FirebaseFirestore {
-    return Firebase.firestore
-}
-
-
 /*
 * Database Operations:
 * add(): Adds a new document to the collection and creates a collection if one doesn't exist
