@@ -1,13 +1,12 @@
 package com.example.bdmi
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.bdmi.ui.theme.BDMiTheme
+import com.example.bdmi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -33,7 +32,7 @@ class MainActivity : ComponentActivity() {
             }
         } */
         setContent {
-            BDMiTheme {
+            AppTheme {
                 MainScreen()
             }
         }
@@ -42,8 +41,8 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    BDMiTheme {
+fun Preview() {
+    AppTheme {
         MainScreen()
     }
 }
