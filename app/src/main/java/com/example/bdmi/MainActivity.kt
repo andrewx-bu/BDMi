@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.bdmi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,17 +36,19 @@ class MainActivity : ComponentActivity() {
             }
         } */
         setContent {
-            AppTheme {
-                MainScreen()
-            }
+            Wrapper()
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun Preview() {
-    AppTheme {
-        MainScreen()
+fun Wrapper() {
+    val systemDark = isSystemInDarkTheme()
+    var darkTheme by remember { mutableStateOf(systemDark) }
+    AppTheme(darkTheme = darkTheme) {
+        MainScreen(
+            darkTheme = darkTheme,
+            switchTheme = { darkTheme = !darkTheme }
+        )
     }
 }
