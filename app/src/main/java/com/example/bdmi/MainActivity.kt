@@ -3,29 +3,34 @@ package com.example.bdmi
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.bdmi.ui.theme.BDMiTheme
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var db: FirebaseFirestore
-    @Inject lateinit var userViewModel: UserViewModel
+    // Don't need to initialize as it's done by Hilt
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BDMiTheme {
-                MainScreen()
+        //Basic test to register a user
+        /*val userInfo : HashMap<String, Any> = hashMapOf(
+            "name" to "",
+            "email" to "",
+            "password" to "",
+            "displayName" to ""
+        )
+        userViewModel.register(userInfo) {
+            if (it) {
+                Log.d("MainActivity", "User registered successfully")
+            } else {
+                Log.d("MainActivity", "User registration failed")
             }
-        }
+        } */
     }
 }
 
