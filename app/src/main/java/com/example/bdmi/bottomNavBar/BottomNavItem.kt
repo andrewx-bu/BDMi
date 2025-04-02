@@ -1,4 +1,4 @@
-package com.example.bdmi
+package com.example.bdmi.bottomNavBar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle

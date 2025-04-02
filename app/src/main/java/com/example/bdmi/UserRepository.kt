@@ -19,7 +19,7 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
     //Adds a user to the users collection. Information should already be validated and password hashed
     //Checks for unique email before adding
     fun createUser(
-        userInformation : HashMap<String, Any>,
+        userInformation: HashMap<String, Any>,
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "addUser"
@@ -43,9 +43,12 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
                             userInformation["userId"] = documentId
                             documentReference.update("userId", documentId)
                                 .addOnSuccessListener {
-                                    Log.d("$TAG$dbFunction", "User added successfully with ID: $documentId")
+                                    Log.d(
+                                        "$TAG$dbFunction",
+                                        "User added successfully with ID: $documentId"
+                                    )
                                     //Create a public profile for the user
-                                    val profileInfo : HashMap<String, Any?> = hashMapOf(
+                                    val profileInfo: HashMap<String, Any?> = hashMapOf(
                                         "userId" to documentId,
                                         "displayName" to userInformation["displayName"],
                                         "isPublic" to true,
@@ -202,15 +205,23 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
             )
 
             //Add friend to user's 'friends' subcollection
-            val userFriendsRef = db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
+            val userFriendsRef =
+                db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
+                    .document(friendId)
             transaction.set(userFriendsRef, friendInfo)
 
             //Add user to friend's 'friends' subcollection
-            val friendFriendsRef = db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
+            val friendFriendsRef =
+                db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
+                    .document(userId)
             transaction.set(friendFriendsRef, userInfo)
 
             //Increment friend counts for both profiles
-            transaction.update(userRef, "friendCount", FieldValue.increment(1)) //Copilot assisted with these 2 lines
+            transaction.update(
+                userRef,
+                "friendCount",
+                FieldValue.increment(1)
+            ) //Copilot assisted with these 2 lines
             transaction.update(friendRef, "friendCount", FieldValue.increment(1))
 
         }.addOnSuccessListener {
@@ -233,18 +244,37 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "removeFriend"
-        val userRef = db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
-        val friendRef = db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
+        val userRef =
+            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
+                .document(friendId)
+        val friendRef =
+            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
+                .document(userId)
         db.runBatch { batch ->
             batch.delete(userRef)
             batch.delete(friendRef)
-            batch.update(db.collection(PUBLIC_PROFILES_COLLECTION).document(userId), "friendCount", FieldValue.increment(-1))
-            batch.update(db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId), "friendCount", FieldValue.increment(-1))
+            batch.update(
+                db.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
+                "friendCount",
+                FieldValue.increment(-1)
+            )
+            batch.update(
+                db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId),
+                "friendCount",
+                FieldValue.increment(-1)
+            )
         }.addOnSuccessListener {
-            Log.d("$TAG$dbFunction", "Friend relationship between $userId and $friendId removed successfully")
+            Log.d(
+                "$TAG$dbFunction",
+                "Friend relationship between $userId and $friendId removed successfully"
+            )
             onComplete(true)
         }.addOnFailureListener { e ->
-            Log.e("$TAG$dbFunction", "Error removing friend relationship between $userId and $friendId", e)
+            Log.e(
+                "$TAG$dbFunction",
+                "Error removing friend relationship between $userId and $friendId",
+                e
+            )
             onComplete(false)
         }
 

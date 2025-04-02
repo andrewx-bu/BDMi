@@ -1,4 +1,4 @@
-package com.example.bdmi
+package com.example.bdmi.bottomNavBar
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -10,7 +10,7 @@ import com.example.bdmi.screens.ProfileScreen
 import com.example.bdmi.screens.SearchScreen
 
 @Composable
-fun BottomNavGraph(navController : NavHostController) {
+fun BottomNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = BottomNavItem.Home.route
