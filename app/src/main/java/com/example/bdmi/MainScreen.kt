@@ -1,5 +1,6 @@
 package com.example.bdmi
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
@@ -24,6 +25,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -32,8 +34,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.bdmi.bottomNavBar.BottomNavGraph
-import com.example.bdmi.bottomNavBar.BottomNavItem
+import com.example.bdmi.navigation.NavGraph
+import com.example.bdmi.navigation.NavItem
 
 @Composable
 fun MainScreen(
@@ -41,18 +43,22 @@ fun MainScreen(
     switchTheme: () -> Unit,
 ) {
     val navController = rememberNavController()
+    val destination = navController.currentBackStackEntryAsState().value?.destination?.route
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopBar(
-                darkTheme = darkTheme,
-                onThemeClick = switchTheme,
-                onNotificationClick = { /* Handle navigation */ }
-            )
+            if (destination != "notifications") {
+                TopBar(
+                    darkTheme = darkTheme,
+                    onThemeClick = switchTheme,
+                    onNotificationClick = { navController.navigate("notifications") }
+                )
+            }
         },
         bottomBar = { BottomBar(navController = navController) }) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            BottomNavGraph(navController = navController)
+            NavGraph(navController = navController)
         }
     }
 }
@@ -64,6 +70,11 @@ fun TopBar(
     onThemeClick: () -> Unit,
     onNotificationClick: () -> Unit
 ) {
+    val rotation by animateFloatAsState(
+        targetValue = if (darkTheme) 180f else 0f,
+        label = "Theme Rotation"
+    )
+
     TopAppBar(
         title = {
             Image(
@@ -85,7 +96,8 @@ fun TopBar(
                 Icon(
                     imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.rotate(rotation)
                 )
             }
         },
@@ -99,7 +111,7 @@ fun TopBar(
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        BottomNavItem.Home, BottomNavItem.Search, BottomNavItem.Bookmarks, BottomNavItem.Profile
+        NavItem.Home, NavItem.Search, NavItem.Bookmarks, NavItem.Profile
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val destination = navBackStackEntry?.destination
@@ -117,7 +129,7 @@ fun BottomBar(navController: NavHostController) {
 
 @Composable
 fun RowScope.AddItem(
-    screen: BottomNavItem,
+    screen: NavItem,
     destination: NavDestination?,
     navController: NavHostController
 ) {
