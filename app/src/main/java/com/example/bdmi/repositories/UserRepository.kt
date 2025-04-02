@@ -1,4 +1,4 @@
-package com.example.bdmi
+package com.example.bdmi.repositories
 
 import android.util.Log
 import com.google.firebase.firestore.FieldValue
@@ -119,6 +119,26 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
             .addOnFailureListener { e: Exception ->
                 Log.e("$TAG$dbFunction", "Error loading user", e)
                 onComplete(null) //Return null in case of error
+            }
+    }
+
+    fun loadUser(
+        userId: String,
+        onComplete: (HashMap<String, Any?>?) -> Unit
+    ) {
+        val dbFunction = "loadUser"
+        db.collection(USERS_COLLECTION).document(userId)
+            .get()
+            .addOnSuccessListener { userDoc ->
+                if (userDoc.exists()) {
+                    val userInfo = userDoc.data as HashMap<String, Any?>
+                    Log.d("$TAG$dbFunction", "User found")
+                    onComplete(userInfo)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error loading user", e)
+                onComplete(null)
             }
     }
 

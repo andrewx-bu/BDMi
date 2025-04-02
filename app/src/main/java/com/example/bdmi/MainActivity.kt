@@ -10,7 +10,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.bdmi.onboarding_screens.StartScreen
 import com.example.bdmi.ui.theme.AppTheme
+import com.example.bdmi.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -21,34 +23,55 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Basic test to register a user
-        /*val userInfo : HashMap<String, Any> = hashMapOf(
-            "name" to "",
-            "email" to "",
-            "password" to "",
-            "displayName" to ""
-        )
-        userViewModel.register(userInfo) {
-            if (it) {
-                Log.d("MainActivity", "User registered successfully")
-            } else {
-                Log.d("MainActivity", "User registration failed")
+        //Remembers the user's login status
+        //SharedPreferences process recommended and written by Copilot
+        val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
+        val userId = sharedPref.getString("userId", null)
+        if (userId != null) {
+            userViewModel.loadUser(userId) {
+                userViewModel.loadUserInfo(it)
             }
-        } */
+        }
         setContent {
+            if (userViewModel.userInfo != null) {
+                Wrapper(loggedIn = true)
+            } else {
+                Wrapper(loggedIn = false)
+            }
             Wrapper()
         }
     }
 }
 
 @Composable
-fun Wrapper() {
+fun Wrapper(loggedIn : Boolean = false) {
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
     AppTheme(darkTheme = darkTheme) {
-        MainScreen(
-            darkTheme = darkTheme,
-            switchTheme = { darkTheme = !darkTheme }
-        )
+        if (loggedIn) {
+            MainScreen(
+                darkTheme = darkTheme,
+                switchTheme = { darkTheme = !darkTheme }
+            )
+        } else {
+            StartScreen(
+            )
+        }
+
     }
 }
+
+//Basic test to register a user
+/*val userInfo : HashMap<String, Any> = hashMapOf(
+    "name" to "",
+    "email" to "",
+    "password" to "",
+    "displayName" to ""
+)
+userViewModel.register(userInfo) {
+    if (it) {
+        Log.d("MainActivity", "User registered successfully")
+    } else {
+        Log.d("MainActivity", "User registration failed")
+    }
+} */
