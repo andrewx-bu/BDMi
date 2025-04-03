@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,34 +34,25 @@ class MainActivity : ComponentActivity() {
                 userViewModel.loadUserInfo(it)
             }
         }
+
         setContent {
-            if (userViewModel.userInfo != null) {
-                Wrapper(loggedIn = true)
-                Log.d("MainActivity", "User loaded successfully")
-            } else {
-                Wrapper(loggedIn = true)
-                Log.d("MainActivity", "User not logged in")
-            }
-            Wrapper()
+            val isLoggedIn by remember { derivedStateOf { userViewModel.userInfo != null } }
+            Wrapper(loggedIn = isLoggedIn)
         }
     }
 }
 
 @Composable
-fun Wrapper(loggedIn : Boolean = false) {
+fun Wrapper(loggedIn: Boolean) {
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
+    Log.d("Wrapper", "Logged in: $loggedIn")
     AppTheme(darkTheme = darkTheme) {
-        if (loggedIn) {
-            MainScreen(
-                darkTheme = darkTheme,
-                switchTheme = { darkTheme = !darkTheme }
-            )
-        } else {
-            StartScreen(
-            )
-        }
-
+        MainScreen(
+            darkTheme = darkTheme,
+            loggedIn = loggedIn,
+            switchTheme = { darkTheme = !darkTheme }
+        )
     }
 }
 
