@@ -5,6 +5,7 @@ plugins {
     id("com.google.gms.google-services")
     id("kotlin-kapt")
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -64,6 +65,7 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     kapt(libs.lifecycleCompiler)
 }

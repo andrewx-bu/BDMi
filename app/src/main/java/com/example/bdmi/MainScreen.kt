@@ -29,9 +29,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.NavGraph
@@ -40,15 +38,17 @@ import com.example.bdmi.navigation.NavItem
 @Composable
 fun MainScreen(
     darkTheme: Boolean,
+    loggedIn: Boolean,
     switchTheme: () -> Unit,
 ) {
+    //Keep navigation vars in parent composable
     val navController = rememberNavController()
-    val destination = navController.currentBackStackEntryAsState().value?.destination?.route
-
+    val currentRoute  = navController.currentBackStackEntryAsState().value?.destination?.route
+    val onboardingProcess = listOf("start", "login", "register")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            if (destination != "notifications") {
+            if (currentRoute  != "notifications" && currentRoute !in onboardingProcess) {
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
@@ -56,9 +56,25 @@ fun MainScreen(
                 )
             }
         },
-        bottomBar = { BottomBar(navController = navController) }) { padding ->
+        bottomBar = {
+            if (currentRoute != "notifications" && currentRoute !in onboardingProcess) {
+                BottomBar(
+                    currentRoute = currentRoute,
+                    onItemClicked = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        }
+    ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            NavGraph(navController = navController)
+            NavGraph(navController = navController, loggedIn = loggedIn)
         }
     }
 }
@@ -109,12 +125,10 @@ fun TopBar(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
     val screens = listOf(
         NavItem.Home, NavItem.Search, NavItem.Bookmarks, NavItem.Profile
     )
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val destination = navBackStackEntry?.destination
 
     NavigationBar(
         modifier = Modifier
@@ -122,7 +136,11 @@ fun BottomBar(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         screens.forEach { screen ->
-            AddItem(screen, destination, navController)
+            AddItem(
+                screen,
+                isSelected = currentRoute == screen.route,
+                onItemClicked = onItemClicked
+            )
         }
     }
 }
@@ -130,10 +148,10 @@ fun BottomBar(navController: NavHostController) {
 @Composable
 fun RowScope.AddItem(
     screen: NavItem,
-    destination: NavDestination?,
-    navController: NavHostController
+    isSelected: Boolean,
+    onItemClicked: (String) -> Unit
 ) {
-    val isSelected = destination?.route == screen.route
+    val isSelected = isSelected
     val iconColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -143,21 +161,13 @@ fun RowScope.AddItem(
     NavigationBarItem(
         icon = {
             Icon(
-                imageVector = screen.icon,
-                contentDescription = screen.desc,
+                imageVector = screen.getIcon(),
+                contentDescription = screen.route,
                 tint = iconColor
             )
         },
         selected = isSelected,
-        onClick = {
-            navController.navigate(screen.route) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
-            }
-        },
+        onClick = { onItemClicked(screen.route) },
         modifier = Modifier.offset(y = 10.dp)
     )
 }
