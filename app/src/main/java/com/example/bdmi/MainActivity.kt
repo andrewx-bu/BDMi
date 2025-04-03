@@ -1,6 +1,7 @@
 package com.example.bdmi
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -35,8 +36,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             if (userViewModel.userInfo != null) {
                 Wrapper(loggedIn = true)
+                Log.d("MainActivity", "User loaded successfully")
             } else {
-                Wrapper(loggedIn = false)
+                Wrapper(loggedIn = true)
+                Log.d("MainActivity", "User not logged in")
             }
             Wrapper()
         }

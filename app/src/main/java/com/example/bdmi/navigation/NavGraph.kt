@@ -29,7 +29,7 @@ fun NavGraph(navController: NavHostController) {
             ProfileScreen()
         }
         composable(route = "notifications") {
-            NotificationsScreen(navController)
+            NotificationsScreen(navController) //Documentation says not to do this
         }
     }
 }
