@@ -12,11 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.bdmi.onboarding_screens.StartScreen
 import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

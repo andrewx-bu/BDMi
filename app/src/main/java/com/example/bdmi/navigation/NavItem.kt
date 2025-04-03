@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,7 +27,7 @@ sealed class NavItem(val route: String) {
     @Serializable
     data object Notifications : NavItem(route = "notifications")
 
-    //ImageVector is not serializable so this helper function matches a route name with an ImageVector
+    // ImageVector is not serializable so this helper function matches a route name with an ImageVector
     fun getIcon(): ImageVector {
         return when (route) {
             "home" -> Icons.Default.Home
@@ -36,13 +35,15 @@ sealed class NavItem(val route: String) {
             "bookmarks" -> Icons.Default.Bookmark
             "profile" -> Icons.Default.AccountCircle
             "notifications" -> Icons.Default.Notifications
-            else -> {Icons.Default.Accessibility}
+            else -> {
+                Icons.Default.Accessibility
+            }
         }
     }
 }
 
-//More recent way of making navigation routes
-//https://www.youtube.com/watch?v=8m1W4PyYMYQ&ab_channel=AndroidDevelopers
+// More recent way of making navigation routes
+// https://www.youtube.com/watch?v=8m1W4PyYMYQ&ab_channel=AndroidDevelopers
 @Serializable
 data object StartScreen {
     const val route = "start"

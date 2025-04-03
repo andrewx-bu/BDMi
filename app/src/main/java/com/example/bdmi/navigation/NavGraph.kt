@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.bdmi.navigation.RegisterScreen
 import com.example.bdmi.onboarding_screens.LoginScreen
 import com.example.bdmi.onboarding_screens.RegisterScreen
 import com.example.bdmi.onboarding_screens.StartScreen
@@ -14,9 +13,14 @@ import com.example.bdmi.screens.NotificationsScreen
 import com.example.bdmi.screens.ProfileScreen
 import com.example.bdmi.screens.SearchScreen
 
+// Bottom Bar Navigation basics: https://www.youtube.com/watch?v=gg-KBGH9T8s
 @Composable
 fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
-    val startDestination = if (loggedIn) { NavItem.Home.route } else { StartScreen.route }
+    val startDestination = if (loggedIn) {
+        NavItem.Home.route
+    } else {
+        StartScreen.route
+    }
     NavHost(
         navController = navController,
         startDestination = startDestination

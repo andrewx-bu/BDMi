@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun StartScreen (
+fun StartScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
     Log.d("AppStart", "Reached app start")
-    Column (
+    Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()

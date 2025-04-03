@@ -41,14 +41,15 @@ fun MainScreen(
     loggedIn: Boolean,
     switchTheme: () -> Unit,
 ) {
-    //Keep navigation vars in parent composable
+    // Keep navigation vars in parent composable
     val navController = rememberNavController()
-    val currentRoute  = navController.currentBackStackEntryAsState().value?.destination?.route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val onboardingProcess = listOf("start", "login", "register")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            if (currentRoute  != "notifications" && currentRoute !in onboardingProcess) {
+            // Hide outer top bar if onboarding or moving to notifications
+            if (currentRoute != "notifications" && currentRoute !in onboardingProcess) {
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
@@ -57,7 +58,8 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            if (currentRoute != "notifications" && currentRoute !in onboardingProcess) {
+            // Hide bottom bar if onboarding
+            if (currentRoute !in onboardingProcess) {
                 BottomBar(
                     currentRoute = currentRoute,
                     onItemClicked = { route ->
@@ -151,7 +153,6 @@ fun RowScope.AddItem(
     isSelected: Boolean,
     onItemClicked: (String) -> Unit
 ) {
-    val isSelected = isSelected
     val iconColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
     } else {
