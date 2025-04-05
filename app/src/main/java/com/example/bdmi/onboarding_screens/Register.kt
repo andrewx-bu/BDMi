@@ -70,6 +70,7 @@ fun RegisterScreen(
                 userViewModel.register(userInfo) { accountCreated ->
                     if (accountCreated) {
                         Log.d(TAG, "Register successful")
+                        userViewModel.loadUserInfo(userInfo as HashMap<String, Any?>?) // Saves user info into viewModel
                         onRegisterClick()
                     } else {
                         Log.d(TAG, "Register failed")

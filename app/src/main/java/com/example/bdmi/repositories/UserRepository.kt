@@ -1,9 +1,14 @@
 package com.example.bdmi.repositories
 
+import android.R.attr.height
 import android.util.Log
+import com.cloudinary.Cloudinary
+import com.cloudinary.transformation.expression.Expression.Companion.height
+import com.cloudinary.transformation.resize.Resize.Companion.crop
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import java.io.File
 import javax.inject.Inject
 
 // Constants
@@ -13,7 +18,10 @@ const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 const val FRIENDS_SUBCOLLECTION = "friends"
 
 //Repository class for user database operations
-class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
+class UserRepository @Inject constructor(
+    private val db: FirebaseFirestore,
+    private val cloudinary: Cloudinary
+) {
     //Adds a user to the users collection. Information should already be validated and password hashed
     //Checks for unique email before adding
     fun createUser(
@@ -297,7 +305,24 @@ class UserRepository @Inject constructor(private val db: FirebaseFirestore) {
         }
 
     }
+
+    /*
+    * Uploads an image to Cloudinary
+    * Returns the URL of the uploaded image
+    * Based on their documentation at: https://cloudinary.com/documentation/kotlin_integration
+    * Update in future */
+    fun uploadImage(file: File, onComplete: (String?) -> Unit) {
+//        cloudinary.image {
+//            publicId("image")
+//            transformation {
+//                width(100)
+//                height(100)
+//                crop("fill")
+//            }
+//        }
+    }
 }
+
 
 /*
 * Database Operations:
