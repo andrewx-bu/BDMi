@@ -61,13 +61,19 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
     implementation(libs.google.firebase.firestore)
     implementation(platform(libs.firebase.bom))
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
     implementation(libs.androidx.material.icons.extended)
+
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     kapt(libs.lifecycleCompiler)
 

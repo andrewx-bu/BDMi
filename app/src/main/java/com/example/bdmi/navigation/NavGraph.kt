@@ -17,22 +17,45 @@ import com.example.bdmi.screens.SearchScreen
 @Composable
 fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
     val startDestination = if (loggedIn) {
-        NavItem.Home.route
+        NavItem.Home
     } else {
-        StartScreen.route
+        StartScreen
     }
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(route = NavItem.Home.route) { HomeScreen() }
-        composable(route = NavItem.Search.route) { SearchScreen() }
-        composable(route = NavItem.Bookmarks.route) { BookmarksScreen() }
-        composable(route = NavItem.Profile.route) { ProfileScreen() }
-        composable(route = NavItem.Notifications.route) {
+        composable<NavItem.Home> { HomeScreen() }
+        composable<NavItem.Search> { SearchScreen() }
+        composable<NavItem.Bookmarks> { BookmarksScreen() }
+        composable<NavItem.Profile> { ProfileScreen() }
+        composable<NavItem.Notifications> {
             NotificationsScreen(onNavigateBack = { navController.navigateUp() })
         }
-        composable(route = "start") {
+//        composable(route = NavItem.Home.route) { HomeScreen() }
+//        composable(route = NavItem.Search.route) { SearchScreen() }
+//        composable(route = NavItem.Bookmarks.route) { BookmarksScreen() }
+//        composable(route = NavItem.Profile.route) { ProfileScreen() }
+//        composable(route = NavItem.Notifications.route) {
+//            NotificationsScreen(onNavigateBack = { navController.navigateUp() })
+//        }
+        composable<StartScreen> {
+            StartScreen(
+                onLoginClick = { navController.navigate(LoginScreen) },
+                onRegisterClick = { navController.navigate(RegisterScreen) }
+            )
+        }
+        composable<LoginScreen> {
+            LoginScreen(
+                onLoginClick = { navController.navigate(NavItem.Home) }
+            )
+        }
+        composable<RegisterScreen> {
+            RegisterScreen(
+                onRegisterClick = { navController.navigate(NavItem.Home) }
+            )
+        }
+        /*composable(route = "start") {
             StartScreen(
                 onLoginClick = { navController.navigate("login") },
                 onRegisterClick = { navController.navigate("register") }
@@ -47,6 +70,6 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
             RegisterScreen(
                 onRegisterClick = { navController.navigate(NavItem.Home.route) }
             )
-        }
+        } */
     }
 }

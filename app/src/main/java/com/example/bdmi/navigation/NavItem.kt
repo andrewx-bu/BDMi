@@ -11,25 +11,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class NavItem(val route: String) {
+sealed class NavItem(val iconStr: String) {
     @Serializable
-    data object Home : NavItem(route = "home")
-
+    data object Home : NavItem(iconStr = "home")
     @Serializable
-    data object Search : NavItem(route = "search")
-
+    data object Search : NavItem(iconStr = "search")
     @Serializable
-    data object Bookmarks : NavItem(route = "bookmarks")
-
+    data object Bookmarks : NavItem(iconStr = "bookmarks")
     @Serializable
-    data object Profile : NavItem(route = "profile")
-
+    data object Profile : NavItem(iconStr = "profile")
     @Serializable
-    data object Notifications : NavItem(route = "notifications")
+    data object Notifications : NavItem(iconStr = "notifications")
 
     // ImageVector is not serializable so this helper function matches a route name with an ImageVector
     fun getIcon(): ImageVector {
-        return when (route) {
+        return when (iconStr) {
             "home" -> Icons.Default.Home
             "search" -> Icons.Default.Search
             "bookmarks" -> Icons.Default.Bookmark
@@ -45,16 +41,8 @@ sealed class NavItem(val route: String) {
 // More recent way of making navigation routes
 // https://www.youtube.com/watch?v=8m1W4PyYMYQ&ab_channel=AndroidDevelopers
 @Serializable
-data object StartScreen {
-    const val route = "start"
-}
-
+data object StartScreen
 @Serializable
-data object LoginScreen {
-    const val route = "login"
-}
-
+data object LoginScreen
 @Serializable
-data object RegisterScreen {
-    const val route = "register"
-}
+data object RegisterScreen

@@ -1,5 +1,6 @@
 package com.example.bdmi
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -32,8 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.bdmi.navigation.LoginScreen
 import com.example.bdmi.navigation.NavGraph
 import com.example.bdmi.navigation.NavItem
+import com.example.bdmi.navigation.RegisterScreen
+import com.example.bdmi.navigation.StartScreen
 
 @Composable
 fun MainScreen(
@@ -44,24 +48,29 @@ fun MainScreen(
     // Keep navigation vars in parent composable
     val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val onboardingProcess = listOf("start", "login", "register")
+    val routeName = currentRoute?.substringAfterLast('.')
+    val onboardingRoutes = listOf(
+        StartScreen::class.simpleName,
+        LoginScreen::class.simpleName,
+        RegisterScreen::class.simpleName
+    )
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             // Hide outer top bar if onboarding or moving to notifications
-            if (currentRoute != "notifications" && currentRoute !in onboardingProcess) {
+            if (routeName != "notifications" && routeName !in onboardingRoutes) {
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
-                    onNotificationClick = { navController.navigate("notifications") }
+                    onNotificationClick = { navController.navigate(NavItem.Notifications) }
                 )
             }
         },
         bottomBar = {
             // Hide bottom bar if onboarding
-            if (currentRoute !in onboardingProcess) {
+            if (routeName !in onboardingRoutes) {
                 BottomBar(
-                    currentRoute = currentRoute,
+                    currentRoute = routeName,
                     onItemClicked = { route ->
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -127,7 +136,7 @@ fun TopBar(
 }
 
 @Composable
-fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
+fun BottomBar(currentRoute: String?, onItemClicked: (NavItem) -> Unit) {
     val screens = listOf(
         NavItem.Home, NavItem.Search, NavItem.Bookmarks, NavItem.Profile
     )
@@ -140,7 +149,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
         screens.forEach { screen ->
             AddItem(
                 screen,
-                isSelected = currentRoute == screen.route,
+                isSelected = currentRoute == screen::class.simpleName,
                 onItemClicked = onItemClicked
             )
         }
@@ -151,7 +160,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
 fun RowScope.AddItem(
     screen: NavItem,
     isSelected: Boolean,
-    onItemClicked: (String) -> Unit
+    onItemClicked: (NavItem) -> Unit
 ) {
     val iconColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
@@ -163,12 +172,13 @@ fun RowScope.AddItem(
         icon = {
             Icon(
                 imageVector = screen.getIcon(),
-                contentDescription = screen.route,
+                contentDescription = screen.iconStr,
                 tint = iconColor
             )
         },
         selected = isSelected,
-        onClick = { onItemClicked(screen.route) },
+        onClick = { onItemClicked(screen) },
         modifier = Modifier.offset(y = 10.dp)
     )
 }
+
