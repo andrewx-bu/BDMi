@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.example.bdmi.viewmodels.HomeViewModel
+import com.example.bdmi.screens.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable

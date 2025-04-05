@@ -1,7 +1,6 @@
 package com.example.bdmi.api
 
 import com.example.bdmi.BuildConfig
-import com.example.bdmi.models.MoviesResponse
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit

@@ -1,6 +1,5 @@
-import java.util.Properties
-
 plugins {
+    id("com.google.secrets_gradle_plugin") version "0.4"
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -9,11 +8,6 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
 }
-
-val properties = Properties().apply {
-    load(project.rootProject.file("local.properties").inputStream())
-}
-val tmdbApiKey = properties.getProperty("TMDB_API_KEY") ?: ""
 
 android {
     namespace = "com.example.bdmi"
@@ -25,9 +19,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
+        buildConfigField("String", "TMDB_API_KEY", "\"${project.findProperty("TMDB_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
