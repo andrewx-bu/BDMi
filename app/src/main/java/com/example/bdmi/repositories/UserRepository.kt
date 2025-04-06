@@ -3,11 +3,14 @@ package com.example.bdmi.repositories
 import android.util.Log
 import com.cloudinary.*
 import com.cloudinary.android.MediaManager
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import java.io.File
 import javax.inject.Inject
+import kotlin.collections.get
 
 // Constants
 private const val TAG = "FirestoreUtils"
@@ -95,6 +98,29 @@ class UserRepository @Inject constructor(
             }
             .addOnFailureListener { e ->
                 Log.e("$TAG$dbFunction", "Error adding public profile", e)
+            }
+    }
+
+    fun loadProfile(
+        userId: String,
+        onComplete: (HashMap<String, Any?>?) -> Unit
+    ) {
+        val dbFunction = "loadProfile"
+        db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            .get()
+            .addOnSuccessListener { profileDoc ->
+                if (profileDoc.exists()) {
+                    val profileInfo = profileDoc.data as HashMap<String, Any?>
+                    Log.d("$TAG$dbFunction", "Profile found")
+                    onComplete(profileInfo)
+                    } else {
+                    Log.d("$TAG$dbFunction", "No profile found")
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error loading profile", e)
+                onComplete(null)
             }
     }
 
@@ -199,6 +225,10 @@ class UserRepository @Inject constructor(
         val dbFunction = "addFriend"
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
         val friendRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId)
+        val userFriendsRef =
+            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
+        val friendFriendsRef =
+            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
 
         db.runTransaction { transaction ->
             // Get user and friend documents
@@ -229,15 +259,8 @@ class UserRepository @Inject constructor(
             )
 
             //Add friend to user's 'friends' subcollection
-            val userFriendsRef =
-                db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
-                    .document(friendId)
             transaction.set(userFriendsRef, friendInfo)
-
             //Add user to friend's 'friends' subcollection
-            val friendFriendsRef =
-                db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
-                    .document(userId)
             transaction.set(friendFriendsRef, userInfo)
 
             //Increment friend counts for both profiles
@@ -250,7 +273,18 @@ class UserRepository @Inject constructor(
 
         }.addOnSuccessListener {
             Log.d("$TAG$dbFunction", "Friend relationship added successfully")
-            onComplete(true)
+            userFriendsRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("$TAG$dbFunction", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d("$TAG$dbFunction", "Snapshot Listener added")
+                } else {
+                    Log.d("$TAG$dbFunction", "Issue not adding Snapshot Listener")
+                }
+                onComplete(true)
+            }
         }.addOnFailureListener { e ->
             Log.e("$TAG$dbFunction", "Error adding friend", e)
             onComplete(false)
@@ -304,14 +338,53 @@ class UserRepository @Inject constructor(
 
     }
 
+    fun changeProfilePicture(
+        userId: String,
+        profilePicture: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val dbFunction = "changeProfilePicture"
+        val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+        val profilePictureUrl = uploadImage(profilePicture)
+        userRef.update("profilePicture", profilePicture)
+            .addOnSuccessListener {
+                Log.d("$TAG$dbFunction", "Profile picture updated successfully")
+                onComplete(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error updating profile picture", e)
+                onComplete(false)
+            }
+    }
+
     /*
     * Uploads an image to Cloudinary
     * Returns the URL of the uploaded image
     * Based on their documentation at: https://cloudinary.com/documentation/kotlin_integration
-    * Update in future */
-    fun uploadImage(userId : String, image: String, onComplete: (String?) -> Unit) : String {
-        val stringId = MediaManager.get().upload(image).toString()
-        return TODO("Provide the return value")
+    * Documentation is really bad so following this repository from 5 years ago:
+    * https://github.com/riyhs/Android-Kotlin-Cloudinary-Example */
+    private fun uploadImage(imagePath: String) : String? {
+        var imageUrl: String? = null
+        mediaManager.upload(imagePath).callback(object : UploadCallback {
+            override fun onStart(requestId: String) {
+                TODO()
+            }
+            override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
+                TODO()
+            }
+            override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
+                Log.d("Cloudinary", "Upload successful")
+                imageUrl = resultData?.get("url") as String?
+                Log.d("Cloudinary", "URL: $imageUrl")
+            }
+            override fun onError(requestId: String, error: ErrorInfo) {
+                Log.e("Cloudinary", "Upload error: ${error.description}")
+            }
+            override fun onReschedule(requestId: String, error: ErrorInfo) {
+                TODO()
+            }
+        }).dispatch()
+        return imageUrl
     }
 }
 

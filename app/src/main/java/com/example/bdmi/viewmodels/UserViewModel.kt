@@ -36,6 +36,10 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
         userRepo.updateUserInfo(userInfo, onComplete)
     }
 
+    fun changeProfilePicture(userId: String, profilePicture: String, onComplete: (Boolean) -> Unit) {
+        userRepo.changeProfilePicture(userId, profilePicture, onComplete)
+    }
+
     fun deleteUser(userId: String, onComplete: (Boolean) -> Unit) {
         userRepo.deleteUser(userId, onComplete)
     }

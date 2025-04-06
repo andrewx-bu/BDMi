@@ -65,7 +65,7 @@ fun RegisterScreen(
                 val userInfo: HashMap<String, Any> = hashMapOf(
                     "email" to email,
                     "displayName" to displayName,
-                    "password" to hashPassword(password)
+                    "password" to hashPassword(password),
                 )
                 userViewModel.register(userInfo) { accountCreated ->
                     if (accountCreated) {

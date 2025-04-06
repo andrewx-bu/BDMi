@@ -16,17 +16,5 @@ import javax.inject.Singleton
 object CloudinaryModule {
     @Provides
     @Singleton
-    fun provideCloudinary(
-        @ApplicationContext context: Context
-    ): MediaManager? {
-        val config = HashMap<String, String>().apply {
-            put("cloud_name", BuildConfig.CLOUDINARY_CLOUD_NAME)
-            put("api_key", BuildConfig.CLOUDINARY_API_KEY)
-            put("api_secret", BuildConfig.CLOUDINARY_API_SECRET)
-        }
-
-        MediaManager.init(context, config)
-
-        return MediaManager.get()
-    }
+    fun provideCloudinary(): MediaManager = MediaManager.get()
 }
