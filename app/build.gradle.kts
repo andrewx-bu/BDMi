@@ -88,4 +88,5 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     //Libraries needed for Cloudinary
     implementation(libs.kotlin.url.gen)
+    implementation(libs.cloudinary.android)
 }
