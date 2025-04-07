@@ -86,7 +86,8 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
-    //Libraries needed for Cloudinary
-    implementation(libs.kotlin.url.gen)
+    //Libraries needed for Cloudinary and image fetching
     implementation(libs.cloudinary.android)
+    implementation(libs.coil.kt.coil.compose)
+
 }
