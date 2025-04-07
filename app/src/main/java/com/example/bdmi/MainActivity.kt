@@ -7,11 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,18 +23,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Remembers the user's login status
-        //SharedPreferences process recommended and written by Copilot
+
+        // Remembers the user's login status
+        // SharedPreferences process recommended and written by Copilot
         val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", null)
-        if (userId != null) {
-            userViewModel.loadUser(userId) {
-                userViewModel.loadUserInfo(it)
-            }
-        }
 
+        // State and Structure of this code written by Gemini
         setContent {
-            val isLoggedIn by remember { derivedStateOf { userViewModel.userInfo != null } }
+            val userInfo by userViewModel.userInfo.collectAsStateWithLifecycle()
+            val isLoggedIn by userViewModel.isLoggedIn.collectAsStateWithLifecycle()
+
+            if (userId != null && userInfo == null) {
+                userViewModel.loadUser(userId) {}
+            }
+
+            Log.d("MainActivity", "User: ${userInfo?.displayName ?: "null"}, LoggedIn: $isLoggedIn")
             Wrapper(loggedIn = isLoggedIn)
         }
     }
@@ -44,7 +48,6 @@ class MainActivity : ComponentActivity() {
 fun Wrapper(loggedIn: Boolean) {
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
-    Log.d("Wrapper", "Logged in: $loggedIn")
     AppTheme(darkTheme = darkTheme) {
         MainScreen(
             darkTheme = darkTheme,
@@ -53,18 +56,3 @@ fun Wrapper(loggedIn: Boolean) {
         )
     }
 }
-
-//Basic test to register a user
-/*val userInfo : HashMap<String, Any> = hashMapOf(
-    "name" to "",
-    "email" to "",
-    "password" to "",
-    "displayName" to ""
-)
-userViewModel.register(userInfo) {
-    if (it) {
-        Log.d("MainActivity", "User registered successfully")
-    } else {
-        Log.d("MainActivity", "User registration failed")
-    }
-} */

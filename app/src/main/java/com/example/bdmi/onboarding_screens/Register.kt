@@ -1,5 +1,6 @@
 package com.example.bdmi.onboarding_screens
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,23 +17,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.utils.hashPassword
 import com.example.bdmi.viewmodels.UserViewModel
+
 
 @Composable
 fun RegisterScreen(
     onRegisterClick: () -> Unit
 ) {
     val TAG = "RegisterScreen"
-    Log.d(TAG, "Reached register screen")
     val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -67,10 +71,13 @@ fun RegisterScreen(
                     "displayName" to displayName,
                     "password" to hashPassword(password),
                 )
-                userViewModel.register(userInfo) { accountCreated ->
-                    if (accountCreated) {
+                userViewModel.register(userInfo) { userInfo ->
+                    if (userInfo != null) {
                         Log.d(TAG, "Register successful")
-                        userViewModel.loadUserInfo(userInfo as HashMap<String, Any?>?) // Saves user info into viewModel
+                        // Saves user ID to shared preferences
+                        val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+                        sharedPreferences.edit { putString("userId", userInfo.userId) }
+
                         onRegisterClick()
                     } else {
                         Log.d(TAG, "Register failed")

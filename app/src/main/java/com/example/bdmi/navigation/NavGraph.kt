@@ -32,13 +32,6 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<NavItem.Notifications> {
             NotificationsScreen(onNavigateBack = { navController.navigateUp() })
         }
-//        composable(route = NavItem.Home.route) { HomeScreen() }
-//        composable(route = NavItem.Search.route) { SearchScreen() }
-//        composable(route = NavItem.Bookmarks.route) { BookmarksScreen() }
-//        composable(route = NavItem.Profile.route) { ProfileScreen() }
-//        composable(route = NavItem.Notifications.route) {
-//            NotificationsScreen(onNavigateBack = { navController.navigateUp() })
-//        }
         composable<StartScreen> {
             StartScreen(
                 onLoginClick = { navController.navigate(LoginScreen) },
@@ -55,21 +48,5 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
                 onRegisterClick = { navController.navigate(NavItem.Home) }
             )
         }
-        /*composable(route = "start") {
-            StartScreen(
-                onLoginClick = { navController.navigate("login") },
-                onRegisterClick = { navController.navigate("register") }
-            )
-        }
-        composable(route = "login") {
-            LoginScreen(
-                onLoginClick = { navController.navigate(NavItem.Home.route) }
-            )
-        }
-        composable(route = "register") {
-            RegisterScreen(
-                onRegisterClick = { navController.navigate(NavItem.Home.route) }
-            )
-        } */
     }
 }
