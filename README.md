@@ -57,21 +57,19 @@ To get started with running this app locally, follow these steps:
 - **Movie API Integration**
   - Basic API call to TMDB to retrieve a list of movies.
   - Movie titles displayed in a basic UI component.
+    
+- **Login Persistence**
+  - Remember logged-in user after app close using SharedPreferences or an alternative method.
 
+ - **Cloudinary Integration**
+   - Upload and save user profile pictures using Cloudinary.
+   - Store image URLs in Firestore.
 ---
 
 ### 🔧 Work in Progress
-
-- **Cloudinary Integration**
-  - Upload and save user profile pictures using Cloudinary.
-  - Store image URLs in Firestore.
-
 - **Expanded TMDB API Usage**
   - Fetch movie details, trailers, and genres.
   - Add search functionality and filtering options.
-
-- **Login Persistence**
-  - Remember logged-in user after app close using SharedPreferences or an alternative method.
 
 ---
 
