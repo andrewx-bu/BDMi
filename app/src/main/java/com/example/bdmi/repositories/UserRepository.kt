@@ -1,14 +1,14 @@
 package com.example.bdmi.repositories
 
+import android.net.Uri
 import android.util.Log
-import com.cloudinary.*
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.example.bdmi.viewmodels.UserInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import java.io.File
 import javax.inject.Inject
 import kotlin.collections.get
 
@@ -18,16 +18,16 @@ const val USERS_COLLECTION = "users"
 const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 const val FRIENDS_SUBCOLLECTION = "friends"
 
-//Repository class for user database operations
+// Repository class for user database operations
 class UserRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val mediaManager: MediaManager
 ) {
-    //Adds a user to the users collection. Information should already be validated and password hashed
-    //Checks for unique email before adding
+    // Adds a user to the users collection. Information should already be validated and password hashed
+    // Checks for unique email before adding
     fun createUser(
         userInformation: HashMap<String, Any>,
-        onComplete: (Boolean) -> Unit
+        onComplete: (UserInfo?) -> Unit
     ) {
         val dbFunction = "addUser"
 
@@ -39,7 +39,7 @@ class UserRepository @Inject constructor(
                 if (querySnapshot.documents.isNotEmpty()) {
                     // Email already exists, reject user addition
                     Log.d("$TAG$dbFunction", "Email already exists")
-                    onComplete(false)
+                    onComplete(null)
                 } else {
                     // Add the new user
                     db.collection(USERS_COLLECTION)
@@ -62,55 +62,72 @@ class UserRepository @Inject constructor(
                                         "reviewCount" to 0,
                                         "friendCount" to 0,
                                         "listCount" to 0,
-                                        "profilePicture" to "" //Will be default profile picture
+                                        "profilePicture" to "https://res.cloudinary.com/dle98umos/image/upload/v1744005666/default_hm4pfx.jpg" // Default user image
                                     )
-                                    createPublicProfile(documentId, profileInfo)
-                                    onComplete(true)
+                                    createPublicProfile(documentId, profileInfo) {
+                                        Log.d("$TAG$dbFunction", "Public profile created")
+                                        // Manually map the HashMap to UserInfo
+                                        val userInfo = UserInfo(
+                                            userId = profileInfo["userId"] as String,
+                                            displayName = profileInfo["displayName"] as? String,
+                                            profilePicture = profileInfo["profilePicture"] as? String,
+                                            friendCount = (profileInfo["friendCount"] as? Number)?.toLong(),
+                                            listCount = (profileInfo["listCount"] as? Number)?.toLong(),
+                                            reviewCount = (profileInfo["reviewCount"] as? Number)?.toLong(),
+                                            isPublic = profileInfo["isPublic"] as? Boolean
+                                        )
+                                        onComplete(userInfo)
+                                    }
+
                                 }
                                 .addOnFailureListener { e ->
                                     Log.e("$TAG$dbFunction", "Error updating document ID", e)
-                                    onComplete(false)
+                                    onComplete(null)
                                 }
                         }
                         .addOnFailureListener { e: Exception ->
                             Log.e("$TAG$dbFunction", "Error adding user", e)
-                            onComplete(false) //Error adding user
+                            onComplete(null) //Error adding user
                         }
                 }
             }
             .addOnFailureListener { e: Exception ->
                 Log.e("$TAG$dbFunction", "Error checking email uniqueness", e)
-                onComplete(false) //Error during email check
+                onComplete(null) //Error during email check
             }
     }
 
-    //Creates a public profile for a user.
-    //Called from the createUser function when a user is created
+    // Creates a public profile for a user.
+    // Called from the createUser function when a user is created
     private fun createPublicProfile(
         userId: String,
-        profileInfo: HashMap<String, Any?>
+        profileInfo: HashMap<String, Any?>,
+        onComplete: (Boolean) -> Unit = {}
     ) {
         val dbFunction = "addPublicProfile"
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId) //Use userID as document ID
             .set(profileInfo)
             .addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Public profile added successfully for userID: $userId")
+                onComplete(true)
             }
             .addOnFailureListener { e ->
                 Log.e("$TAG$dbFunction", "Error adding public profile", e)
+                onComplete(false)
             }
     }
 
-    fun loadProfile(
+    // Loads a user's profile from the publicProfiles collection
+    fun loadUser(
         userId: String,
-        onComplete: (HashMap<String, Any?>?) -> Unit
+        onComplete: (UserInfo?) -> Unit
     ) {
         val dbFunction = "loadProfile"
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
             .get()
             .addOnSuccessListener { profileDoc ->
                 if (profileDoc.exists()) {
-                    val profileInfo = profileDoc.data as HashMap<String, Any?>
+                    val profileInfo = profileDoc.toObject(UserInfo::class.java)
                     Log.d("$TAG$dbFunction", "Profile found")
                     onComplete(profileInfo)
                     } else {
@@ -124,56 +141,38 @@ class UserRepository @Inject constructor(
             }
     }
 
-    //Authenticates a user during the login process
-    //Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
+    // Authenticates a user during the login process
+    // Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
     fun authenticateUser(
         loginInformation: HashMap<String, String>,
-        onComplete: (HashMap<String, Any?>?) -> Unit
+        onComplete: (UserInfo?) -> Unit
     ) {
-        val dbFunction = "loadUser"
+        val dbFunction = "authenticateUser"
 
         db.collection(USERS_COLLECTION)
-            .whereEqualTo("email", loginInformation["email"]) //Change field if needed
+            .whereEqualTo("email", loginInformation["email"]) // Change field if needed
             .whereEqualTo("password", loginInformation["password"])
             .get()
             .addOnSuccessListener { user: QuerySnapshot ->
                 if (user.documents.isNotEmpty()) {
                     Log.d("$TAG$dbFunction", "User found")
-                    val userInfo = user.documents[0].data as HashMap<String, Any?>
-                    onComplete(userInfo) //Return the user information via the callback
+                    val userId: String = user.documents[0].data?.get("userId").toString()
+                    loadUser(userId.toString()) { userInfo ->
+                        onComplete(userInfo)
+                    } // Return the user information via the callback
                 } else {
                     Log.d("$TAG$dbFunction", "No user found")
-                    onComplete(null) //No matching user
+                    onComplete(null) // No matching user
                 }
             }
             .addOnFailureListener { e: Exception ->
                 Log.e("$TAG$dbFunction", "Error loading user", e)
-                onComplete(null) //Return null in case of error
+                onComplete(null) // Return null in case of error
             }
     }
 
-    fun loadUser(
-        userId: String,
-        onComplete: (HashMap<String, Any?>?) -> Unit
-    ) {
-        val dbFunction = "loadUser"
-        db.collection(USERS_COLLECTION).document(userId)
-            .get()
-            .addOnSuccessListener { userDoc ->
-                if (userDoc.exists()) {
-                    val userInfo = userDoc.data as HashMap<String, Any?>
-                    Log.d("$TAG$dbFunction", "User found")
-                    onComplete(userInfo)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("$TAG$dbFunction", "Error loading user", e)
-                onComplete(null)
-            }
-    }
-
-    //Updates a user's information in the users collection
-    //Returns true if the update was successful, false otherwise
+    // Updates a user's information in the users collection
+    // Returns true if the update was successful, false otherwise
     fun updateUserInfo(
         userInfo: HashMap<String, Any>,
         onComplete: (Boolean) -> Unit
@@ -193,8 +192,8 @@ class UserRepository @Inject constructor(
             }
     }
 
-    //Deletes a user from the users collection
-    //Returns true if the deletion was successful, false otherwise
+    // Deletes a user from the users collection
+    // Returns true if the deletion was successful, false otherwise
     fun deleteUser(
         userId: String,
         onComplete: (Boolean) -> Unit
@@ -338,23 +337,36 @@ class UserRepository @Inject constructor(
 
     }
 
+    /*
+    * Changes a user's profile picture
+    * Call function to upload image to Cloudinary then updates
+    * database on the callback function
+    * */
     fun changeProfilePicture(
         userId: String,
-        profilePicture: String,
+        profilePicture: Uri,
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "changeProfilePicture"
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-        val profilePictureUrl = uploadImage(profilePicture)
-        userRef.update("profilePicture", profilePicture)
-            .addOnSuccessListener {
-                Log.d("$TAG$dbFunction", "Profile picture updated successfully")
-                onComplete(true)
-            }
-            .addOnFailureListener { e ->
-                Log.e("$TAG$dbFunction", "Error updating profile picture", e)
+        uploadImage(profilePicture) { profilePictureUrl ->
+            if (profilePictureUrl != null) {
+                // Update database only after successful upload
+                userRef.update("profilePicture", profilePictureUrl)
+                    .addOnSuccessListener {
+                        Log.d("$TAG$dbFunction", "Profile picture updated successfully")
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("$TAG$dbFunction", "Error updating profile picture", e)
+                        onComplete(false)
+                    }
+            } else {
+                Log.e("$TAG$dbFunction", "Error uploading profile picture")
                 onComplete(false)
             }
+        }
+
     }
 
     /*
@@ -363,28 +375,28 @@ class UserRepository @Inject constructor(
     * Based on their documentation at: https://cloudinary.com/documentation/kotlin_integration
     * Documentation is really bad so following this repository from 5 years ago:
     * https://github.com/riyhs/Android-Kotlin-Cloudinary-Example */
-    private fun uploadImage(imagePath: String) : String? {
+    private fun uploadImage(imageUri: Uri, onComplete: (String?) -> Unit) {
         var imageUrl: String? = null
-        mediaManager.upload(imagePath).callback(object : UploadCallback {
+        mediaManager.upload(imageUri).callback(object : UploadCallback {
             override fun onStart(requestId: String) {
-                TODO()
+                Log.d("Cloudinary", "Upload started")
             }
             override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
-                TODO()
+                onComplete(null)
             }
             override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
                 Log.d("Cloudinary", "Upload successful")
                 imageUrl = resultData?.get("url") as String?
                 Log.d("Cloudinary", "URL: $imageUrl")
+                onComplete(imageUrl)
             }
             override fun onError(requestId: String, error: ErrorInfo) {
                 Log.e("Cloudinary", "Upload error: ${error.description}")
             }
             override fun onReschedule(requestId: String, error: ErrorInfo) {
-                TODO()
+                onComplete(null)
             }
         }).dispatch()
-        return imageUrl
     }
 }
 
