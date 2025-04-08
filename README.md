@@ -60,17 +60,14 @@ To get started with running this app locally, follow these steps:
     
 - **Login Persistence**
   - Remember logged-in user after app close using SharedPreferences or an alternative method.
-
- - **Cloudinary Integration**
-   - Upload and save user profile pictures using Cloudinary.
-   - Store image URLs in Firestore.
 ---
-
 ### 🔧 Work in Progress
 - **Expanded TMDB API Usage**
   - Fetch movie details, trailers, and genres.
   - Add search functionality and filtering options.
-
+ - **Cloudinary Integration**
+   - Upload and save user profile pictures using Cloudinary.
+   - Store image URLs in Firestore.
 ---
 
 
