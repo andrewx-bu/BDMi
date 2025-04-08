@@ -34,11 +34,13 @@ class MainActivity : ComponentActivity() {
             val userInfo by userViewModel.userInfo.collectAsStateWithLifecycle()
             val isLoggedIn by userViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
+            Log.d("MainActivity", "[Before logging in] User: ${userInfo?.displayName ?: "null"}, LoggedIn: $isLoggedIn")
             if (userId != null && userInfo == null) {
                 userViewModel.loadUser(userId) {}
+                Log.d("MainActivity", "[After logging in] User: ${userInfo ?: "null"}, LoggedIn: $isLoggedIn")
             }
 
-            Log.d("MainActivity", "User: ${userInfo?.displayName ?: "null"}, LoggedIn: $isLoggedIn")
+
             Wrapper(loggedIn = isLoggedIn)
         }
     }

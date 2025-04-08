@@ -2,6 +2,7 @@ package com.example.bdmi.viewmodels
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import com.example.bdmi.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,7 +78,18 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
     }
 
     fun changeProfilePicture(userId: String, profilePicture: Uri, onComplete: (Boolean) -> Unit) {
-        userRepo.changeProfilePicture(userId, profilePicture, onComplete)
+        userRepo.changeProfilePicture(userId, profilePicture) { newProfilePicture ->
+            if (newProfilePicture != null) {
+                val updatedUserInfo = _userInfo.value?.copy(profilePicture = newProfilePicture)
+                _userInfo.value = updatedUserInfo
+                Log.d("UserViewModel", "Updated user info: ${_userInfo.value}")
+                onComplete(true)
+            }
+            else {
+                Log.e("UserViewModel", "Failed to update profile picture")
+                onComplete(false)
+            }
+        }
     }
 
     fun deleteUser(userId: String, onComplete: (Boolean) -> Unit) {

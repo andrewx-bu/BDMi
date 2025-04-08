@@ -345,7 +345,7 @@ class UserRepository @Inject constructor(
     fun changeProfilePicture(
         userId: String,
         profilePicture: Uri,
-        onComplete: (Boolean) -> Unit
+        onComplete: (String?) -> Unit
     ) {
         val dbFunction = "changeProfilePicture"
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
@@ -355,15 +355,15 @@ class UserRepository @Inject constructor(
                 userRef.update("profilePicture", profilePictureUrl)
                     .addOnSuccessListener {
                         Log.d("$TAG$dbFunction", "Profile picture updated successfully")
-                        onComplete(true)
+                        onComplete(profilePictureUrl)
                     }
                     .addOnFailureListener { e ->
                         Log.e("$TAG$dbFunction", "Error updating profile picture", e)
-                        onComplete(false)
+                        onComplete(null)
                     }
             } else {
                 Log.e("$TAG$dbFunction", "Error uploading profile picture")
-                onComplete(false)
+                onComplete(null)
             }
         }
 
@@ -382,7 +382,6 @@ class UserRepository @Inject constructor(
                 Log.d("Cloudinary", "Upload started")
             }
             override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
-                onComplete(null)
             }
             override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
                 Log.d("Cloudinary", "Upload successful")
@@ -394,7 +393,6 @@ class UserRepository @Inject constructor(
                 Log.e("Cloudinary", "Upload error: ${error.description}")
             }
             override fun onReschedule(requestId: String, error: ErrorInfo) {
-                onComplete(null)
             }
         }).dispatch()
     }

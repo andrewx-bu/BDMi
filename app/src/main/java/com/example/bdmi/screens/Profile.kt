@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,22 +39,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.content.edit
 
 @Composable
 fun ProfileScreen() {
-    val TAG = "ProfileScreen"
+    val tag = "ProfileScreen"
     val userViewModel: UserViewModel = hiltViewModel()
     val userInfo by userViewModel.userInfo.collectAsStateWithLifecycle()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
     val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("userId", null)
-    Log.d(TAG, "ProfileScreen (Before Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
+    Log.d(tag, "ProfileScreen (Before Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
     // Load user info once we know the user should be logged in but the info is missing.
     LaunchedEffect(isLoggedIn) {
-        Log.d(TAG, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
+        Log.d(tag, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
         if (userId != null) {
-            Log.d(TAG, "Loading user info for userId: $userId")
+            Log.d(tag, "Loading user info for userId: $userId")
             userViewModel.loadUser(userId) {}
         }
     }
@@ -62,11 +65,9 @@ fun ProfileScreen() {
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null) {
                 Log.d("PhotoPicker", "Selected URI: $uri")
-                userViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) {
-                    if (it) {
-                        Log.d(TAG, "Profile picture changed successfully")
-                    } else {
-                        Log.e(TAG, "Error changing profile picture")
+                userViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) { success ->
+                    if (success) {
+                        Log.d(tag, "Profile picture changed successfully: ${userInfo?.profilePicture}")
                     }
                 }
             } else {
@@ -88,6 +89,21 @@ fun ProfileScreen() {
             Text(
                 text = userInfo?.friendCount.toString()+" Friends"
             )
+            Button(
+                onClick = {
+                    userViewModel.logout()
+                    sharedPreferences.edit { remove("userId") }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.Black
+                )
+            ) {
+                Text(
+                    text = "Logout",
+                    color = Color.Black
+                )
+            }
         }
 
     } else {
@@ -109,11 +125,11 @@ fun ProfileScreen() {
 @Composable
 fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
     Box(
-        modifier = Modifier.size(100.dp),
+        modifier = Modifier.size(300.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = rememberAsyncImagePainter(profileImageUrl),
+            painter = rememberAsyncImagePainter("${profileImageUrl}?cacheBuster=${System.currentTimeMillis()}"),
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
