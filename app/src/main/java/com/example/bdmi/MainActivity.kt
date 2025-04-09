@@ -7,11 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,29 +32,32 @@ class MainActivity : ComponentActivity() {
 
         // State and Structure of this code written by Gemini
         setContent {
-            val userInfo by userViewModel.userInfo.collectAsStateWithLifecycle()
-            val isLoggedIn by userViewModel.isLoggedIn.collectAsStateWithLifecycle()
-
-            Log.d("MainActivity", "[Before logging in] User: ${userInfo?.displayName ?: "null"}, LoggedIn: $isLoggedIn")
-            if (userId != null && userInfo == null) {
-                userViewModel.loadUser(userId) {}
-                Log.d("MainActivity", "[After logging in] User: ${userInfo ?: "null"}, LoggedIn: $isLoggedIn")
-            }
-
-
-            Wrapper(loggedIn = isLoggedIn)
+            Wrapper(userId)
         }
     }
 }
 
 @Composable
-fun Wrapper(loggedIn: Boolean) {
+fun Wrapper(userId: String? = null) {
+    Log.d("MainActivity", "Reached Wrapper")
+    val userViewModel: UserViewModel = hiltViewModel()
+    val isLoggedIn by userViewModel.isLoggedIn.collectAsState() // Should recompose when isLoggedIn observes state change
+
+    if (userId != null) {
+        Log.d("MainActivity", "[Before loading user] User: LoggedIn: $isLoggedIn")
+        userViewModel.loadUser(userId) {
+            if (it != null) {
+                Log.d("MainActivity", "Loaded User in Wrapper")
+            }
+        }
+    }
+
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
     AppTheme(darkTheme = darkTheme) {
         MainScreen(
             darkTheme = darkTheme,
-            loggedIn = loggedIn,
+            loggedIn = isLoggedIn,
             switchTheme = { darkTheme = !darkTheme }
         )
     }

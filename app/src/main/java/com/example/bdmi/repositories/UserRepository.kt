@@ -385,7 +385,7 @@ class UserRepository @Inject constructor(
             }
             override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
                 Log.d("Cloudinary", "Upload successful")
-                imageUrl = resultData?.get("url") as String?
+                imageUrl = resultData?.get("secure_url") as String?
                 Log.d("Cloudinary", "URL: $imageUrl")
                 onComplete(imageUrl)
             }

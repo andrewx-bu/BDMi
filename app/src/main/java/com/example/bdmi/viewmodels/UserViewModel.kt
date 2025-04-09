@@ -2,7 +2,6 @@ package com.example.bdmi.viewmodels
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import com.example.bdmi.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +38,7 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
         userId: String,
         onComplete: (UserInfo?) -> Unit
     ) {
+        Log.d("UserViewModel", "Loading user with ID: $userId")
         userRepo.loadUser(userId) { loadedUserInfo ->
             _userInfo.value = loadedUserInfo
             _isLoggedIn.value = loadedUserInfo != null
@@ -51,8 +51,11 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
         loginInformation: HashMap<String, String>,
         onComplete: (UserInfo?) -> Unit
     ) {
+        Log.d("UserViewModel", "Logging in with email: ${loginInformation["email"]}")
         userRepo.authenticateUser(loginInformation) { loadedUserInfo ->
             _userInfo.value = loadedUserInfo
+            _isLoggedIn.value = loadedUserInfo != null
+            Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
             onComplete(loadedUserInfo)
         }
     }
@@ -66,9 +69,11 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
         userInformation: HashMap<String, Any>,
         onComplete: (UserInfo?) -> Unit
     ) {
+        Log.d("UserViewModel", "Registering user with email: ${userInformation["email"]}")
         userRepo.createUser(userInformation) { loadedUserInfo ->
             _userInfo.value = loadedUserInfo
             _isLoggedIn.value = loadedUserInfo != null
+            Log.d("UserViewModel", "User registered: ${_userInfo.value}")
             onComplete(loadedUserInfo)
         }
     }

@@ -78,8 +78,6 @@ fun LoginScreen(
             Text(text = "Login")
         }
     }
-
-    Log.d("LoginScreen", "Reached login screen")
 }
 
 @Preview

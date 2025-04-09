@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.viewmodels.UserViewModel
-import coil.compose.rememberAsyncImagePainter
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,9 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,15 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.content.edit
+import coil.compose.AsyncImage
 
 @Composable
 fun ProfileScreen() {
     val tag = "ProfileScreen"
     val userViewModel: UserViewModel = hiltViewModel()
-    val userInfo by userViewModel.userInfo.collectAsStateWithLifecycle()
-    val isLoggedIn by userViewModel.isLoggedIn.collectAsStateWithLifecycle()
+    val userInfo by userViewModel.userInfo.collectAsState()
+    val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
 
     val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("userId", null)
@@ -54,7 +49,7 @@ fun ProfileScreen() {
     // Load user info once we know the user should be logged in but the info is missing.
     LaunchedEffect(isLoggedIn) {
         Log.d(tag, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
-        if (userId != null) {
+        if (userInfo == null && userId != null) { // Load user from database if user info is missing
             Log.d(tag, "Loading user info for userId: $userId")
             userViewModel.loadUser(userId) {}
         }
@@ -65,10 +60,7 @@ fun ProfileScreen() {
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null) {
                 Log.d("PhotoPicker", "Selected URI: $uri")
-                userViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) { success ->
-                    if (success) {
-                        Log.d(tag, "Profile picture changed successfully: ${userInfo?.profilePicture}")
-                    }
+                userViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) {
                 }
             } else {
                 Log.d("PhotoPicker", "No photo selected")
@@ -128,27 +120,31 @@ fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
         modifier = Modifier.size(300.dp),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = rememberAsyncImagePainter("${profileImageUrl}?cacheBuster=${System.currentTimeMillis()}"),
+        Log.d("ProfilePicture", "Loading profileImageUrl: $profileImageUrl")
+
+        // Profile Picture
+        AsyncImage(
+            model = profileImageUrl,
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(100.dp)
+                .size(250.dp)
                 .clip(CircleShape)
         )
 
-        // Edit Button
+        // Edit Icon in Bottom-Right
         IconButton(
             onClick = { onEditClick() },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .size(30.dp)
+                .size(40.dp)
                 .clip(CircleShape)
+                .background(Color.Black)
         ) {
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = "Edit Profile Picture",
-                tint = Color.White
+                tint = Color.White // Icon color
             )
         }
     }
