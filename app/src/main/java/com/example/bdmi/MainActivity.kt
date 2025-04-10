@@ -15,12 +15,14 @@ import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.viewmodels.UserViewModel
+import com.example.bdmi.screens.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     // Don't need to initialize as it's done by Hilt
     private val userViewModel: UserViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

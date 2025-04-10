@@ -8,12 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.screens.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen() {
-    val viewModel: HomeViewModel = viewModel()
+    val viewModel: HomeViewModel = hiltViewModel()
     val movies by viewModel.movies.collectAsState()
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
