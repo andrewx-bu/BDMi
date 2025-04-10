@@ -1,4 +1,4 @@
-package com.example.bdmi.onboarding_screens
+package com.example.bdmi.ui.onboarding
 
 import android.content.Context
 import android.util.Log
@@ -21,18 +21,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.bdmi.viewmodels.UserViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.utils.hashPassword
 import androidx.core.content.edit
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bdmi.data.utils.hashPassword
+import com.example.bdmi.ui.viewmodels.UserViewModel
+
 
 @Composable
-fun LoginScreen(
-    onLoginClick: () -> Unit
+fun RegisterScreen(
+    onRegisterClick: () -> Unit
 ) {
-    val TAG = "LoginScreen"
+    val TAG = "RegisterScreen"
     val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
+    var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     Column(
@@ -48,6 +50,12 @@ fun LoginScreen(
             modifier = Modifier.padding(5.dp)
         )
         TextField(
+            value = displayName,
+            onValueChange = { displayName = it },
+            label = { Text("Username") },
+            shape = RoundedCornerShape(10.dp),
+        )
+        TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
@@ -57,31 +65,33 @@ fun LoginScreen(
         )
         Button(
             onClick = {
-                Log.d(TAG, "Login button clicked")
-                val loginInfo: HashMap<String, String> = hashMapOf(
+                Log.d(TAG, "Create Account button clicked")
+                val userInfo: HashMap<String, Any> = hashMapOf(
                     "email" to email,
-                    "password" to hashPassword(password)
+                    "displayName" to displayName,
+                    "password" to hashPassword(password),
                 )
-                userViewModel.login(loginInfo) { userInfo ->
+                userViewModel.register(userInfo) { userInfo ->
                     if (userInfo != null) {
+                        Log.d(TAG, "Register successful")
                         // Saves user ID to shared preferences
                         val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
                         sharedPreferences.edit { putString("userId", userInfo.userId) }
 
-                        onLoginClick()
+                        onRegisterClick()
                     } else {
-                        Log.d(TAG, "Login failed")
+                        Log.d(TAG, "Register failed")
                     }
                 }
             }
         ) {
-            Text(text = "Login")
+            Text(text = "Create Account")
         }
     }
 }
 
 @Preview
 @Composable
-fun LoginScreenPreview() {
-    LoginScreen(onLoginClick = {})
+fun RegisterScreenPreview() {
+    RegisterScreen(onRegisterClick = {})
 }

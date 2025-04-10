@@ -1,8 +1,9 @@
-package com.example.bdmi.screens
+package com.example.bdmi.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bdmi.api.Movie
+import com.example.bdmi.data.api.Movie
+import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

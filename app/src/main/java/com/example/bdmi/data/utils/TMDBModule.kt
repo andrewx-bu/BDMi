@@ -1,6 +1,6 @@
-package com.example.bdmi.utils
+package com.example.bdmi.data.utils
 
-import com.example.bdmi.api.APIService
+import com.example.bdmi.data.api.APIService
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent

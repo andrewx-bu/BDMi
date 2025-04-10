@@ -1,9 +1,9 @@
-package com.example.bdmi.screens
+package com.example.bdmi.data.repositories
 
+import com.example.bdmi.data.api.APIService
+import com.example.bdmi.data.api.MoviesResponse
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
-import com.example.bdmi.api.APIService
-import com.example.bdmi.api.MoviesResponse
 
 class MovieRepository @Inject constructor(
     private val apiService: APIService,

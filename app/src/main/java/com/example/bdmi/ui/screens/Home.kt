@@ -1,4 +1,4 @@
-package com.example.bdmi.screens
+package com.example.bdmi.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.screens.HomeViewModel
+import com.example.bdmi.ui.viewmodels.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable

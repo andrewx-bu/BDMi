@@ -1,11 +1,11 @@
-package com.example.bdmi.repositories
+package com.example.bdmi.data.repositories
 
 import android.net.Uri
 import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import com.example.bdmi.viewmodels.UserInfo
+import com.example.bdmi.ui.viewmodels.UserInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot

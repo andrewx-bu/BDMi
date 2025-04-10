@@ -1,4 +1,4 @@
-package com.example.bdmi.onboarding_screens
+package com.example.bdmi.ui.onboarding
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement

@@ -1,4 +1,4 @@
-package com.example.bdmi.screens
+package com.example.bdmi.ui.screens
 
 import android.content.Context
 import android.util.Log
@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.viewmodels.UserViewModel
+import com.example.bdmi.ui.viewmodels.UserViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize

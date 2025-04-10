@@ -4,14 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.bdmi.onboarding_screens.LoginScreen
-import com.example.bdmi.onboarding_screens.RegisterScreen
-import com.example.bdmi.onboarding_screens.StartScreen
-import com.example.bdmi.screens.BookmarksScreen
-import com.example.bdmi.screens.HomeScreen
-import com.example.bdmi.screens.NotificationsScreen
-import com.example.bdmi.screens.ProfileScreen
-import com.example.bdmi.screens.SearchScreen
+import com.example.bdmi.ui.onboarding.LoginScreen
+import com.example.bdmi.ui.onboarding.RegisterScreen
+import com.example.bdmi.ui.onboarding.StartScreen
+import com.example.bdmi.ui.screens.BookmarksScreen
+import com.example.bdmi.ui.screens.HomeScreen
+import com.example.bdmi.ui.screens.NotificationsScreen
+import com.example.bdmi.ui.screens.ProfileScreen
+import com.example.bdmi.ui.screens.SearchScreen
 
 // Bottom Bar Navigation basics: https://www.youtube.com/watch?v=gg-KBGH9T8s
 @Composable

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,21 +13,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.theme.AppTheme
-import com.example.bdmi.viewmodels.UserViewModel
-import com.example.bdmi.screens.HomeViewModel
+import com.example.bdmi.ui.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    // Don't need to initialize as it's done by Hilt
-    private val userViewModel: UserViewModel by viewModels()
-    private val homeViewModel: HomeViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Remembers the user's login status
-        // SharedPreferences process recommended and written by Copilot
+        // SharedPreferences process recommended by Copilot
         val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", null)
 

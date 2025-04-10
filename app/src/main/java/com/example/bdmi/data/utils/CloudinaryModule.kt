@@ -1,4 +1,4 @@
-package com.example.bdmi.utils
+package com.example.bdmi.data.utils
 
 import com.cloudinary.android.MediaManager
 import dagger.Module

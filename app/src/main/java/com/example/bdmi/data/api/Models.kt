@@ -1,4 +1,4 @@
-package com.example.bdmi.api
+package com.example.bdmi.data.api
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

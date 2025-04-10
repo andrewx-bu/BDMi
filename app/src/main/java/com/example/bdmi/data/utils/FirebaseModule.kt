@@ -1,4 +1,4 @@
-package com.example.bdmi.utils
+package com.example.bdmi.data.utils
 
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore

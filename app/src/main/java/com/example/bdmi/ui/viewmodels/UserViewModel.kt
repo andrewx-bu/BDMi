@@ -1,9 +1,9 @@
-package com.example.bdmi.viewmodels
+package com.example.bdmi.ui.viewmodels
 
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.bdmi.repositories.UserRepository
+import com.example.bdmi.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
