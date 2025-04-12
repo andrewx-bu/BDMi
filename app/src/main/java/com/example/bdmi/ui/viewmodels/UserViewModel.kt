@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
-    val displayName: String? = null, // Default to null for nullable types
+    val displayName: String? = null,
     val profilePicture: String? = null,
     val friendCount: Long? = null,
     val listCount: Long? = null,

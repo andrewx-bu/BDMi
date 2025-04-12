@@ -14,9 +14,9 @@ import kotlin.collections.get
 
 // Constants
 private const val TAG = "FirestoreUtils"
-const val USERS_COLLECTION = "users"
-const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
-const val FRIENDS_SUBCOLLECTION = "friends"
+private const val USERS_COLLECTION = "users"
+private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
+private const val FRIENDS_SUBCOLLECTION = "friends"
 
 // Repository class for user database operations
 class UserRepository @Inject constructor(

@@ -35,11 +35,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import coil.compose.AsyncImage
+import com.example.bdmi.ui.friends.FriendViewModel
 
 @Composable
 fun ProfileScreen(onLogoutClick: () -> Unit) {
     val tag = "ProfileScreen"
     val userViewModel: UserViewModel = hiltViewModel()
+    val friendViewModel: FriendViewModel = hiltViewModel()
     val userInfo by userViewModel.userInfo.collectAsState()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
 
@@ -47,13 +49,13 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
     val userId = sharedPreferences.getString("userId", null)
     Log.d(tag, "ProfileScreen (Before Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
     // Load user info once we know the user should be logged in but the info is missing.
-    LaunchedEffect(isLoggedIn) {
-        Log.d(tag, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
-        if (userInfo == null && userId != null) { // Load user from database if user info is missing
-            Log.d(tag, "Loading user info for userId: $userId")
-            userViewModel.loadUser(userId) {}
-        }
-    }
+//    LaunchedEffect(isLoggedIn) {
+//        Log.d(tag, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
+//        if (userInfo == null && userId != null) { // Load user from database if user info is missing
+//            Log.d(tag, "Loading user info for userId: $userId")
+//            userViewModel.loadUser(userId) {}
+//        }
+//    }
 
     if (isLoggedIn && userInfo != null) {
         // Followed android docs for this
