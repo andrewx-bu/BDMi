@@ -25,7 +25,7 @@ class UserRepository @Inject constructor(
 ) {
     // Adds a user to the users collection. Information should already be validated and password hashed
     // Checks for unique email before adding
-    fun createUser(
+    suspend fun createUser(
         userInformation: HashMap<String, Any>,
         onComplete: (UserInfo?) -> Unit
     ) {
@@ -118,7 +118,7 @@ class UserRepository @Inject constructor(
     }
 
     // Loads a user's profile from the publicProfiles collection
-    fun loadUser(
+    suspend fun loadUser(
         userId: String,
         onComplete: (UserInfo?) -> Unit
     ) {
@@ -143,9 +143,9 @@ class UserRepository @Inject constructor(
 
     // Authenticates a user during the login process
     // Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
-    fun authenticateUser(
+    suspend fun authenticateUser(
         loginInformation: HashMap<String, String>,
-        onComplete: (UserInfo?) -> Unit
+        onComplete: (String?) -> Unit
     ) {
         val dbFunction = "authenticateUser"
 
@@ -157,9 +157,8 @@ class UserRepository @Inject constructor(
                 if (user.documents.isNotEmpty()) {
                     Log.d("$TAG$dbFunction", "User found")
                     val userId: String = user.documents[0].data?.get("userId").toString()
-                    loadUser(userId.toString()) { userInfo ->
-                        onComplete(userInfo)
-                    } // Return the user information via the callback
+                    // Return the userId via the callback if it exists
+                    onComplete(userId)
                 } else {
                     Log.d("$TAG$dbFunction", "No user found")
                     onComplete(null) // No matching user
@@ -173,7 +172,7 @@ class UserRepository @Inject constructor(
 
     // Updates a user's information in the users collection
     // Returns true if the update was successful, false otherwise
-    fun updateUserInfo(
+    suspend fun updateUserInfo(
         userInfo: HashMap<String, Any>,
         onComplete: (Boolean) -> Unit
     ) {
@@ -194,7 +193,7 @@ class UserRepository @Inject constructor(
 
     // Deletes a user from the users collection
     // Returns true if the deletion was successful, false otherwise
-    fun deleteUser(
+    suspend fun deleteUser(
         userId: String,
         onComplete: (Boolean) -> Unit
     ) {
@@ -212,137 +211,11 @@ class UserRepository @Inject constructor(
     }
 
     /*
-    * Adds a friend to a user's friend list.
-    * Returns true if the friend was added successfully, false otherwise
-    * Uses transactions to ensure friends are added atomically
-    * */
-    fun addFriend(
-        userId: String,
-        friendId: String,
-        onComplete: (Boolean) -> Unit
-    ) {
-        val dbFunction = "addFriend"
-        val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-        val friendRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId)
-        val userFriendsRef =
-            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
-        val friendFriendsRef =
-            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
-
-        db.runTransaction { transaction ->
-            // Get user and friend documents
-            val userDoc = transaction.get(userRef)
-            val friendDoc = transaction.get(friendRef)
-
-            if (!userDoc.exists() || !friendDoc.exists()) {
-                throw Exception("User document for $userId or Friend document for $friendId does not exist")
-            }
-
-            // Extract user and friend info
-            val userInfo = mapOf(
-                "userId" to userDoc.getString("userId"),
-                "profilePicture" to userDoc.getString("profilePicture"),
-                "displayName" to userDoc.getString("displayName"),
-                "friendCount" to userDoc.getLong("friendCount"),
-                "listCount" to userDoc.getLong("listCount"),
-                "reviewCount" to userDoc.getLong("reviewCount")
-            )
-
-            val friendInfo = mapOf(
-                "userId" to friendDoc.getString("userId"),
-                "profilePicture" to friendDoc.getString("profilePicture"),
-                "displayName" to friendDoc.getString("displayName"),
-                "friendCount" to friendDoc.getLong("friendCount"),
-                "listCount" to friendDoc.getLong("listCount"),
-                "reviewCount" to friendDoc.getLong("reviewCount")
-            )
-
-            //Add friend to user's 'friends' subcollection
-            transaction.set(userFriendsRef, friendInfo)
-            //Add user to friend's 'friends' subcollection
-            transaction.set(friendFriendsRef, userInfo)
-
-            //Increment friend counts for both profiles
-            transaction.update(
-                userRef,
-                "friendCount",
-                FieldValue.increment(1)
-            ) //Copilot assisted with these 2 lines
-            transaction.update(friendRef, "friendCount", FieldValue.increment(1))
-
-        }.addOnSuccessListener {
-            Log.d("$TAG$dbFunction", "Friend relationship added successfully")
-            userFriendsRef.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w("$TAG$dbFunction", "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d("$TAG$dbFunction", "Snapshot Listener added")
-                } else {
-                    Log.d("$TAG$dbFunction", "Issue not adding Snapshot Listener")
-                }
-                onComplete(true)
-            }
-        }.addOnFailureListener { e ->
-            Log.e("$TAG$dbFunction", "Error adding friend", e)
-            onComplete(false)
-        }
-    }
-
-    /*
-    * Adds a friend to a user's friend list.
-    * Returns true if the friend was added successfully, false otherwise
-    * Uses batch writes to ensure friends are removed atomically
-    * */
-    fun removeFriend(
-        userId: String,
-        friendId: String,
-        onComplete: (Boolean) -> Unit
-    ) {
-        val dbFunction = "removeFriend"
-        val userRef =
-            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
-                .document(friendId)
-        val friendRef =
-            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
-                .document(userId)
-        db.runBatch { batch ->
-            batch.delete(userRef)
-            batch.delete(friendRef)
-            batch.update(
-                db.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
-                "friendCount",
-                FieldValue.increment(-1)
-            )
-            batch.update(
-                db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId),
-                "friendCount",
-                FieldValue.increment(-1)
-            )
-        }.addOnSuccessListener {
-            Log.d(
-                "$TAG$dbFunction",
-                "Friend relationship between $userId and $friendId removed successfully"
-            )
-            onComplete(true)
-        }.addOnFailureListener { e ->
-            Log.e(
-                "$TAG$dbFunction",
-                "Error removing friend relationship between $userId and $friendId",
-                e
-            )
-            onComplete(false)
-        }
-
-    }
-
-    /*
     * Changes a user's profile picture
     * Call function to upload image to Cloudinary then updates
     * database on the callback function
     * */
-    fun changeProfilePicture(
+    suspend fun changeProfilePicture(
         userId: String,
         profilePicture: Uri,
         onComplete: (String?) -> Unit

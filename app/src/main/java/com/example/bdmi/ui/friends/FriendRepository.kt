@@ -170,4 +170,23 @@ class FriendRepository @Inject constructor(
                 onComplete(friendList)
             }
     }
+
+    suspend fun searchUsers (
+        displayName: String,
+        onComplete: (List<UserInfo>) -> Unit
+    ) {
+        val dbFunction = "sendFriendInvite"
+        var userList = mutableListOf<UserInfo>()
+        db.collection(PUBLIC_PROFILES_COLLECTION)
+            .whereEqualTo("displayName", displayName)
+            .get()
+            .addOnSuccessListener { users: QuerySnapshot ->
+                for (userDoc in users) {
+                    val userInfo = userDoc.toObject(UserInfo::class.java)
+                    userList.add(userInfo)
+                }
+                Log.d("$TAG$dbFunction", "Number of users found: ${userList.size}")
+                onComplete(userList)
+            }
+    }
 }
