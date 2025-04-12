@@ -28,7 +28,7 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<NavItem.Home> { HomeScreen() }
         composable<NavItem.Search> { SearchScreen() }
         composable<NavItem.Bookmarks> { BookmarksScreen() }
-        composable<NavItem.Profile> { ProfileScreen() }
+        composable<NavItem.Profile> { ProfileScreen(onLogoutClick = { navController.navigate(StartScreen) }) }
         composable<NavItem.Notifications> {
             NotificationsScreen(onNavigateBack = { navController.navigateUp() })
         }

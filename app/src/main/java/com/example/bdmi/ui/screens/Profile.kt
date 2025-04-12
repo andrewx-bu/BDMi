@@ -37,7 +37,7 @@ import androidx.core.content.edit
 import coil.compose.AsyncImage
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onLogoutClick: () -> Unit) {
     val tag = "ProfileScreen"
     val userViewModel: UserViewModel = hiltViewModel()
     val userInfo by userViewModel.userInfo.collectAsState()
@@ -85,6 +85,7 @@ fun ProfileScreen() {
                 onClick = {
                     userViewModel.logout()
                     sharedPreferences.edit { remove("userId") }
+                    onLogoutClick()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
