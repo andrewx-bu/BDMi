@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.UserRepository
 import com.example.bdmi.ui.viewmodels.UserInfo
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,12 +66,12 @@ class FriendViewModel @Inject constructor(
 
     }
 
-    // Step 3: Accept friend invite
+    // Step 3: Accept or decline friend invite
     fun acceptInvite(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
         Log.d(TAG, "Adding friend with ID: $friendId")
 
         viewModelScope.launch {
-            friendRepository.addFriend(userId, friendId) { newFriend ->
+            friendRepository.acceptFriendInvite(userId, friendId) { newFriend ->
                 if (newFriend != null) {
                     _friends.value = _friends.value.toMutableList().apply {
                         add(newFriend)
@@ -82,6 +81,16 @@ class FriendViewModel @Inject constructor(
                 } else {
                     onComplete(false)
                 }
+            }
+        }
+    }
+
+    fun declineInvite(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
+        Log.d(TAG, "Declining friend invite with ID: $friendId")
+
+        viewModelScope.launch {
+            friendRepository.declineInvite(userId, friendId) {
+                onComplete(it)
             }
         }
     }

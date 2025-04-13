@@ -3,7 +3,6 @@ package com.example.bdmi.ui.notifications
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.NotificationRepository
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,10 +25,12 @@ private const val TAG = "NotificationViewModel"
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    private val friendRepository: FriendRepository
 ) : ViewModel() {
     private val _notificationList = MutableStateFlow<MutableList<Notification>>(mutableListOf())
-    var notificationList: StateFlow<MutableList<Notification>> = _notificationList.asStateFlow()
+    val notificationList: StateFlow<MutableList<Notification>> = _notificationList.asStateFlow()
+
+    private val _numOfNotifications = MutableStateFlow(0)
+    var numOfNotifications: StateFlow<Int> = _numOfNotifications.asStateFlow()
 
     fun getNotifications(userId: String) {
         Log.d(TAG, "Loading notifications for user: $userId")
@@ -37,6 +38,11 @@ class NotificationViewModel @Inject constructor(
         viewModelScope.launch {
             notificationRepository.getNotifications(userId) { notifications ->
                 _notificationList.value = notifications as MutableList<Notification>
+                for (notification in notifications) {
+                    if (!notification.read) {
+                        _numOfNotifications.value++
+                    }
+                }
             }
         }
     }
@@ -51,6 +57,7 @@ class NotificationViewModel @Inject constructor(
                     _notificationList.value = _notificationList.value.map { notification ->
                         if (notification.notificationId == notificationId) {
                             notification.copy(read = true)
+                            _numOfNotifications.value--
                         } else {
                             notification
                         }

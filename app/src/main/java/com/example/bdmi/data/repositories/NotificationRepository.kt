@@ -3,6 +3,7 @@ package com.example.bdmi.data.repositories
 import android.util.Log
 import com.example.bdmi.ui.notifications.Notification
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
 
@@ -19,6 +20,7 @@ class NotificationRepository @Inject constructor(
         val dbFunction = "getNotifications"
         val notificationList = mutableListOf<Notification>()
         db.collection(USERS_COLLECTION).document(userId).collection(NOTIFICATIONS_SUBCOLLECTION)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { notifications: QuerySnapshot ->
                 for (notificationDoc in notifications) {

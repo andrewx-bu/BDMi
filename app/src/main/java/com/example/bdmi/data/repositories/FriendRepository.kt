@@ -111,7 +111,7 @@ class FriendRepository @Inject constructor(
     * Returns true if the friend was added successfully, false otherwise
     * Uses transactions to ensure friends are added atomically
     * */
-    suspend fun addFriend(
+    suspend fun acceptFriendInvite(
         userId: String,
         friendId: String,
         onComplete: (FriendInfo?) -> Unit
@@ -188,6 +188,30 @@ class FriendRepository @Inject constructor(
             Log.e("$TAG$dbFunction", "Error adding friend", e)
             onComplete(null)
         }
+    }
+
+
+    /*
+     * Declines a friend invite from a user.
+     * Returns true if the invite was declined successfully, false otherwise
+     */
+    suspend fun declineInvite(
+        userId: String,
+        friendId: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val dbFunction = "declineInvite"
+        db.collection(USERS_COLLECTION).document(friendId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("$TAG$dbFunction", "Friend invite declined successfully")
+                onComplete(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error declining friend invite", e)
+                onComplete(false)
+            }
     }
 
     /*
