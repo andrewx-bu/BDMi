@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,6 +75,7 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
     ) {
         items(movies) { movie ->
             MovieItem(
+                title = movie.title,
                 posterPath = movie.posterPath,
                 onClick = { onMovieClick(movie.id) }
             )
@@ -82,7 +84,7 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
 }
 
 @Composable
-fun MovieItem(posterPath: String?, onClick: () -> Unit) {
+fun MovieItem(title: String, posterPath: String?, onClick: () -> Unit) {
     val imageUrl = ImageURLHelper.getPosterURL(posterPath)
 
     Box(
@@ -101,12 +103,20 @@ fun MovieItem(posterPath: String?, onClick: () -> Unit) {
                 contentScale = ContentScale.Crop
             )
         } else {
-            Icon(
-                imageVector = Icons.Default.Movie,
-                contentDescription = "No poster available",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(50.dp)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.Movie,
+                    contentDescription = "No poster available",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(50.dp)
+                )
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(5.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

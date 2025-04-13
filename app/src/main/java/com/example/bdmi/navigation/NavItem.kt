@@ -47,4 +47,4 @@ data object LoginScreen
 @Serializable
 data object RegisterScreen
 @Serializable
-data object MovieDetailScreen
+data class MovieDetailScreen(val movieId: Int)

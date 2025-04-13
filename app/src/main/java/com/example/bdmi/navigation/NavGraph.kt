@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.example.bdmi.ui.onboarding.LoginScreen
 import com.example.bdmi.ui.onboarding.RegisterScreen
 import com.example.bdmi.ui.onboarding.StartScreen
@@ -29,7 +30,7 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<NavItem.Home> {
             HomeScreen(
                 onMovieClick = { movieId ->
-                    navController.navigate(MovieDetailScreen)
+                    navController.navigate(MovieDetailScreen(movieId))
                 }
             )
         }
@@ -55,8 +56,10 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
                 onRegisterClick = { navController.navigate(NavItem.Home) }
             )
         }
-        composable<MovieDetailScreen> {
+        composable<MovieDetailScreen> { backStackEntry ->
+            val movieId = backStackEntry.toRoute<MovieDetailScreen>().movieId
             MovieDetailScreen(
+                movieId = movieId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
