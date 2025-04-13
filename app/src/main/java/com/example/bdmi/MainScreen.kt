@@ -57,12 +57,14 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             // Hide outer top bar if onboarding or moving to notifications
-            if (routeName != "notifications" && routeName !in onboardingRoutes) {
-                TopBar(
-                    darkTheme = darkTheme,
-                    onThemeClick = switchTheme,
-                    onNotificationClick = { navController.navigate(NavItem.Notifications) }
-                )
+            if (routeName != null) {
+                if (routeName !in onboardingRoutes && !routeName.contains("MovieDetailScreen")) {
+                    TopBar(
+                        darkTheme = darkTheme,
+                        onThemeClick = switchTheme,
+                        onNotificationClick = { navController.navigate(NavItem.Notifications) }
+                    )
+                }
             }
         },
         bottomBar = {
