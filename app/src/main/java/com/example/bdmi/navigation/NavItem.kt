@@ -46,3 +46,5 @@ data object StartScreen
 data object LoginScreen
 @Serializable
 data object RegisterScreen
+@Serializable
+data object MovieDetailScreen

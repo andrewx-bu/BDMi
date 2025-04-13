@@ -1,6 +1,7 @@
 package com.example.bdmi.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.Icon
@@ -24,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,7 +38,7 @@ import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     val viewModel: HomeViewModel = hiltViewModel()
     val movies by viewModel.movies.collectAsState()
 
@@ -57,31 +60,36 @@ fun HomeScreen() {
         Spacer(Modifier.height(8.dp))
 
         if (movies.isNotEmpty()) {
-            MovieGrid(movies = movies.take(18))
+            MovieGrid(movies = movies.take(18), onMovieClick = onMovieClick)
         }
     }
 }
 
 @Composable
-fun MovieGrid(movies: List<Movie>) {
+fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(movies) { movie ->
-            MovieItem(posterPath = movie.posterPath)
+            MovieItem(
+                posterPath = movie.posterPath,
+                onClick = { onMovieClick(movie.id) }
+            )
         }
     }
 }
 
 @Composable
-fun MovieItem(posterPath: String?) {
+fun MovieItem(posterPath: String?, onClick: () -> Unit) {
     val imageUrl = ImageURLHelper.getPosterURL(posterPath)
 
     Box(
         modifier = Modifier
             .aspectRatio(2 / 3f)
+            .clickable(onClick = onClick)
+            .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
