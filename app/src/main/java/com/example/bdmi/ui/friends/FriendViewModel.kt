@@ -3,8 +3,10 @@ package com.example.bdmi.ui.friends
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.UserRepository
 import com.example.bdmi.ui.viewmodels.UserInfo
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,12 +16,12 @@ import javax.inject.Inject
 
 data class FriendInfo(
     val userId: String = "", // Provide a default value
-    val displayName: String? = null,
-    val profilePicture: String? = null,
-    val friendCount: Long? = null,
-    val listCount: Long? = null,
-    val reviewCount: Long? = null,
-    val isPublic: Boolean? = null,
+    val displayName: String = "",
+    val profilePicture: String = "",
+    val friendCount: Long = 0,
+    val listCount: Long = 0,
+    val reviewCount: Long = 0,
+    val isPublic: Boolean = true
 )
 
 private const val TAG = "FriendViewModel"

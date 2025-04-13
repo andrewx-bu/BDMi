@@ -16,7 +16,6 @@ import kotlin.collections.get
 private const val TAG = "FirestoreUtils"
 private const val USERS_COLLECTION = "users"
 private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
-private const val FRIENDS_SUBCOLLECTION = "friends"
 
 // Repository class for user database operations
 class UserRepository @Inject constructor(
@@ -47,7 +46,6 @@ class UserRepository @Inject constructor(
                         .addOnSuccessListener { documentReference ->
                             val documentId = documentReference.id
                             //Add the document ID to the user information
-                            userInformation["userId"] = documentId
                             documentReference.update("userId", documentId)
                                 .addOnSuccessListener {
                                     Log.d(

@@ -9,7 +9,7 @@ import com.example.bdmi.ui.onboarding.RegisterScreen
 import com.example.bdmi.ui.onboarding.StartScreen
 import com.example.bdmi.ui.screens.BookmarksScreen
 import com.example.bdmi.ui.screens.HomeScreen
-import com.example.bdmi.ui.screens.NotificationsScreen
+import com.example.bdmi.ui.notifications.NotificationsScreen
 import com.example.bdmi.ui.screens.ProfileScreen
 import com.example.bdmi.ui.screens.SearchScreen
 
