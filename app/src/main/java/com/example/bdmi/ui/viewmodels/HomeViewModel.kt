@@ -17,14 +17,15 @@ class HomeViewModel @Inject constructor(
     private val _movies = MutableStateFlow<List<Movie>>(emptyList())
     val movies = _movies.asStateFlow()
 
-    init {
-        fetchMovies()
-    }
-
-    private fun fetchMovies() {
+    fun loadMovies() {
         viewModelScope.launch {
-            val response = movieRepo.discoverMovies(1)
-            _movies.value = response.results
+            try {
+                val response = movieRepo.discoverMovies()
+                _movies.value = response.results
+            } catch (e: Exception) {
+                // Handle error later
+                e.printStackTrace()
+            }
         }
     }
 }

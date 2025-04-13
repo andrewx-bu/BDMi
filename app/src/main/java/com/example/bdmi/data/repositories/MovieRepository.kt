@@ -9,13 +9,12 @@ class MovieRepository @Inject constructor(
     private val apiService: APIService,
     private val db: FirebaseFirestore
 ) {
-    suspend fun discoverMovies(page: Int): MoviesResponse {
+    suspend fun discoverMovies(page: Int = 1): MoviesResponse {
         try {
             return apiService.discoverMovies(page = page)
         } catch (e: Exception) {
             throw e
         }
     }
-
 
 }
