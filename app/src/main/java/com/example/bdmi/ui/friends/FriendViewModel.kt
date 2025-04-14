@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class FriendInfo(
+data class ProfileBanner(
     val userId: String = "", // Provide a default value
     val displayName: String = "",
     val profilePicture: String = "",
-    val friendCount: Long = 0,
-    val listCount: Long = 0,
-    val reviewCount: Long = 0,
-    val isPublic: Boolean = true
+    val friendCount: Long? = 0,
+    val listCount: Long? = 0,
+    val reviewCount: Long? = 0,
+    val isPublic: Boolean? = true
 )
 
 private const val TAG = "FriendViewModel"
@@ -31,12 +31,15 @@ class FriendViewModel @Inject constructor(
     private val userRepository: UserRepository
 ): ViewModel() {
     // List of friends for the current user
-    private val _friends = MutableStateFlow<MutableList<FriendInfo>>(mutableListOf())
-    val friends: StateFlow<MutableList<FriendInfo>?> = _friends.asStateFlow()
+    private val _friends = MutableStateFlow<MutableList<ProfileBanner>>(mutableListOf())
+    val friends: StateFlow<MutableList<ProfileBanner>?> = _friends.asStateFlow()
 
     // Current Profile Visiting. Takes in a UserInfo object retrieved from Profile Collection
     private val _friendProfile = MutableStateFlow<UserInfo?>(null)
     val friendProfile: StateFlow<UserInfo?> = _friendProfile.asStateFlow()
+
+    private val _searchResults = MutableStateFlow<List<ProfileBanner>>(emptyList())
+    val searchResults: StateFlow<List<ProfileBanner>> = _searchResults.asStateFlow()
 
     // Load initial friends list. Done onLogin and onRegister (maybe)
     fun loadFriends(userId: String) {
@@ -44,26 +47,31 @@ class FriendViewModel @Inject constructor(
 
         viewModelScope.launch {
             friendRepository.getFriends(userId) { friendsList ->
-                _friends.value = friendsList as MutableList<FriendInfo>
+                _friends.value = friendsList as MutableList<ProfileBanner>
             }
         }
     }
 
     // Add friend journey
     // Step 1: Search for users by display name
-    fun searchUsers(displayName: String, onComplete: () -> Unit) {
+    fun searchUsers(displayName: String, onComplete: (List<ProfileBanner>) -> Unit) {
         Log.d(TAG, "Searching for users with display name: $displayName")
 
         viewModelScope.launch {
             friendRepository.searchUsers(displayName) { users ->
-                onComplete()
+                onComplete(users)
             }
         }
     }
 
     // Step 2: Send friend invite
-    fun sendFriendInvite(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
-
+    fun sendFriendInvite(friendInfo: ProfileBanner, userId: String, onComplete: (Boolean) -> Unit) {
+        Log.d(TAG, "Sending friend invite to user with ID: $userId")
+        viewModelScope.launch {
+            friendRepository.sendFriendInvite(friendInfo, userId) {
+                onComplete(it)
+            }
+        }
     }
 
     // Step 3: Accept or decline friend invite
@@ -111,12 +119,12 @@ class FriendViewModel @Inject constructor(
         }
     }
 
-    fun loadFriendProfile(userId: String) {
+    fun loadFriendProfile(userId: String, onComplete: (UserInfo?) -> Unit) {
         Log.d(TAG, "Loading friend profile for user: $userId")
 
         viewModelScope.launch {
-            userRepository.loadUser(userId) { friendProfile ->
-                _friendProfile.value = friendProfile
+            userRepository.loadUser(userId) { userProfile ->
+                onComplete(userProfile)
             }
         }
     }

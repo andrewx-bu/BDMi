@@ -1,5 +1,7 @@
 package com.example.bdmi.ui.notifications
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,12 +46,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.ui.friends.FriendViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +75,6 @@ fun NotificationsScreen(onNavigateBack: () -> Unit) {
         }
     ) { padding ->
         NotificationList(modifier = Modifier.padding(padding))
-
     }
 }
 
@@ -79,6 +83,12 @@ fun NotificationList(modifier: Modifier = Modifier) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val notificationList = notificationViewModel.notificationList.collectAsState()
     val numOfNotifications = notificationViewModel.numOfNotifications.collectAsState()
+    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getString("userId", null)
+    LaunchedEffect(Unit) {
+        if (userId != null)
+            notificationViewModel.getNotifications(userId)
+    }
 
     Box(
         modifier = modifier
@@ -87,6 +97,7 @@ fun NotificationList(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         if (numOfNotifications.value > 0) {
+            Log.d("NotificationList", "Notification list: ${notificationList.value}")
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -109,7 +120,9 @@ fun NotificationList(modifier: Modifier = Modifier) {
 
 @Composable
 fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) {
-    //val notificationViewModel: NotificationViewModel = hiltViewModel()
+    val notificationViewModel: NotificationViewModel = hiltViewModel()
+    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getString("userId", null)
     var isRead by remember { mutableStateOf(notification.read) }
     var cardVisibility = if (isRead) 0.5f else 1f
     Card(
@@ -120,7 +133,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             .fillMaxWidth()
             .padding(10.dp)
             .clickable(enabled = !isRead) {
-
+                notificationViewModel.readNotification(userId.toString(), notification.notificationId)
             }
             .graphicsLayer(alpha = cardVisibility)
     ) {
@@ -142,7 +155,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             IconButton(
                 onClick = {
                     isRead = true
-                    //notificationViewModel.deleteNotification(notification.notificationId)
+                    notificationViewModel.deleteNotification(userId.toString(), notification.notificationId)
                 }
             ) {
                 Icon(
@@ -160,7 +173,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 
         Column {
             when (notification.type) {
-                "friend_request" -> FriendRequestNotification(notification.data)
+                "friend_request" -> FriendRequestNotification(notification.notificationId, notification.data as NotificationType.FriendRequest)
                 // Add more notification types here
             }
         }
@@ -169,8 +182,11 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 }
 
 @Composable
-fun FriendRequestNotification(data: Map<String, Any>) {
-    //val notificationViewModel: NotificationViewModel = hiltViewModel()
+fun FriendRequestNotification(notificationId: String, data: NotificationType.FriendRequest) {
+    val notificationViewModel: NotificationViewModel = hiltViewModel()
+    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getString("userId", null)
+    val friendViewModel: FriendViewModel = hiltViewModel()
     Row(
         modifier = Modifier.fillMaxWidth().padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -187,7 +203,7 @@ fun FriendRequestNotification(data: Map<String, Any>) {
                     .clip(CircleShape)
             ) {
                 AsyncImage(
-                    model = data["profilePicture"] as String,
+                    model = data.profilePicture,
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -200,15 +216,15 @@ fun FriendRequestNotification(data: Map<String, Any>) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = data["displayName"] as String,
+                    text = data.displayName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
                     color = Color.Black
                 )
                 Row {
-                    UserStats("Friends", data["friendCount"].toString())
-                    UserStats("Lists", data["listCount"].toString())
-                    UserStats("Reviews", data["reviewCount"].toString())
+                    UserStats("Friends", data.friendCount.toString())
+                    UserStats("Lists", data.listCount.toString())
+                    UserStats("Reviews", data.reviewCount.toString())
                 }
             }
         }
@@ -219,7 +235,13 @@ fun FriendRequestNotification(data: Map<String, Any>) {
         ) {
             IconButton(
                 onClick = {
-                    //notificationViewModel.addFriend(data["userId"] as String)
+                    friendViewModel.acceptInvite(userId.toString(), data.userId) {
+                        if (it) {
+                            Log.d("NotificationItem", "Invite accepted")
+                        } else {
+                            Log.d("NotificationItem", "Error accepting invite")
+                        }
+                    }
                 },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Green,
@@ -235,7 +257,7 @@ fun FriendRequestNotification(data: Map<String, Any>) {
             Spacer(modifier = Modifier.padding(2.dp))
             IconButton(
                 onClick = {
-                    //notificationViewModel.deleteNotification(notification.notificationId)
+                    notificationViewModel.deleteNotification(userId.toString(), notificationId)
                 },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Red,
@@ -269,12 +291,14 @@ fun UserStats(text: String, stat: String) {
 fun NotificationPreview() {
     val notification = Notification(
         type = "friend_request",
-        data = mapOf(
-            "displayName" to "NotSilent",
-            "profilePicture" to "https://res.cloudinary.com/dle98umos/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1744327756/cxpfxltauf88rbtu0dj6.jpg",
-            "friendCount" to 10,
-            "listCount" to 2,
-            "reviewCount" to 37
+        data = NotificationType.FriendRequest(
+            userId = "123",
+            displayName = "John Doe",
+            profilePicture = "https://example.com/profile.jpg",
+            friendCount = 10,
+            listCount = 5,
+            reviewCount = 2,
+            isPublic = true
         )
     )
     NotificationItem(notification = notification)

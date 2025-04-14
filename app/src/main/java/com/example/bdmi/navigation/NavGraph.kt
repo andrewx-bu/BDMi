@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.example.bdmi.ui.friends.FriendSearch
+import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.onboarding.LoginScreen
 import com.example.bdmi.ui.onboarding.RegisterScreen
 import com.example.bdmi.ui.onboarding.StartScreen
@@ -28,7 +31,12 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<NavItem.Home> { HomeScreen() }
         composable<NavItem.Search> { SearchScreen() }
         composable<NavItem.Bookmarks> { BookmarksScreen() }
-        composable<NavItem.Profile> { ProfileScreen(onLogoutClick = { navController.navigate(StartScreen) }) }
+        composable<NavItem.Profile> {
+            ProfileScreen(
+                onLogoutClick = { navController.navigate(StartScreen) },
+                navigateToUserSearch = { navController.navigate(FriendSearchScreen) }
+            )
+        }
         composable<NavItem.Notifications> {
             NotificationsScreen(onNavigateBack = { navController.navigateUp() })
         }
@@ -47,6 +55,15 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
             RegisterScreen(
                 onRegisterClick = { navController.navigate(NavItem.Home) }
             )
+        }
+        composable<FriendSearchScreen> {
+            FriendSearch() { userId ->
+                navController.navigate(UserProfileScreen(userId))
+            }
+        }
+        composable<UserProfileScreen> { backStackEntry ->
+            val screen = backStackEntry.toRoute<UserProfileScreen>()
+            UserProfile(userId = screen.userId)
         }
     }
 }

@@ -1,8 +1,9 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.example.bdmi.ui.friends.FriendInfo
+import com.example.bdmi.ui.friends.ProfileBanner
 import com.example.bdmi.ui.notifications.Notification
+import com.example.bdmi.ui.notifications.NotificationType
 import com.example.bdmi.ui.viewmodels.UserInfo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
@@ -22,17 +23,17 @@ class FriendRepository @Inject constructor(
     private val db: FirebaseFirestore
 ) {
     // Returns a list of friendInfo objects for a given user
-    suspend fun getFriends(
+    fun getFriends(
         userId: String,
-        onComplete: (List<FriendInfo>) -> Unit
+        onComplete: (List<ProfileBanner>) -> Unit
     ) {
         val dbFunction = "getFriends"
-        val friendList = mutableListOf<FriendInfo>()
+        val friendList = mutableListOf<ProfileBanner>()
         db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
             .get()
             .addOnSuccessListener { friends: QuerySnapshot ->
                 for (friendDoc in friends) {
-                    val friendInfo = friendDoc.toObject(FriendInfo::class.java)
+                    val friendInfo = friendDoc.toObject(ProfileBanner::class.java)
                     Log.d("$TAG$dbFunction", "Friend found")
                     friendList.add(friendInfo)
                 }
@@ -42,19 +43,19 @@ class FriendRepository @Inject constructor(
     }
 
     // Returns a list of friendInfo objects for users with a specified displayName
-    suspend fun searchUsers (
+    fun searchUsers (
         displayName: String,
-        onComplete: (List<UserInfo>) -> Unit
+        onComplete: (List<ProfileBanner>) -> Unit
     ) {
         val dbFunction = "sendFriendInvite"
-        var userList = mutableListOf<UserInfo>()
+        var userList = mutableListOf<ProfileBanner>()
         db.collection(PUBLIC_PROFILES_COLLECTION)
             .whereEqualTo("displayName", displayName)
             .get()
             .addOnSuccessListener { users: QuerySnapshot ->
                 for (userDoc in users) {
                     val userInfo = userDoc.toObject(UserInfo::class.java)
-                    userList.add(userInfo)
+                    userList.add(userToProfileBanner(userInfo))
                 }
                 Log.d("$TAG$dbFunction", "Number of users found: ${userList.size}")
                 onComplete(userList)
@@ -66,22 +67,22 @@ class FriendRepository @Inject constructor(
     * Returns true if the invite was sent successfully, false otherwise
     * Also stores an outgoing request in the senders 'outgoing_requests' subcollection
     * */
-    suspend fun sendFriendInvite(
-        sender: FriendInfo,
+    fun sendFriendInvite(
+        sender: ProfileBanner,
         recipientId: String,
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "sendFriendInvite"
         val newNotification = Notification(
             type = "friend_request",
-            data = mapOf(
-                "userId" to sender.userId,
-                "displayName" to sender.displayName,
-                "profilePicture" to sender.profilePicture,
-                "friendCount" to sender.friendCount,
-                "listCount" to sender.listCount,
-                "reviewCount" to sender.reviewCount,
-                "isPublic" to sender.isPublic
+            data = NotificationType.FriendRequest(
+                userId = sender.userId,
+                displayName = sender.displayName,
+                profilePicture = sender.profilePicture,
+                friendCount = sender.friendCount,
+                listCount = sender.listCount,
+                reviewCount = sender.reviewCount,
+                isPublic = sender.isPublic
             )
         )
         val recipientRef = db.collection(USERS_COLLECTION).document(recipientId).collection(NOTIFICATIONS_SUBCOLLECTION)
@@ -111,10 +112,10 @@ class FriendRepository @Inject constructor(
     * Returns true if the friend was added successfully, false otherwise
     * Uses transactions to ensure friends are added atomically
     * */
-    suspend fun acceptFriendInvite(
+    fun acceptFriendInvite(
         userId: String,
         friendId: String,
-        onComplete: (FriendInfo?) -> Unit
+        onComplete: (ProfileBanner?) -> Unit
     ) {
         val dbFunction = "addFriend"
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
@@ -123,8 +124,8 @@ class FriendRepository @Inject constructor(
             db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
         val friendFriendsRef =
             db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
-        var userInfo: FriendInfo? = null
-        var friendInfo: FriendInfo? = null
+        var userInfo: ProfileBanner? = null
+        var friendInfo: ProfileBanner? = null
 
         db.runTransaction { transaction ->
             // Get user and friend documents
@@ -136,7 +137,7 @@ class FriendRepository @Inject constructor(
             }
 
             // Extract user and friend info
-            userInfo = FriendInfo(
+            userInfo = ProfileBanner(
                 userId = userDoc.getString("userId").toString(),
                 profilePicture = userDoc.getString("profilePicture").toString(),
                 displayName = userDoc.getString("displayName").toString(),
@@ -145,7 +146,7 @@ class FriendRepository @Inject constructor(
                 reviewCount = userDoc.getLong("reviewCount")!!,
                 isPublic = userDoc.getBoolean("isPublic")!!
             )
-            friendInfo = FriendInfo(
+            friendInfo = ProfileBanner(
                 userId = friendDoc.getString("userId").toString(),
                 profilePicture = friendDoc.getString("profilePicture").toString(),
                 displayName = friendDoc.getString("displayName").toString(),
@@ -195,7 +196,7 @@ class FriendRepository @Inject constructor(
      * Declines a friend invite from a user.
      * Returns true if the invite was declined successfully, false otherwise
      */
-    suspend fun declineInvite(
+    fun declineInvite(
         userId: String,
         friendId: String,
         onComplete: (Boolean) -> Unit
@@ -219,7 +220,7 @@ class FriendRepository @Inject constructor(
     * Returns true if the friend was added successfully, false otherwise
     * Uses batch writes to ensure friends are removed atomically
     * */
-    suspend fun removeFriend(
+    fun removeFriend(
         userId: String,
         friendId: String,
         onComplete: (Boolean) -> Unit
@@ -258,6 +259,18 @@ class FriendRepository @Inject constructor(
             )
             onComplete(false)
         }
+    }
 
+    private fun userToProfileBanner(userInfo: UserInfo): ProfileBanner {
+        val friendInfo = ProfileBanner(
+            userId = userInfo.userId,
+            displayName = userInfo.displayName.toString(),
+            profilePicture = userInfo.profilePicture.toString(),
+            friendCount = userInfo.friendCount,
+            listCount = userInfo.listCount,
+            reviewCount = userInfo.reviewCount,
+            isPublic = userInfo.isPublic
+        )
+        return friendInfo
     }
 }

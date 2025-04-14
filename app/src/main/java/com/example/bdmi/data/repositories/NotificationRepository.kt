@@ -2,6 +2,9 @@ package com.example.bdmi.data.repositories
 
 import android.util.Log
 import com.example.bdmi.ui.notifications.Notification
+import com.example.bdmi.ui.notifications.NotificationType
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -24,7 +27,7 @@ class NotificationRepository @Inject constructor(
             .get()
             .addOnSuccessListener { notifications: QuerySnapshot ->
                 for (notificationDoc in notifications) {
-                    val notificationInfo = notificationDoc.toObject(Notification::class.java)
+                    val notificationInfo = docToNotification(notificationDoc)
                     notificationList.add(notificationInfo)
                 }
                 Log.d("$TAG$dbFunction", "Number of notifications found: ${notificationList.size}")
@@ -71,5 +74,35 @@ class NotificationRepository @Inject constructor(
                 Log.d("$TAG$dbFunction", "All notifications deleted successfully")
                 onComplete(true)
             }
+    }
+
+    private fun docToNotification(doc: DocumentSnapshot): Notification {
+        val type = doc.getString("type") ?: ""
+        Log.d("NotificationRepository", "Notification data: ${doc.get("data")}")
+        val dataMap = doc.get("data") as? Map<*, *>
+
+        val data = when (type) {
+            "friend_request" -> {
+                NotificationType.FriendRequest(
+                    userId = dataMap?.get("userId") as? String ?: "",
+                    displayName = dataMap?.get("displayName") as? String ?: "",
+                    profilePicture = dataMap?.get("profilePicture") as? String ?: "",
+                    friendCount = (dataMap?.get("friendCount") as? Long)?: 0,
+                    listCount = (dataMap?.get("listCount") as? Long)?: 0,
+                    reviewCount = (dataMap?.get("reviewCount") as? Long)?: 0,
+                    isPublic = dataMap?.get("isPublic") as? Boolean == true
+                )
+            }
+            else -> NotificationType.FriendRequest() // Add other types later
+        }
+        Log.d("NotificationRepository", "New Notification data: $data")
+
+        return Notification(
+            notificationId = doc.id,
+            type = type,
+            data = data,
+            read = doc.getBoolean("isRead") == true,
+            timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now()
+        )
     }
 }

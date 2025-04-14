@@ -14,15 +14,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.viewmodels.UserViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,25 +41,27 @@ import coil.compose.AsyncImage
 import com.example.bdmi.ui.friends.FriendViewModel
 
 @Composable
-fun ProfileScreen(onLogoutClick: () -> Unit) {
+fun ProfileScreen(
+    onLogoutClick: () -> Unit,
+    navigateToUserSearch: () -> Unit
+) {
     val tag = "ProfileScreen"
     val userViewModel: UserViewModel = hiltViewModel()
-    val friendViewModel: FriendViewModel = hiltViewModel()
     val userInfo by userViewModel.userInfo.collectAsState()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
 
     val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("userId", null)
-    Log.d(tag, "ProfileScreen (Before Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
-    // Load user info once we know the user should be logged in but the info is missing.
-//    LaunchedEffect(isLoggedIn) {
-//        Log.d(tag, "ProfileScreen (Inside Launch): LoggedIn: $isLoggedIn, UserInfo: $userInfo, UserId (Prefs): $userId")
-//        if (userInfo == null && userId != null) { // Load user from database if user info is missing
-//            Log.d(tag, "Loading user info for userId: $userId")
-//            userViewModel.loadUser(userId) {}
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        if (userId != null) {
+            userViewModel.loadUser(userId) {
+                Log.d(tag, "Loaded user info: $it")
+            }
+        }
+    }
 
+    Log.d(tag, "ProfileScreen: $userInfo")
+    Log.d(tag, "isLoggedIn: $isLoggedIn")
     if (isLoggedIn && userInfo != null) {
         // Followed android docs for this
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -80,9 +85,31 @@ fun ProfileScreen(onLogoutClick: () -> Unit) {
             Text(
                 text = userInfo?.displayName.toString()
             )
-            Text(
-                text = userInfo?.friendCount.toString()+" Friends"
-            )
+            Row (
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = userInfo?.friendCount.toString()+" Friends"
+                )
+                IconButton(
+                    onClick = {
+                        navigateToUserSearch()
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.clip(CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Go to friend search",
+                        tint = Color.Black
+                    )
+                }
+            }
+
             Button(
                 onClick = {
                     userViewModel.logout()

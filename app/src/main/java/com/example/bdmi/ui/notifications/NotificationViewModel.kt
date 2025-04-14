@@ -15,10 +15,24 @@ import javax.inject.Inject
 data class Notification(
     val notificationId: String = "",
     val type: String = "",
-    val data: Map<String, Any> = emptyMap(),
+    val data: NotificationType = NotificationType.FriendRequest(),
     val read: Boolean = false,
     val timestamp: Timestamp = Timestamp.now()
 )
+
+sealed class NotificationType {
+    data class FriendRequest(
+        val userId: String = "",
+        val displayName: String = "",
+        val profilePicture: String = "",
+        val friendCount: Long? = 0,
+        val listCount: Long? = 0,
+        val reviewCount: Long? = 0,
+        val isPublic: Boolean? = true
+    ) : NotificationType()
+    object Message : NotificationType()
+    object Review : NotificationType()
+}
 
 private const val TAG = "NotificationViewModel"
 
