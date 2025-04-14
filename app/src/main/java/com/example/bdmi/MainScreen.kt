@@ -1,6 +1,11 @@
 package com.example.bdmi
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
@@ -57,7 +62,11 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             // Hide outer top bar if onboarding or moving to notifications
-            if (routeName != "notifications" && routeName !in onboardingRoutes) {
+            AnimatedVisibility(
+                visible = routeName != null && (routeName !in onboardingRoutes && !routeName.contains("MovieDetailScreen")),
+                enter = fadeIn() + slideInVertically { -it },
+                exit = fadeOut() + slideOutVertically { -it }
+            ) {
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
@@ -66,8 +75,12 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            // Hide bottom bar if onboarding
-            if (routeName !in onboardingRoutes) {
+            AnimatedVisibility(
+                visible = routeName !in onboardingRoutes,
+                enter = fadeIn() + slideInVertically { it },
+                exit = fadeOut() + slideOutVertically { it }
+            ) {
+                // Hide bottom bar if onboarding
                 BottomBar(
                     currentRoute = routeName,
                     onItemClicked = { route ->
@@ -180,4 +193,3 @@ fun RowScope.AddItem(
         modifier = Modifier.offset(y = 10.dp)
     )
 }
-

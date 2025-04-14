@@ -15,6 +15,7 @@ import com.example.bdmi.ui.screens.HomeScreen
 import com.example.bdmi.ui.notifications.NotificationsScreen
 import com.example.bdmi.ui.screens.ProfileScreen
 import com.example.bdmi.ui.screens.SearchScreen
+import com.example.bdmi.ui.screens.MovieDetailScreen
 
 // Bottom Bar Navigation basics: https://www.youtube.com/watch?v=gg-KBGH9T8s
 @Composable
@@ -28,7 +29,13 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         navController = navController,
         startDestination = startDestination
     ) {
-        composable<NavItem.Home> { HomeScreen() }
+        composable<NavItem.Home> {
+            HomeScreen(
+                onMovieClick = { movieId ->
+                    navController.navigate(MovieDetailScreen(movieId))
+                }
+            )
+        }
         composable<NavItem.Search> { SearchScreen() }
         composable<NavItem.Bookmarks> { BookmarksScreen() }
         composable<NavItem.Profile> {
@@ -64,6 +71,13 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<UserProfileScreen> { backStackEntry ->
             val screen = backStackEntry.toRoute<UserProfileScreen>()
             UserProfile(userId = screen.userId)
+
+        composable<MovieDetailScreen> { backStackEntry ->
+            val movieId = backStackEntry.toRoute<MovieDetailScreen>().movieId
+            MovieDetailScreen(
+                movieId = movieId,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }
