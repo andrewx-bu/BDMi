@@ -71,6 +71,7 @@ fun NavGraph(navController: NavHostController, loggedIn: Boolean) {
         composable<UserProfileScreen> { backStackEntry ->
             val screen = backStackEntry.toRoute<UserProfileScreen>()
             UserProfile(userId = screen.userId)
+        }
 
         composable<MovieDetailScreen> { backStackEntry ->
             val movieId = backStackEntry.toRoute<MovieDetailScreen>().movieId
