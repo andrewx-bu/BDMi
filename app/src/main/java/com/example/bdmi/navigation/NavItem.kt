@@ -48,3 +48,7 @@ data object LoginScreen
 data object RegisterScreen
 @Serializable
 data class MovieDetailScreen(val movieId: Int)
+@Serializable
+data object FriendSearchScreen
+@Serializable
+data class UserProfileScreen(val userId: String)

@@ -26,12 +26,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.utils.hashPassword
 import com.example.bdmi.ui.viewmodels.UserViewModel
 
+private const val TAG = "RegisterScreen"
 
 @Composable
 fun RegisterScreen(
     onRegisterClick: () -> Unit
 ) {
-    val TAG = "RegisterScreen"
     val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
@@ -77,7 +77,6 @@ fun RegisterScreen(
                         // Saves user ID to shared preferences
                         val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
                         sharedPreferences.edit { putString("userId", userInfo.userId) }
-
                         onRegisterClick()
                     } else {
                         Log.d(TAG, "Register failed")
