@@ -33,7 +33,6 @@ data class Movie(
 // Details endpoint
 @JsonClass(generateAdapter = true)
 data class MovieDetails(
-    @Json(name = "adult") val adult: Boolean,
     @Json(name = "backdrop_path") val backdropPath: String?,
     @Json(name = "budget") val budget: Int,
     @Json(name = "genres") val genres: List<Genre>,
@@ -69,7 +68,6 @@ data class ProductionCompany(
     @Json(name = "id") val id: Int,
     @Json(name = "logo_path") val logoPath: String?,
     @Json(name = "name") val name: String,
-    @Json(name = "origin_country") val originCountry: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -93,8 +91,6 @@ data class MovieCreditsResponse(
 
 @JsonClass(generateAdapter = true)
 data class CastMember(
-    @Json(name = "adult") val adult: Boolean,
-    @Json(name = "gender") val gender: Int,
     @Json(name = "id") val id: Int,
     @Json(name = "known_for_department") val knownForDepartment: String?,
     @Json(name = "name") val name: String,
@@ -109,8 +105,6 @@ data class CastMember(
 
 @JsonClass(generateAdapter = true)
 data class CrewMember(
-    @Json(name = "adult") val adult: Boolean,
-    @Json(name = "gender") val gender: Int,
     @Json(name = "id") val id: Int,
     @Json(name = "known_for_department") val knownForDepartment: String?,
     @Json(name = "name") val name: String,

@@ -53,7 +53,8 @@ fun MoviePoster(title: String, posterPath: String?, isLoading: Boolean, onClick:
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.LightGray)
+                        // TODO: Find Theme
+                        .background(Color(0xFFFF4b1f))
                 ) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }

@@ -7,6 +7,8 @@ object UIConstants {
     val logoSize = 75.dp
     val topBarSize = 100.dp
     val bottomBarSize = 75.dp
+    val topBarIconSizes = 30.dp
+    val badgeSize = 18.dp
 
     // Home
     const val MOVIECOLUMNS = 3
@@ -16,6 +18,7 @@ object UIConstants {
 
     // MovieDetailScreen
     const val BACKDROPASPECTRATIO = 3f / 2f
+    val noBackdropIconSize = 50.dp
     val iconButtonSize = 35.dp
     val iconSize = 20.dp
     val posterRowOffset = 225.dp
@@ -25,6 +28,7 @@ object UIConstants {
     const val LOADINGBALLDURATION = 1000
     const val LOADINGBALLMINALPHA = 0.5f
     const val LOADINGBALLMAXALPHA = 1f
+    val trailerButtonSize = 16.dp
 }
 
 object Spacing {

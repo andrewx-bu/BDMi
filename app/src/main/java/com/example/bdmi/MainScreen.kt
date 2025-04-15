@@ -10,11 +10,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -142,13 +144,13 @@ fun TopBar(
                     Badge(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        modifier = Modifier.offset(
-                            x = -Spacing.extraSmall,
+                        modifier = Modifier.size(UIConstants.badgeSize).offset(
+                            x = -Spacing.small,
                             y = Spacing.extraSmall
                         )
                     ) {
                         // Number of notifications
-                        Text("8")
+                        Text("9")
                     }
                 }
             ) {
@@ -156,19 +158,24 @@ fun TopBar(
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
-                        tint = MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(UIConstants.topBarIconSizes)
                     )
                 }
             }
+
+            Spacer(Modifier.width(Spacing.medium))
 
             IconButton(onClick = onThemeClick) {
                 Icon(
                     imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
                     tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.rotate(rotation)
+                    modifier = Modifier.rotate(rotation).size(UIConstants.topBarIconSizes)
                 )
             }
+
+            Spacer(Modifier.width(Spacing.medium))
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent
