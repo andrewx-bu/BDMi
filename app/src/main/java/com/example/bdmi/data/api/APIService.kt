@@ -18,4 +18,10 @@ interface APIService {
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
     ): MovieDetails
+
+    @GET("movie/{movie_id}/credits")
+    suspend fun getMovieCredits(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
+    ): MovieCreditsResponse
 }

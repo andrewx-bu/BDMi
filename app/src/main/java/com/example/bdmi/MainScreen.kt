@@ -219,6 +219,6 @@ fun RowScope.AddItem(
         },
         selected = isSelected,
         onClick = { onItemClicked(screen) },
-        modifier = Modifier.offset(y = Spacing.small)
+        modifier = Modifier.offset(y = Spacing.extraSmall)
     )
 }

@@ -44,7 +44,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     val uiState by viewModel.homeUIState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadMovies()
+        viewModel.refreshHome()
     }
 
     Column(

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -24,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -40,14 +38,27 @@ fun MovieDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val uiState by viewModel.detailUIState.collectAsState()
+    val detailUIState by viewModel.detailUIState.collectAsState()
+    val creditsUIState by viewModel.creditsUIState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.refreshHome()
-        viewModel.loadMovieDetails(movieId)
+        viewModel.refreshDetails(movieId)
+        viewModel.refreshCredits(movieId)
     }
 
-    MovieBackdrop(uiState.movieDetails, onNavigateBack)
+    when {
+        detailUIState.error != null -> {
+            ErrorMessage(message = detailUIState.error!!, onRetry = { viewModel.refreshDetails(movieId) })
+        }
+
+        else -> {
+            Box(
+                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+            ) {
+                MovieBackdrop(detailUIState.movieDetails, onNavigateBack)
+            }
+        }
+    }
 }
 
 @Composable
@@ -55,8 +66,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Box(
             modifier = Modifier
@@ -67,9 +77,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                 model = backdropURL,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset(y = -Spacing.large)
+                modifier = Modifier.fillMaxSize()
             )
 
             Row(
@@ -83,7 +91,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                 IconButton(
                     onClick = onNavigateBack,
                     modifier = Modifier
-                        .background(Color.Gray.copy(alpha = -1.5f), CircleShape)
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape)
                         .size(UIConstants.iconButtonSize)
                 ) {
                     Icon(
@@ -98,7 +106,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                 IconButton(
                     onClick = { /* TODO: Add functionality */ },
                     modifier = Modifier
-                        .background(Color.Gray.copy(alpha = -1.5f), CircleShape)
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape)
                         .size(UIConstants.iconButtonSize)
                 ) {
                     Icon(

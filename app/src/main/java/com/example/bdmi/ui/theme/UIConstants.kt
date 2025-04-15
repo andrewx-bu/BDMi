@@ -5,7 +5,7 @@ import androidx.compose.ui.unit.dp
 object UIConstants {
     // MainScreen
     val logoSize = 75.dp
-    val topBarSize = 75.dp
+    val topBarSize = 100.dp
     val bottomBarSize = 75.dp
 
     // Home
@@ -15,7 +15,7 @@ object UIConstants {
     val noPosterIconSize = 50.dp
 
     // MovieDetailScreen
-    const val BACKDROPASPECTRATIO = 16f / 9f
+    const val BACKDROPASPECTRATIO = 3f / 2f
     val iconButtonSize = 35.dp
     val iconSize = 20.dp
 }
