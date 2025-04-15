@@ -9,62 +9,104 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) : ViewModel() {
-    // List of movies
-    private val _movies = MutableStateFlow<List<Movie>>(emptyList())
-    val movies = _movies.asStateFlow()
+    data class HomeUIState(
+        val isLoading: Boolean = false,
+        val movies: List<Movie> = emptyList(),
+        val error: String? = null
+    )
 
-    // Specific movie details
-    private val _movieDetails = MutableStateFlow<MovieDetails?>(null)
-    val movieDetails = _movieDetails.asStateFlow()
+    data class DetailUIState(
+        val isLoading: Boolean = false,
+        val movieDetails: MovieDetails? = null,
+        val error: String? = null
+    )
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error = _error.asStateFlow()
+    private val _homeUIState = MutableStateFlow(HomeUIState())
+    val homeUIState = _homeUIState.asStateFlow()
 
-    private val _isLoadingMovies = MutableStateFlow(false)
-    val isLoadingMovies = _isLoadingMovies.asStateFlow()
+    private val _detailUIState = MutableStateFlow(DetailUIState())
+    val detailUIState = _detailUIState.asStateFlow()
 
-    private val _isLoadingDetails = MutableStateFlow(false)
-    val isLoadingDetails = _isLoadingDetails.asStateFlow()
-
-
+    fun refreshHome() {
+        _homeUIState.update { HomeUIState(isLoading = true, error = null) }
+        loadMovies()
+    }
 
     fun loadMovies() {
         viewModelScope.launch {
-            _isLoadingMovies.value = true
-            delay(2000)
+            _homeUIState.update { it.copy(isLoading = true) }
+
+            // Simulate Network Delay
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
-                    _movies.value = response.results
-                    _error.value = null
+                    _homeUIState.update {
+                        it.copy(
+                            movies = response.results,
+                            error = null,
+                            isLoading = false
+                        )
+                    }
                 },
-                onFailure = { exception ->
-                    _error.value = exception.message ?: "Unexpected error"
-                    exception.printStackTrace()
+                onFailure = { e ->
+                    _homeUIState.update {
+                        it.copy(
+                            error = when (e) {
+                                is IOException -> "Network error. Please check your internet connection."
+                                is HttpException -> when (e.code()) {
+                                    404 -> "Content not found"
+                                    500 -> "Server error. Please try again later."
+                                    else -> "Server error (${e.code()})"
+                                }
+                                else -> "Failed to load movies"
+                            },
+                            isLoading = false
+                        )
+                    }
+                    e.printStackTrace()
                 }
             )
-            _isLoadingMovies.value = false
         }
     }
 
     fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
-            _isLoadingDetails.value = true
+            _detailUIState.update { it.copy(isLoading = true) }
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
-                    _movieDetails.value = details
-                    _error.value = null
+                    _detailUIState.update {
+                        it.copy(
+                            movieDetails = details,
+                            error = null,
+                            isLoading = false
+                        )
+                    }
                 },
-                onFailure = { exception ->
-                    _error.value = exception.message ?: "Unexpected error"
-                    exception.printStackTrace()
+                onFailure = { e ->
+                    _detailUIState.update {
+                        it.copy(
+                            error = when (e) {
+                                is IOException -> "Network error. Please check your internet connection."
+                                is HttpException -> when (e.code()) {
+                                    404 -> "Content not found"
+                                    500 -> "Server error. Please try again later."
+                                    else -> "Server error (${e.code()})"
+                                }
+                                else -> "Failed to load movie details"
+                            },
+                            isLoading = false
+                        )
+                    }
+                    e.printStackTrace()
                 }
             )
-            _isLoadingDetails.value = false
         }
     }
 }

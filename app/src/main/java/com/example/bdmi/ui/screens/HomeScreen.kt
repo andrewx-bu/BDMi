@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,9 +41,7 @@ import com.valentinilk.shimmer.shimmer
 @Composable
 fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val movies by viewModel.movies.collectAsState()
-    val isLoading by viewModel.isLoadingMovies.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val uiState by viewModel.homeUIState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadMovies()
@@ -62,28 +59,19 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
         Spacer(Modifier.height(Spacing.small))
 
-        error?.let { errorMessage ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.errorContainer)
-                    .padding(Spacing.medium),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodyMedium
+        when {
+            uiState.error != null -> {
+                ErrorMessage(message = uiState.error!!, onRetry = { viewModel.refreshHome() })
+            }
+
+            else -> {
+                MovieGrid(
+                    movies = uiState.movies.take(UIConstants.MOVIESSHOWN),
+                    onMovieClick = onMovieClick,
+                    isLoading = uiState.isLoading
                 )
             }
-            Spacer(Modifier.height(Spacing.small))
         }
-
-        MovieGrid(
-            movies = movies.take(UIConstants.MOVIESSHOWN),
-            onMovieClick = onMovieClick,
-            isLoading = isLoading
-        )
     }
 }
 
@@ -137,9 +125,11 @@ fun MovieItem(title: String, posterPath: String?, isLoading: Boolean, onClick: (
     ) {
         when {
             isLoading -> {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.LightGray))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.LightGray)
+                )
             }
 
             imageUrl.isNotEmpty() -> {

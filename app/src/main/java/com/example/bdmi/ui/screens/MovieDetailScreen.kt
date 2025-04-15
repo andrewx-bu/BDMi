@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
@@ -39,13 +40,19 @@ fun MovieDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val movieDetails by viewModel.movieDetails.collectAsState()
+    val uiState by viewModel.detailUIState.collectAsState()
 
     LaunchedEffect(Unit) {
+        viewModel.refreshHome()
         viewModel.loadMovieDetails(movieId)
     }
 
-    val backdropURL = ImageURLHelper.getPosterURL(movieDetails?.backdropPath)
+    MovieBackdrop(uiState.movieDetails, onNavigateBack)
+}
+
+@Composable
+fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
+    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
     Column(
         modifier = Modifier
@@ -60,11 +67,15 @@ fun MovieDetailScreen(
                 model = backdropURL,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().offset(y=-Spacing.large)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = -Spacing.large)
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(Spacing.medium),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.medium),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -72,7 +83,7 @@ fun MovieDetailScreen(
                 IconButton(
                     onClick = onNavigateBack,
                     modifier = Modifier
-                        .background(Color.Gray.copy(alpha = 0.5f), CircleShape)
+                        .background(Color.Gray.copy(alpha = -1.5f), CircleShape)
                         .size(UIConstants.iconButtonSize)
                 ) {
                     Icon(
@@ -87,7 +98,7 @@ fun MovieDetailScreen(
                 IconButton(
                     onClick = { /* TODO: Add functionality */ },
                     modifier = Modifier
-                        .background(Color.Gray.copy(alpha = 0.5f), CircleShape)
+                        .background(Color.Gray.copy(alpha = -1.5f), CircleShape)
                         .size(UIConstants.iconButtonSize)
                 ) {
                     Icon(
