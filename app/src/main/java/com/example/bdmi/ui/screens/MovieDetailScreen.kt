@@ -31,14 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.utils.ImageURLHelper
-import com.example.bdmi.ui.viewmodels.MovieDetailScreenViewModel
+import com.example.bdmi.ui.viewmodels.HomeViewModel
 
 @Composable
 fun MovieDetailScreen(
     movieId: Int,
     onNavigateBack: () -> Unit
 ) {
-    val viewModel: MovieDetailScreenViewModel = hiltViewModel()
+    val viewModel: HomeViewModel = hiltViewModel()
     val movieDetails by viewModel.movieDetails.collectAsState()
 
     LaunchedEffect(Unit) {
