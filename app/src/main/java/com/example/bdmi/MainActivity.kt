@@ -1,19 +1,8 @@
 package com.example.bdmi
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.ui.theme.AppTheme
-import com.example.bdmi.ui.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,32 +10,39 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Remembers the user's login status
-        // SharedPreferences process recommended by Copilot
+        // Retrieve userId from shared preferences
         val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", null)
 
-        // State and Structure of this code written by Gemini
         setContent {
-            Wrapper(userId)
+            RootNavigation(userId)
         }
     }
 }
 
+/*
 @Composable
 fun Wrapper(userId: String? = null) {
     Log.d("MainActivity", "Reached Wrapper")
-    val userViewModel: UserViewModel = hiltViewModel()
-    val isLoggedIn by userViewModel.isLoggedIn.collectAsState() // Should recompose when isLoggedIn observes state change
+    val userViewModel: UserViewModel = hiltViewModel() // A global UserViewModel instance
+    var isLoggedIn = userViewModel.isLoggedIn.collectAsState()
 
-    if (userId != null) {
-        Log.d("MainActivity", "[Before loading user] User: LoggedIn: $isLoggedIn")
+    if (userId != null && !isLoggedIn.value) {
         userViewModel.loadUser(userId) {
             if (it != null) {
-                Log.d("MainActivity", "Loaded User in Wrapper")
+                Log.d("MainActivity", "Loaded User in Wrapper: $it")
             }
         }
     }
+
+    Log.d("MainActivity", "User loggedIn: $isLoggedIn")
+    val rootController = rememberNavController()
+    RootNavGraph(
+        navController = rootController,
+        loggedIn = isLoggedIn.value,
+        userViewModel = userViewModel
+    )
+}
 
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
@@ -56,5 +52,4 @@ fun Wrapper(userId: String? = null) {
             loggedIn = isLoggedIn,
             switchTheme = { darkTheme = !darkTheme }
         )
-    }
-}
+    }*/

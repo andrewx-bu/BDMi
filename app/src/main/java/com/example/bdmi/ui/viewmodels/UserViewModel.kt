@@ -34,20 +34,28 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val _isInitialized = MutableStateFlow(false)
+    val isInitialized: StateFlow<Boolean> = _isInitialized
+
 
     // Collection of functions from the UserRepository
     fun loadUser(
-        userId: String,
+        userId: String?,
         onComplete: (UserInfo?) -> Unit
     ) {
         Log.d("UserViewModel", "Loading user with ID: $userId")
+        if (userId == null) {
+            _isInitialized.value = true
+            return
+        }
 
         viewModelScope.launch {
             userRepo.loadUser(userId) { loadedUserInfo ->
                 _userInfo.value = loadedUserInfo
                 _isLoggedIn.value = loadedUserInfo != null
+                _isInitialized.value = true
                 Log.d("UserViewModel", "User loaded: ${_userInfo.value}")
-                onComplete(loadedUserInfo)
+                onComplete(_userInfo.value)
             }
         }
     }

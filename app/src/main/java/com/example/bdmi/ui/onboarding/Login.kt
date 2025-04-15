@@ -26,11 +26,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.utils.hashPassword
 import androidx.core.content.edit
 
+private const val TAG = "LoginScreen"
+
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit
 ) {
-    val TAG = "LoginScreen"
     val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
