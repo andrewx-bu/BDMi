@@ -2,6 +2,7 @@ package com.example.bdmi.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// Generated using https://material-foundation.github.io/material-theme-builder/
 val primaryLight = Color(0xFF6E5D00)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFFDE3F)

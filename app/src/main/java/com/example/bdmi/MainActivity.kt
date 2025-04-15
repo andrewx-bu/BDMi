@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun EntryPoint(userId: String? = null) {
-    Log.d("MainActivity", "Reached Wrapper")
+    Log.d("MainActivity", "Reached EntryPoint")
     val userViewModel: UserViewModel = hiltViewModel()
     // Should recompose when isLoggedIn observes state change
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
@@ -46,7 +46,7 @@ fun EntryPoint(userId: String? = null) {
         Log.d("MainActivity", "[Before loading user] User: LoggedIn: $isLoggedIn")
         userViewModel.loadUser(userId) {
             if (it != null) {
-                Log.d("MainActivity", "Loaded User in Wrapper")
+                Log.d("MainActivity", "Loaded User in EntryPoint")
             }
         }
     }

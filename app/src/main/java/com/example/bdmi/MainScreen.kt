@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -64,9 +68,11 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            // Hide outer top bar if onboarding or moving to notifications
+            // Hide outer top bar if onboarding or moving to notifications or detail screen
             AnimatedVisibility(
-                visible = routeName != null && routeName !in onboardingRoutes && !routeName.contains("MovieDetailScreen"),
+                visible = routeName != null && routeName !in onboardingRoutes && !routeName.contains(
+                    "MovieDetailScreen"
+                ),
                 enter = fadeIn() + slideInVertically { -it },
                 exit = fadeOut() + slideOutVertically { -it }
             ) {
@@ -99,7 +105,11 @@ fun MainScreen(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             NavGraph(navController = navController, loggedIn = loggedIn)
         }
     }
@@ -126,19 +136,32 @@ fun TopBar(
             )
         },
         actions = {
-            IconButton(onClick = onNotificationClick) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            BadgedBox(
+                badge = {
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.offset(x = (-5).dp, y = 5.dp)
+                    ) {
+                        // Number of notifications
+                        Text("8")
+                    }
+                }
+            ) {
+                IconButton(onClick = onNotificationClick) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
 
             IconButton(onClick = onThemeClick) {
                 Icon(
                     imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.rotate(rotation)
                 )
             }
@@ -157,9 +180,8 @@ fun BottomBar(currentRoute: String?, onItemClicked: (NavItem) -> Unit) {
     )
 
     NavigationBar(
-        modifier = Modifier
-            .height(75.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        modifier = Modifier.height(75.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         screens.forEach { screen ->
             AddItem(
@@ -180,7 +202,7 @@ fun RowScope.AddItem(
     val iconColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.tertiary
+        MaterialTheme.colorScheme.secondary
     }
 
     NavigationBarItem(
