@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,9 +29,10 @@ class MainActivity : ComponentActivity() {
         val userId = sharedPref.getString("userId", null)
 
         // State and structure of this code written by Gemini
+        enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             EntryPoint(userId)
-            WindowCompat.setDecorFitsSystemWindows(window, false)
         }
     }
 }

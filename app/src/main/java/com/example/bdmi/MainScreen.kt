@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -46,6 +45,8 @@ import com.example.bdmi.navigation.NavGraph
 import com.example.bdmi.navigation.NavItem
 import com.example.bdmi.navigation.RegisterScreen
 import com.example.bdmi.navigation.StartScreen
+import com.example.bdmi.ui.theme.Spacing
+import com.example.bdmi.ui.theme.UIConstants
 
 @Composable
 fun MainScreen(
@@ -132,7 +133,7 @@ fun TopBar(
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "BDMi",
-                modifier = Modifier.size(75.dp)
+                modifier = Modifier.size(UIConstants.logoSize)
             )
         },
         actions = {
@@ -141,7 +142,10 @@ fun TopBar(
                     Badge(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        modifier = Modifier.offset(x = (-5).dp, y = 5.dp)
+                        modifier = Modifier.offset(
+                            x = -Spacing.extraSmall,
+                            y = Spacing.extraSmall
+                        )
                     ) {
                         // Number of notifications
                         Text("8")
@@ -169,7 +173,7 @@ fun TopBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent
         ),
-        modifier = Modifier.height(75.dp)
+        modifier = Modifier.height(UIConstants.topBarSize)
     )
 }
 
@@ -180,7 +184,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (NavItem) -> Unit) {
     )
 
     NavigationBar(
-        modifier = Modifier.height(75.dp),
+        modifier = Modifier.height(UIConstants.bottomBarSize),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         screens.forEach { screen ->
@@ -215,6 +219,6 @@ fun RowScope.AddItem(
         },
         selected = isSelected,
         onClick = { onItemClicked(screen) },
-        modifier = Modifier.offset(y = 10.dp)
+        modifier = Modifier.offset(y = Spacing.small)
     )
 }

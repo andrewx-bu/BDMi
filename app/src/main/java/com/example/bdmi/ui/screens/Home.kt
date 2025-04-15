@@ -28,14 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.utils.ImageURLHelper
+import com.example.bdmi.ui.theme.Spacing
+import com.example.bdmi.ui.theme.UIConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 
 @Composable
@@ -50,18 +49,17 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp)
+            .padding(Spacing.medium)
     ) {
         Text(
             text = "Popular this week",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.headlineMedium
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Spacing.small))
 
         if (movies.isNotEmpty()) {
-            MovieGrid(movies = movies.take(18), onMovieClick = onMovieClick)
+            MovieGrid(movies = movies.take(UIConstants.MOVIESSHOWN), onMovieClick = onMovieClick)
         }
     }
 }
@@ -69,9 +67,9 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 @Composable
 fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        columns = GridCells.Fixed(UIConstants.MOVIECOLUMNS),
+        verticalArrangement = Arrangement.spacedBy(Spacing.small),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
     ) {
         items(movies) { movie ->
             MovieItem(
@@ -89,9 +87,9 @@ fun MovieItem(title: String, posterPath: String?, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .aspectRatio(2 / 3f)
+            .aspectRatio(UIConstants.POSTERSASPECTRATIO)
             .clickable(onClick = onClick)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(Spacing.medium))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
@@ -108,12 +106,12 @@ fun MovieItem(title: String, posterPath: String?, onClick: () -> Unit) {
                     imageVector = Icons.Default.Movie,
                     contentDescription = "No poster available",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(50.dp)
+                    modifier = Modifier.size(UIConstants.noPosterIconSize)
                 )
                 Text(
                     text = title,
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(5.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(Spacing.extraSmall),
                     textAlign = TextAlign.Center
                 )
             }
