@@ -90,4 +90,5 @@ dependencies {
     implementation(libs.cloudinary.android)
     implementation(libs.coil.kt.coil.compose)
 
+    implementation(libs.compose.shimmer)
 }

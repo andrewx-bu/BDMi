@@ -6,6 +6,7 @@ import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,8 +25,17 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    private val _isLoadingMovies = MutableStateFlow(false)
+    val isLoadingMovies = _isLoadingMovies.asStateFlow()
+
+    private val _isLoadingDetails = MutableStateFlow(false)
+    val isLoadingDetails = _isLoadingDetails.asStateFlow()
+
+
     fun loadMovies() {
         viewModelScope.launch {
+            _isLoadingMovies.value = true
+            delay(2000)
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
                     _movies.value = response.results
@@ -36,11 +46,13 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                     exception.printStackTrace()
                 }
             )
+            _isLoadingMovies.value = false
         }
     }
 
     fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
+            _isLoadingDetails.value = true
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
                     _movieDetails.value = details
@@ -51,6 +63,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                     exception.printStackTrace()
                 }
             )
+            _isLoadingDetails.value = false
         }
     }
 }
