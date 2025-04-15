@@ -18,6 +18,13 @@ object UIConstants {
     const val BACKDROPASPECTRATIO = 3f / 2f
     val iconButtonSize = 35.dp
     val iconSize = 20.dp
+    val posterRowOffset = 225.dp
+    val posterSize = 225.dp
+    const val LOADINGBALLDIAMETER = 50f
+    const val LOADINGBALLHSPACE = 50f
+    const val LOADINGBALLDURATION = 1000
+    const val LOADINGBALLMINALPHA = 0.5f
+    const val LOADINGBALLMAXALPHA = 1f
 }
 
 object Spacing {

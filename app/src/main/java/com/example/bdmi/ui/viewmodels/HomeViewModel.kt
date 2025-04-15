@@ -58,16 +58,22 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     }
 
     fun refreshCredits(movieId: Int) {
-        _creditsUIState.update { CreditsUIState(isLoading = true, cast = emptyList(), crew = emptyList(), error = null) }
+        _creditsUIState.update {
+            CreditsUIState(
+                isLoading = true,
+                cast = emptyList(),
+                crew = emptyList(),
+                error = null
+            )
+        }
         loadMovieCredits(movieId)
     }
 
     private fun loadMovies() {
         viewModelScope.launch {
             _homeUIState.update { it.copy(isLoading = true, error = null) }
-
             // Simulate Network Delay
-            delay(1000)
+            delay(1500)
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
                     _homeUIState.update {
@@ -88,6 +94,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                                     500 -> "Server error. Please try again later."
                                     else -> "Server error (${e.code()})"
                                 }
+
                                 else -> "Failed to load movies"
                             },
                             isLoading = false
@@ -102,6 +109,8 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }
+            // Simulate Network Delay
+            delay(2000)
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
                     _detailUIState.update {
@@ -122,6 +131,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                                     500 -> "Server error. Please try again later."
                                     else -> "Server error (${e.code()})"
                                 }
+
                                 else -> "Failed to load movie details"
                             },
                             isLoading = false
@@ -136,7 +146,8 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private fun loadMovieCredits(movieId: Int) {
         viewModelScope.launch {
             _creditsUIState.update { it.copy(isLoading = true, error = null) }
-
+            // Simulate Network Delay
+            delay(2500)
             movieRepo.getMovieCredits(movieId).fold(
                 onSuccess = { credits ->
                     _creditsUIState.update {
@@ -157,6 +168,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                                     500 -> "Server error. Please try again later."
                                     else -> "Server error (${e.code()})"
                                 }
+
                                 else -> "Failed to load movie credits"
                             },
                             isLoading = false

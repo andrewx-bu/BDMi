@@ -91,4 +91,5 @@ dependencies {
     implementation(libs.coil.kt.coil.compose)
 
     implementation(libs.compose.shimmer)
+    implementation(libs.jetpack.loading)
 }
