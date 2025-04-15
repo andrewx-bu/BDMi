@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
@@ -44,6 +44,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     val viewModel: HomeViewModel = hiltViewModel()
     val movies by viewModel.movies.collectAsState()
     val isLoading by viewModel.isLoadingMovies.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadMovies()
@@ -61,7 +62,28 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
         Spacer(Modifier.height(Spacing.small))
 
-        MovieGrid(movies = movies.take(UIConstants.MOVIESSHOWN), onMovieClick = onMovieClick, isLoading = isLoading)
+        error?.let { errorMessage ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(Spacing.medium),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(Modifier.height(Spacing.small))
+        }
+
+        MovieGrid(
+            movies = movies.take(UIConstants.MOVIESSHOWN),
+            onMovieClick = onMovieClick,
+            isLoading = isLoading
+        )
     }
 }
 
@@ -72,13 +94,23 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit, isLoading: Boole
         verticalArrangement = Arrangement.spacedBy(Spacing.small),
         horizontalArrangement = Arrangement.spacedBy(Spacing.small)
     ) {
-        items(movies) { movie ->
-            MovieItem(
-                title = movie.title,
-                posterPath = movie.posterPath,
-                isLoading = isLoading,
-                onClick = { onMovieClick(movie.id) }
-            )
+        items(if (isLoading) UIConstants.MOVIESSHOWN else movies.size) { index ->
+            if (isLoading) {
+                MovieItem(
+                    title = "",
+                    posterPath = null,
+                    isLoading = true,
+                    onClick = {}
+                )
+            } else {
+                val movie = movies[index]
+                MovieItem(
+                    title = movie.title,
+                    posterPath = movie.posterPath,
+                    isLoading = false,
+                    onClick = { onMovieClick(movie.id) }
+                )
+            }
         }
     }
 }
@@ -87,19 +119,27 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit, isLoading: Boole
 fun MovieItem(title: String, posterPath: String?, isLoading: Boolean, onClick: () -> Unit) {
     val imageUrl = ImageURLHelper.getPosterURL(posterPath)
 
-    val modifier = Modifier
+    val baseModifier = Modifier
         .aspectRatio(UIConstants.POSTERSASPECTRATIO)
         .clip(RoundedCornerShape(Spacing.medium))
         .background(MaterialTheme.colorScheme.surfaceVariant)
         .clickable(enabled = !isLoading) { onClick() }
 
+    val modifier = if (isLoading) {
+        baseModifier.shimmer()
+    } else {
+        baseModifier
+    }
+
     Box(
-        modifier = if (isLoading) modifier.shimmer().then(modifier) else modifier,
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         when {
             isLoading -> {
-                Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.LightGray))
             }
 
             imageUrl.isNotEmpty() -> {

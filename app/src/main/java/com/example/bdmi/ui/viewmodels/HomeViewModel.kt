@@ -32,6 +32,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     val isLoadingDetails = _isLoadingDetails.asStateFlow()
 
 
+
     fun loadMovies() {
         viewModelScope.launch {
             _isLoadingMovies.value = true
