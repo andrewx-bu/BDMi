@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.ui.viewmodels.UserViewModel
@@ -26,18 +27,20 @@ class MainActivity : ComponentActivity() {
         val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", null)
 
-        // State and Structure of this code written by Gemini
+        // State and structure of this code written by Gemini
         setContent {
-            Wrapper(userId)
+            EntryPoint(userId)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
         }
     }
 }
 
 @Composable
-fun Wrapper(userId: String? = null) {
+fun EntryPoint(userId: String? = null) {
     Log.d("MainActivity", "Reached Wrapper")
     val userViewModel: UserViewModel = hiltViewModel()
-    val isLoggedIn by userViewModel.isLoggedIn.collectAsState() // Should recompose when isLoggedIn observes state change
+    // Should recompose when isLoggedIn observes state change
+    val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
 
     if (userId != null) {
         Log.d("MainActivity", "[Before loading user] User: LoggedIn: $isLoggedIn")

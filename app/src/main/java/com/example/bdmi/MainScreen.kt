@@ -51,19 +51,22 @@ fun MainScreen(
 ) {
     // Keep navigation vars in parent composable
     val navController = rememberNavController()
+
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val routeName = currentRoute?.substringAfterLast('.')
+
     val onboardingRoutes = listOf(
         StartScreen::class.simpleName,
         LoginScreen::class.simpleName,
         RegisterScreen::class.simpleName
     )
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             // Hide outer top bar if onboarding or moving to notifications
             AnimatedVisibility(
-                visible = routeName != null && (routeName !in onboardingRoutes && !routeName.contains("MovieDetailScreen")),
+                visible = routeName != null && routeName !in onboardingRoutes && !routeName.contains("MovieDetailScreen"),
                 enter = fadeIn() + slideInVertically { -it },
                 exit = fadeOut() + slideOutVertically { -it }
             ) {
