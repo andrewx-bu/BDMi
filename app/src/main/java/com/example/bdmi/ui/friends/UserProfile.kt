@@ -16,6 +16,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,18 +30,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.ui.viewmodels.FriendViewModel
+import com.example.bdmi.ui.viewmodels.ProfileBanner
 import com.example.bdmi.ui.viewmodels.UserInfo
 import com.example.bdmi.ui.viewmodels.UserViewModel
 
+private const val TAG = "ProfileScreen"
+
 @Composable
-fun UserProfile(userId: String = "") {
-    val tag = "ProfileScreen"
+fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
     val friendViewModel: FriendViewModel = hiltViewModel()
-    var userInfo by remember { mutableStateOf<UserInfo?>(null) }
-    friendViewModel.loadFriendProfile(userId) {
-        userInfo = it
+    var currentUser = userViewModel.userInfo.collectAsState()
+    var profileInfo by remember { mutableStateOf<UserInfo?>(null) }
+    LaunchedEffect(profileUserId) {
+        friendViewModel.loadProfile(profileUserId) { userInfo ->
+            profileInfo = userInfo
+        }
     }
-    if (userInfo == null) {
+
+    if (profileInfo == null) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -53,32 +62,32 @@ fun UserProfile(userId: String = "") {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            ProfilePicture(userInfo?.profilePicture.toString())
+            ProfilePicture(profileInfo?.profilePicture.toString())
             Text(
-                text = userInfo?.displayName.toString()
+                text = profileInfo?.displayName.toString()
             )
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = userInfo?.friendCount.toString() + " Friends"
+                    text = profileInfo?.friendCount.toString() + " Friends"
                 )
                 IconButton(
                     onClick = {
                         friendViewModel.sendFriendInvite(
-                            ProfileBanner(
-                                userId = userInfo?.userId.toString(),
-                                displayName = userInfo?.displayName.toString(),
-                                profilePicture = userInfo?.profilePicture.toString(),
-                                friendCount = userInfo?.friendCount,
-                                listCount = userInfo?.listCount,
-                                reviewCount = userInfo?.reviewCount,
-                                isPublic = userInfo?.isPublic
-                            ),
-                            userId,
+                            senderInfo = ProfileBanner(
+                                userId = currentUser.value?.userId.toString(),
+                                displayName = currentUser.value?.displayName.toString(),
+                                profilePicture = currentUser.value?.profilePicture.toString(),
+                                friendCount = currentUser.value?.friendCount,
+                                listCount = currentUser.value?.listCount,
+                                reviewCount = currentUser.value?.reviewCount,
+                                isPublic = currentUser.value?.isPublic
+                                ),
+                            recipientId = profileUserId,
                             onComplete = {
-                                Log.d(tag, "Friend invite sent: $it")
+                                Log.d(TAG, "Friend invite sent: $it")
                             }
                         )
                     },
@@ -97,7 +106,6 @@ fun UserProfile(userId: String = "") {
             }
         }
     }
-
 }
 
 @Composable

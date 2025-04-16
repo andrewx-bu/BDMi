@@ -1,9 +1,9 @@
 package com.example.bdmi
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.bdmi.navigation.RootNavigation
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
@@ -23,12 +23,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Remembers the user's login status
-        // SharedPreferences process recommended by Copilot
+        // Retrieve userId from shared preferences
         val sharedPref = getSharedPreferences("UserPref", MODE_PRIVATE)
         val userId = sharedPref.getString("userId", null)
-
-        // State and structure of this code written by Gemini
+        //setContent {
+            //RootNavigation(userId)
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
@@ -37,21 +36,33 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*
+fun Wrapper(userId: String? = null) {
+    Log.d("MainActivity", "Reached Wrapper")
+    val userViewModel: UserViewModel = hiltViewModel() // A global UserViewModel instance
+    var isLoggedIn = userViewModel.isLoggedIn.collectAsState()
 @Composable
 fun EntryPoint(userId: String? = null) {
     Log.d("MainActivity", "Reached EntryPoint")
     val userViewModel: UserViewModel = hiltViewModel()
     // Should recompose when isLoggedIn observes state change
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
-
-    if (userId != null) {
-        Log.d("MainActivity", "[Before loading user] User: LoggedIn: $isLoggedIn")
+    if (userId != null && !isLoggedIn.value) {
         userViewModel.loadUser(userId) {
             if (it != null) {
-                Log.d("MainActivity", "Loaded User in EntryPoint")
+              Log.d("MainActivity", "Loaded User in EntryPoint")
             }
         }
     }
+
+    Log.d("MainActivity", "User loggedIn: $isLoggedIn")
+    val rootController = rememberNavController()
+    RootNavGraph(
+        navController = rootController,
+        loggedIn = isLoggedIn.value,
+        userViewModel = userViewModel
+    )
+}
 
     val systemDark = isSystemInDarkTheme()
     var darkTheme by remember { mutableStateOf(systemDark) }
@@ -61,5 +72,4 @@ fun EntryPoint(userId: String? = null) {
             loggedIn = isLoggedIn,
             switchTheme = { darkTheme = !darkTheme }
         )
-    }
-}
+    }*/

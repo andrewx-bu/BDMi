@@ -30,9 +30,9 @@ private const val TAG = "RegisterScreen"
 
 @Composable
 fun RegisterScreen(
+    userViewModel: UserViewModel,
     onRegisterClick: () -> Unit
 ) {
-    val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -89,8 +89,3 @@ fun RegisterScreen(
     }
 }
 
-@Preview
-@Composable
-fun RegisterScreenPreview() {
-    RegisterScreen(onRegisterClick = {})
-}

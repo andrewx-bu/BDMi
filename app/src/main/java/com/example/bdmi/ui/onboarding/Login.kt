@@ -19,19 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.bdmi.ui.viewmodels.UserViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.utils.hashPassword
 import androidx.core.content.edit
 
+private const val TAG = "LoginScreen"
+
 @Composable
 fun LoginScreen(
+    userViewModel: UserViewModel,
     onLoginClick: () -> Unit
 ) {
-    val TAG = "LoginScreen"
-    val userViewModel: UserViewModel = hiltViewModel()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -78,10 +77,4 @@ fun LoginScreen(
             Text(text = "Login")
         }
     }
-}
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(onLoginClick = {})
 }

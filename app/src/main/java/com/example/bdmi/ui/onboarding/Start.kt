@@ -11,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
+private const val TAG = "AppStart"
+
 @Composable
 fun StartScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    Log.d("AppStart", "Reached app start")
+    Log.d(TAG, "Reached app start")
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,

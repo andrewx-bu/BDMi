@@ -1,6 +1,6 @@
 package com.example.bdmi.ui.screens
 
-import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.viewmodels.UserViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,34 +45,23 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
 import coil.compose.AsyncImage
-import com.example.bdmi.ui.friends.FriendViewModel
+
+private const val TAG = "ProfileScreen"
 
 @Composable
 fun ProfileScreen(
+    userViewModel: UserViewModel,
     onLogoutClick: () -> Unit,
     navigateToUserSearch: () -> Unit
 ) {
-    val tag = "ProfileScreen"
-    val userViewModel: UserViewModel = hiltViewModel()
     val userInfo by userViewModel.userInfo.collectAsState()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
+    val tempImageURI by userViewModel.tempImageURI.collectAsState()
 
-    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-    val userId = sharedPreferences.getString("userId", null)
-    LaunchedEffect(Unit) {
-        if (userId != null) {
-            userViewModel.loadUser(userId) {
-                Log.d(tag, "Loaded user info: $it")
-            }
-        }
-    }
-
-    Log.d(tag, "ProfileScreen: $userInfo")
-    Log.d(tag, "isLoggedIn: $isLoggedIn")
+    Log.d(TAG, "ProfileScreen: $userInfo")
+    Log.d(TAG, "isLoggedIn: $isLoggedIn")
     if (isLoggedIn && userInfo != null) {
         // Followed android docs for this
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -92,7 +79,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            ProfilePicture(userInfo?.profilePicture.toString()) {
+            ProfilePicture(userInfo?.profilePicture.toString(), tempImageURI) {
                 pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
             }
             Text(
@@ -126,7 +113,6 @@ fun ProfileScreen(
             Button(
                 onClick = {
                     userViewModel.logout()
-                    sharedPreferences.edit { remove("userId") }
                     onLogoutClick()
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -158,7 +144,8 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
+
+fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () -> Unit) {
     val value by rememberInfiniteTransition().animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -187,7 +174,6 @@ fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
             )
         )
     }
-
     Box(
         modifier = Modifier.size(300.dp),
         contentAlignment = Alignment.Center
@@ -196,7 +182,7 @@ fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
 
         // Profile Picture
         AsyncImage(
-            model = profileImageUrl,
+            model = tempImageUri ?: profileImageUrl,
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -231,3 +217,13 @@ fun ProfilePicture(profileImageUrl: String, onEditClick: () -> Unit) {
         }
     }
 }
+
+//    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+//    val userId = sharedPreferences.getString("userId", null)
+//    LaunchedEffect(Unit) {
+//        if (userId != null) {
+//            userViewModel.loadUser(userId) {
+//                Log.d(TAG, "Loaded user info: $it")
+//            }
+//        }
+//    }
