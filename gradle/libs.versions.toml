@@ -1,20 +1,21 @@
 [versions]
 agp = "8.9.1"
 cloudinaryAndroidVersion = "3.0.2"
-cloudinaryKotlinUploader = "1.7.0"
 coilCompose = "3.1.0"
-coilComposeVersion = "2.4.0"
+coilComposeVersion = "2.6.0"
+composeShimmer = "1.3.2"
 converterMoshi = "2.11.0"
 firebaseBom = "33.12.0"
 firebaseFirestore = "25.1.3"
+jetpackLoading = "1.1.0"
 kotlin = "2.0.21"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.03.01"
+composeBom = "2025.04.00"
 google-services = "4.4.2"
 loggingInterceptor = "4.12.0"
 materialIconsExtended = "1.7.8"
@@ -36,9 +37,11 @@ cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
+compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 google-firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
+jetpack-loading = { module = "com.github.MahboubehSeyedpour:jetpack-loading", version.ref = "jetpackLoading" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
