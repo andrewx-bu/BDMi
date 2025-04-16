@@ -1,5 +1,6 @@
 package com.example.bdmi.ui.viewmodels
 
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
@@ -24,7 +26,10 @@ data class UserInfo(
 )
 
 @HiltViewModel
-class UserViewModel @Inject constructor(private val userRepo: UserRepository) : ViewModel() {
+class UserViewModel @Inject constructor(
+    private val userRepo: UserRepository,
+    private val sharedPreferences: SharedPreferences
+) : ViewModel() {
     private val _userInfo = MutableStateFlow<UserInfo?>(null)
     val userInfo: StateFlow<UserInfo?> = _userInfo.asStateFlow()
 
@@ -37,6 +42,8 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized
 
+    private val _tempImageURI = MutableStateFlow<Uri?>(null)
+    val tempImageURI: StateFlow<Uri?> = _tempImageURI.asStateFlow()
 
     // Collection of functions from the UserRepository
     fun loadUser(
@@ -72,6 +79,7 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
                     loadUser(userId) { loadedUserInfo ->
                         _userInfo.value = loadedUserInfo
                         _isLoggedIn.value = loadedUserInfo != null
+                        sharedPreferences.edit { putString("userId", userId) }
                         Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
                         onComplete(loadedUserInfo)
                     }
@@ -84,6 +92,7 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
     fun logout() {
         _isLoggedIn.value = false
         _userInfo.value = null // Clear user info on logout
+        sharedPreferences.edit { remove("userId") }
     }
 
     fun register(
@@ -96,6 +105,7 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
             userRepo.createUser(userInformation) { loadedUserInfo ->
                 _userInfo.value = loadedUserInfo
                 _isLoggedIn.value = loadedUserInfo != null
+                sharedPreferences.edit { putString("userId", loadedUserInfo?.userId) }
                 Log.d("UserViewModel", "User registered: ${_userInfo.value}")
                 onComplete(loadedUserInfo)
             }
@@ -113,13 +123,16 @@ class UserViewModel @Inject constructor(private val userRepo: UserRepository) : 
     }
 
     fun changeProfilePicture(userId: String, profilePicture: Uri, onComplete: (Boolean) -> Unit) {
-        Log.d("UserViewModel", "Changing profile picture for user with ID: $userId")
+        _tempImageURI.value = profilePicture
 
+        Log.d("UserViewModel", "Changing profile picture for user with ID: $userId")
+        _userInfo.value = _userInfo.value?.copy(profilePicture = profilePicture.toString())
         viewModelScope.launch {
             userRepo.changeProfilePicture(userId, profilePicture) { newProfilePicture ->
                 if (newProfilePicture != null) {
                     val updatedUserInfo = _userInfo.value?.copy(profilePicture = newProfilePicture)
                     _userInfo.value = updatedUserInfo
+                    _tempImageURI.value = null
                     Log.d("UserViewModel", "Updated user info: ${_userInfo.value}")
                     onComplete(true)
                 }

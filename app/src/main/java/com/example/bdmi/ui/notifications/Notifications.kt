@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.bdmi.ui.friends.FriendViewModel
+import com.example.bdmi.ui.viewmodels.FriendViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

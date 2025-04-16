@@ -1,5 +1,6 @@
 package com.example.bdmi
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
@@ -40,13 +42,14 @@ import com.example.bdmi.ui.viewmodels.UserViewModel
 
 @Composable
 fun MainScreen(
+    rootNavController: NavHostController,
+    navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel,
-    darkTheme: Boolean,
-    switchTheme: () -> Unit,
+    darkTheme: Boolean = true,
+    switchTheme: () -> Unit = {},
 ) {
-    // Keep navigation vars in parent composable
-    val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    Log.d("MainScreen", "Current route: $currentRoute")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -59,7 +62,7 @@ fun MainScreen(
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
-                    onNotificationClick = { navController.navigate(MainRoutes.Notifications) }
+                    onNotificationClick = { navController.navigate(MainRoutes.Notifications.route) }
                 )
             }
         },
@@ -71,7 +74,7 @@ fun MainScreen(
             ) {
                 BottomBar(
                     currentRoute = currentRoute,
-                    onItemClicked = { route ->
+                    onItemClicked = { route : String ->
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -85,7 +88,11 @@ fun MainScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            MainNestedNavGraph(navController = navController, userViewModel = userViewModel)
+            MainNestedNavGraph(
+                rootNavController = rootNavController,
+                navController = navController,
+                userViewModel = userViewModel
+            )
         }
     }
 }
@@ -136,9 +143,12 @@ fun TopBar(
 }
 
 @Composable
-fun BottomBar(currentRoute: String?, onItemClicked: (MainRoutes) -> Unit) {
+fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
     val screens = listOf(
-        MainRoutes.Home, MainRoutes.Search, MainRoutes.Bookmarks, MainRoutes.Profile
+        MainRoutes.Home,
+        MainRoutes.Search,
+        MainRoutes.Bookmarks,
+        MainRoutes.Profile
     )
 
     NavigationBar(
@@ -160,7 +170,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (MainRoutes) -> Unit) {
 fun RowScope.AddItem(
     screen: MainRoutes,
     isSelected: Boolean,
-    onItemClicked: (MainRoutes) -> Unit
+    onItemClicked: (String) -> Unit
 ) {
     val iconColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
@@ -177,7 +187,7 @@ fun RowScope.AddItem(
             )
         },
         selected = isSelected,
-        onClick = { onItemClicked(screen) },
+        onClick = { onItemClicked(screen.route) },
         modifier = Modifier.offset(y = 10.dp)
     )
 }

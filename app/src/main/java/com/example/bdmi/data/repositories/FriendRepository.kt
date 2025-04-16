@@ -1,7 +1,7 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.example.bdmi.ui.friends.ProfileBanner
+import com.example.bdmi.ui.viewmodels.ProfileBanner
 import com.example.bdmi.ui.notifications.Notification
 import com.example.bdmi.ui.notifications.NotificationType
 import com.example.bdmi.ui.viewmodels.UserInfo
@@ -96,7 +96,7 @@ class FriendRepository @Inject constructor(
                 val senderRef = db.collection(USERS_COLLECTION).document(recipientId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
                 val outgoingRequest = mapOf(
                     "userId" to recipientId,
-                    "timestamp" to Timestamp.Companion.now(),
+                    "timestamp" to Timestamp.now(),
                 )
                 senderRef.add(outgoingRequest)
                 Log.d("$TAG$dbFunction", "New notification created: $newNotification")

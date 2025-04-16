@@ -1,11 +1,10 @@
-package com.example.bdmi.ui.friends
+package com.example.bdmi.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.UserRepository
-import com.example.bdmi.ui.viewmodels.UserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,10 +64,11 @@ class FriendViewModel @Inject constructor(
     }
 
     // Step 2: Send friend invite
-    fun sendFriendInvite(friendInfo: ProfileBanner, userId: String, onComplete: (Boolean) -> Unit) {
-        Log.d(TAG, "Sending friend invite to user with ID: $userId")
+    // Takes in the userId of the person you want to send the invite to and the userInfo of the person who sent the invite
+    fun sendFriendInvite(senderInfo: ProfileBanner, recipientId: String, onComplete: (Boolean) -> Unit) {
+        Log.d(TAG, "Sending friend invite to user with ID: $recipientId")
         viewModelScope.launch {
-            friendRepository.sendFriendInvite(friendInfo, userId) {
+            friendRepository.sendFriendInvite(senderInfo, recipientId) {
                 onComplete(it)
             }
         }
@@ -119,16 +119,17 @@ class FriendViewModel @Inject constructor(
         }
     }
 
-    fun loadFriendProfile(userId: String, onComplete: (UserInfo?) -> Unit) {
-        Log.d(TAG, "Loading friend profile for user: $userId")
+    fun loadProfile(profileId: String, onComplete: (UserInfo?) -> Unit) {
+        Log.d(TAG, "Loading friend profile for user: $profileId")
 
         viewModelScope.launch {
-            userRepository.loadUser(userId) { userProfile ->
+            userRepository.loadUser(profileId) { userProfile ->
                 onComplete(userProfile)
             }
         }
     }
 
+    // Do we need?
     fun closeFriendProfile() {
         Log.d(TAG, "Closing friend profile")
         _friendProfile.value = null
