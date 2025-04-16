@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,15 +55,22 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.ui.viewmodels.FriendViewModel
+import com.example.bdmi.ui.viewmodels.Notification
+import com.example.bdmi.ui.viewmodels.NotificationType
+import com.example.bdmi.ui.viewmodels.NotificationViewModel
+import com.example.bdmi.ui.viewmodels.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsScreen(onNavigateBack: () -> Unit) {
+fun NotificationsScreen(userViewModel: UserViewModel, onNavigateBack: () -> Unit) {
+    val notificationViewModel: NotificationViewModel = hiltViewModel()
+    val userId = userViewModel.userInfo.collectAsState().value?.userId
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Updates") },
+                title = { Text("Notifications") },
                 navigationIcon = {
                     IconButton(onClick = { onNavigateBack() }) {
                         Icon(
@@ -70,22 +78,32 @@ fun NotificationsScreen(onNavigateBack: () -> Unit) {
                             contentDescription = "Back"
                         )
                     }
+                },
+                actions = {
+                    Card(
+                        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                        onClick = {
+                            notificationViewModel.deleteAllNotifications(userId.toString())
+                        }
+                    ) {
+                        Text(
+                            text = "Clear All"
+                        )
+                    }
                 }
             )
         }
     ) { padding ->
-        NotificationList(modifier = Modifier.padding(padding))
+        NotificationList(modifier = Modifier.padding(padding), userId)
     }
 }
 
 @Composable
-fun NotificationList(modifier: Modifier = Modifier) {
+fun NotificationList(modifier: Modifier = Modifier, userId: String?) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val notificationList = notificationViewModel.notificationList.collectAsState()
     val numOfNotifications = notificationViewModel.numOfNotifications.collectAsState()
-    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-    val userId = sharedPreferences.getString("userId", null)
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userId) {
         if (userId != null)
             notificationViewModel.getNotifications(userId)
     }
@@ -124,7 +142,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
     val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("userId", null)
     var isRead by remember { mutableStateOf(notification.read) }
-    var cardVisibility = if (isRead) 0.5f else 1f
+    var cardVisibility = if (isRead) 0.6f else 1f
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = RoundedCornerShape(5.dp),
@@ -152,9 +170,9 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
                 color = Color.DarkGray,
                 modifier = modifier.padding(horizontal = 10.dp)
             )
+            // Delete a notification
             IconButton(
                 onClick = {
-                    isRead = true
                     notificationViewModel.deleteNotification(userId.toString(), notification.notificationId)
                 }
             ) {
@@ -173,7 +191,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 
         Column {
             when (notification.type) {
-                "friend_request" -> FriendRequestNotification(notification.notificationId, notification.data as NotificationType.FriendRequest)
+                "friend_request" -> FriendRequestNotification(notification.notificationId, notification.data as NotificationType.FriendRequest, userId)
                 // Add more notification types here
             }
         }
@@ -182,11 +200,8 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 }
 
 @Composable
-fun FriendRequestNotification(notificationId: String, data: NotificationType.FriendRequest) {
+fun FriendRequestNotification(notificationId: String, data: NotificationType.FriendRequest, userId: String?) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
-    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-    val userId = sharedPreferences.getString("userId", null)
-    val friendViewModel: FriendViewModel = hiltViewModel()
     Row(
         modifier = Modifier.fillMaxWidth().padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -228,51 +243,55 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
                 }
             }
         }
-        Column (
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.End,
-            modifier = Modifier.padding()
-        ) {
-            IconButton(
-                onClick = {
-                    friendViewModel.acceptInvite(userId.toString(), data.userId) {
-                        if (it) {
-                            Log.d("NotificationItem", "Invite accepted")
-                        } else {
-                            Log.d("NotificationItem", "Error accepting invite")
+        if (!data.responded) {
+            Column (
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.padding()
+            ) {
+                IconButton(
+                    onClick = {
+                        notificationViewModel.acceptInvite(userId.toString(), data.userId) {
+                            if (it) {
+                                Log.d("NotificationItem", "Invite accepted")
+                            } else {
+                                Log.d("NotificationItem", "Error accepting invite")
+                            }
                         }
-                    }
-                },
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Green,
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.clip(CircleShape).size(30.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Accept Friend Request"
-                )
-            }
-            Spacer(modifier = Modifier.padding(2.dp))
-            IconButton(
-                onClick = {
-                    notificationViewModel.deleteNotification(userId.toString(), notificationId)
-                },
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.clip(CircleShape).size(30.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Decline Friend Request"
-                )
+                        notificationViewModel.friendRequestResponse(userId.toString(), notificationId)
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = Color.Green,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.clip(CircleShape).size(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Accept Friend Request"
+                    )
+                }
+                Spacer(modifier = Modifier.padding(2.dp))
+                // If user hasn't responded to the friend request display the buttons
+                IconButton(
+                    onClick = {
+                        notificationViewModel.deleteNotification(userId.toString(), notificationId)
+                        notificationViewModel.friendRequestResponse(userId.toString(), notificationId)
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.clip(CircleShape).size(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Decline Friend Request"
+                    )
+                }
             }
         }
     }
-
 }
 
 @Composable

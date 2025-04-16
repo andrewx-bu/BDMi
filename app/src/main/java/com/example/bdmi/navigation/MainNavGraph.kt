@@ -69,7 +69,13 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         composable(MainRoutes.Home.route) {
             HomeScreen(
                 onMovieClick = { movieId ->
-                    navController.navigate("movie_detail/$movieId")
+                    navController.navigate("movie_detail/$movieId") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
@@ -89,7 +95,10 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
             )
         }
         composable(MainRoutes.Notifications.route) {
-            NotificationsScreen(onNavigateBack = { navController.navigateUp() })
+            NotificationsScreen(
+                userViewModel = userViewModel,
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
 
         // Deeper screens can go here too
@@ -100,7 +109,12 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
 
         composable("friend_search") {
             FriendSearch { userId ->
-                navController.navigate("user_profile/$userId")
+                navController.navigate("user_profile/$userId") {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    restoreState = true
+                }
             }
         }
 

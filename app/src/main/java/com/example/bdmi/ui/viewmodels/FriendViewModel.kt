@@ -75,33 +75,7 @@ class FriendViewModel @Inject constructor(
     }
 
     // Step 3: Accept or decline friend invite
-    fun acceptInvite(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
-        Log.d(TAG, "Adding friend with ID: $friendId")
-
-        viewModelScope.launch {
-            friendRepository.acceptFriendInvite(userId, friendId) { newFriend ->
-                if (newFriend != null) {
-                    _friends.value = _friends.value.toMutableList().apply {
-                        add(newFriend)
-                    }
-                    Log.d(TAG, "New friend added: ${newFriend.displayName}")
-                    onComplete(true)
-                } else {
-                    onComplete(false)
-                }
-            }
-        }
-    }
-
-    fun declineInvite(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
-        Log.d(TAG, "Declining friend invite with ID: $friendId")
-
-        viewModelScope.launch {
-            friendRepository.declineInvite(userId, friendId) {
-                onComplete(it)
-            }
-        }
-    }
+    /* Moved to Notification View Model */
 
     fun removeFriend(userId: String, friendId: String, onComplete: (Boolean) -> Unit) {
         Log.d(TAG, "Removing friend with ID: $friendId")

@@ -1,6 +1,5 @@
 package com.example.bdmi
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -18,7 +17,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,6 +37,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -44,11 +48,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
 import com.example.bdmi.ui.viewmodels.UserViewModel
-import com.example.bdmi.navigation.LoginScreen
-import com.example.bdmi.navigation.NavGraph
-import com.example.bdmi.navigation.NavItem
-import com.example.bdmi.navigation.RegisterScreen
-import com.example.bdmi.navigation.StartScreen
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 
@@ -61,7 +60,7 @@ fun MainScreen(
     darkTheme: Boolean = true,
     switchTheme: () -> Unit = {},
 ) {
-  val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -74,7 +73,15 @@ fun MainScreen(
                 TopBar(
                     darkTheme = darkTheme,
                     onThemeClick = switchTheme,
-                    onNotificationClick = { navController.navigate(MainRoutes.Notifications.route) }
+                    onNotificationClick = {
+                        navController.navigate(MainRoutes.Notifications.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 )
             }
         },
@@ -130,7 +137,7 @@ fun TopBar(
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "BDMi",
-                modifier = Modifier.size(UIConstants.logoSize)
+                modifier = Modifier.size(UIConstants.logoSize).clip(RoundedCornerShape(Spacing.small))
             )
         },
         actions = {
@@ -158,14 +165,6 @@ fun TopBar(
                     )
                 }
             }
-//            IconButton(onClick = onThemeClick) {
-//                Icon(
-//                    imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-//                    contentDescription = "Toggle Theme",
-//                    tint = MaterialTheme.colorScheme.primary,
-//                    modifier = Modifier.rotate(rotation)
-//                )
-//            }
           Spacer(Modifier.width(Spacing.medium))
 
             IconButton(onClick = onThemeClick) {

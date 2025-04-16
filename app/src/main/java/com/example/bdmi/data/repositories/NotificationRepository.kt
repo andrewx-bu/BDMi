@@ -1,8 +1,8 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.example.bdmi.ui.notifications.Notification
-import com.example.bdmi.ui.notifications.NotificationType
+import com.example.bdmi.ui.viewmodels.Notification
+import com.example.bdmi.ui.viewmodels.NotificationType
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -50,6 +50,19 @@ class NotificationRepository @Inject constructor(
             }
     }
 
+    fun respondFriendRequest(userId: String, notificationId: String, onComplete: (Boolean) -> Unit) {
+        val dbFunction = "respondFriendRequest"
+        db.collection(USERS_COLLECTION).document(userId).collection(NOTIFICATIONS_SUBCOLLECTION)
+            .document(notificationId)
+            .update("data.responded", true)
+            .addOnSuccessListener {
+                onComplete(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Failure to update data.responded: $e")
+            }
+    }
+
     // Deletes a notification
     fun deleteNotification(userId: String, notificationId: String, onComplete: (Boolean) -> Unit) {
         val dbFunction = "deleteNotification"
@@ -65,14 +78,30 @@ class NotificationRepository @Inject constructor(
     // Deletes all notifications
     fun deleteAllNotifications(userId: String, onComplete: (Boolean) -> Unit) {
         val dbFunction = "deleteAllNotifications"
-        db.collection(USERS_COLLECTION).document(userId).collection(NOTIFICATIONS_SUBCOLLECTION)
-            .get()
-            .addOnSuccessListener { notifications: QuerySnapshot ->
-                for (notificationDoc in notifications) {
-                    notificationDoc.reference.delete()
+        val batch = db.batch()
+        val userNotificationsRef = db.collection(USERS_COLLECTION)
+            .document(userId)
+            .collection(NOTIFICATIONS_SUBCOLLECTION)
+
+        userNotificationsRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                for (notificationDoc in querySnapshot.documents) {
+                    batch.delete(notificationDoc.reference)
                 }
-                Log.d("$TAG$dbFunction", "All notifications deleted successfully")
-                onComplete(true)
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d("$TAG$dbFunction", "All notifications deleted successfully")
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("$TAG$dbFunction", "Error deleting notifications", e)
+                        onComplete(false)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error retrieving notifications", e)
+                onComplete(false)
             }
     }
 

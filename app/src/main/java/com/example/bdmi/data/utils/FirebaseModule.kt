@@ -13,6 +13,7 @@ import javax.inject.Singleton
 * Provides a singleton instance of FirebaseFirestore for dependency injection
 * Module setup for Hilt for DI created by Gemini AI
  */
+
 @Module
 @InstallIn(SingletonComponent::class) //Singleton scope for app-wide use
 object FirestoreModule {
