@@ -3,6 +3,7 @@ package com.example.bdmi
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.bdmi.navigation.RootNavigation
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

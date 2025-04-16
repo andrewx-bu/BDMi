@@ -36,6 +36,7 @@ fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, userVie
 
         composable(OnboardingRoutes.Login.route) {
             LoginScreen(
+                userViewModel = userViewModel,
                 onLoginClick = {
                     navController.navigate(MainRoutes.Root.route) {
                         popUpTo(OnboardingRoutes.Root.route) { inclusive = true }
@@ -46,6 +47,7 @@ fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, userVie
 
         composable(OnboardingRoutes.Register.route) {
             RegisterScreen(
+                userViewModel = userViewModel,
                 onRegisterClick = {
                     navController.navigate(MainRoutes.Root.route)  {
                         popUpTo(OnboardingRoutes.Root.route) { inclusive = true }

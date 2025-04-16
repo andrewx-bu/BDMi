@@ -1,4 +1,4 @@
-package com.example.bdmi
+package com.example.bdmi.navigation
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.bdmi.navigation.RootNavGraph
 import com.example.bdmi.ui.viewmodels.UserViewModel
 
 @Composable

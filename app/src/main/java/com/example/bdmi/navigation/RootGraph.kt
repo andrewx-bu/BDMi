@@ -3,6 +3,8 @@ package com.example.bdmi.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.bdmi.MainScreen
 import com.example.bdmi.ui.viewmodels.UserViewModel
 
 @Composable
@@ -20,6 +22,12 @@ fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewMo
         onboardingNavGraph(navController, userViewModel)
 
         // Main nav graph that includes home, search, bookmarks, profile, and notifications
-        mainNavGraph(userViewModel)
+        //mainNavGraph(userViewModel)
+        composable(MainRoutes.Root.route) {
+            MainScreen(
+                rootNavController = navController,
+                userViewModel = userViewModel,
+            )
+        }
     }
 }
