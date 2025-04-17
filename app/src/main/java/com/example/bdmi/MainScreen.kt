@@ -131,6 +131,7 @@ fun TopBar(
         label = "Theme Rotation"
     )
 
+    // TODO: Top Bar States
     TopAppBar(
         title = {
             Image(
@@ -154,7 +155,7 @@ fun TopBar(
                                 y = Spacing.extraSmall
                             )
                     ) {
-                        // Number of notifications
+                        // TODO: Implement Notifications #
                         Text("9")
                     }
                 }

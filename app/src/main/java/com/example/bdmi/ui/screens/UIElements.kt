@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,7 +35,7 @@ import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun ShimmeringBox() {
+fun ShimmeringDivider() {
     val shimmerTheme = defaultShimmerTheme.copy(
         shaderColors = listOf(
             MaterialTheme.colorScheme.onPrimaryContainer,
@@ -47,12 +46,15 @@ fun ShimmeringBox() {
     )
 
     CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
-        Box(
+        Row(
             modifier = Modifier
-                .fillMaxSize()
+                .height(Spacing.extraSmall)
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
                 .shimmer()
-        )
+        ) {
+            Text("")
+        }
     }
 }
 
@@ -93,6 +95,7 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
     }
 }
 
+// TODO: Increase size on selected dot
 @Composable
 fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
     val color =

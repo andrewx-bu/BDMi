@@ -38,7 +38,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +61,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -81,22 +79,25 @@ fun MovieDetailScreen(
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val detailUIState by viewModel.detailUIState.collectAsState()
-    val creditsUIState by viewModel.creditsUIState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.refreshDetails(movieId)
-        viewModel.refreshCredits(movieId)
     }
 
     when {
         detailUIState.error != null -> {
-            ErrorMessage(
-                message = detailUIState.error.toString(),
-                onRetry = { viewModel.refreshDetails(movieId) }
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorMessage(
+                    message = detailUIState.error.toString(),
+                    onRetry = { viewModel.refreshDetails(movieId) }
+                )
+            }
         }
 
-        detailUIState.isLoading || creditsUIState.isLoading -> {
+        detailUIState.isLoading -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -114,21 +115,15 @@ fun MovieDetailScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Box {
-                    MovieBackdrop(
-                        detailUIState.movieDetails,
-                        onNavigateBack
-                    )
-                    PosterRow(
-                        creditsState = creditsUIState,
-                        movieDetails = detailUIState.movieDetails
-                    )
+                    MovieBackdrop(detailUIState.movieDetails, onNavigateBack)
+                    PosterRow(detailState = detailUIState)
                 }
 
                 Spacer(Modifier.height(UIConstants.midpointSpacer))
 
                 MovieDescription()
 
-                HorizontalDivider()
+                ShimmeringDivider()
 
                 val reviews = listOf(
                     "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
@@ -247,10 +242,8 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun PosterRow(
-    creditsState: HomeViewModel.CreditsUIState,
-    movieDetails: MovieDetails?
-) {
+fun PosterRow(detailState: HomeViewModel.DetailUIState) {
+    val movieDetails = detailState.movieDetails
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -311,7 +304,7 @@ fun PosterRow(
                     Spacer(Modifier.height(Spacing.extraSmall))
 
                     Text(
-                        text = creditsState.directors,
+                        text = detailState.directors,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -368,6 +361,7 @@ fun PosterRow(
     }
 }
 
+// TODO: Implement
 @Composable
 fun MovieDescription() {
 

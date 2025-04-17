@@ -28,11 +28,6 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     data class DetailUIState(
         override val isLoading: Boolean = false,
         val movieDetails: MovieDetails? = null,
-        override val error: APIError? = null
-    ) : UIState
-
-    data class CreditsUIState(
-        override val isLoading: Boolean = false,
         val cast: List<CastMember> = emptyList(),
         val crew: List<CrewMember> = emptyList(),
         val directors: String = "Unknown",
@@ -45,29 +40,23 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private val _detailUIState = MutableStateFlow(DetailUIState())
     val detailUIState = _detailUIState.asStateFlow()
 
-    private val _creditsUIState = MutableStateFlow(CreditsUIState())
-    val creditsUIState = _creditsUIState.asStateFlow()
-
     fun refreshHome() {
         _homeUIState.update { HomeUIState(isLoading = true, movies = emptyList(), error = null) }
         loadMovies()
     }
 
     fun refreshDetails(movieId: Int) {
-        _detailUIState.update { DetailUIState(isLoading = true, movieDetails = null, error = null) }
-        loadMovieDetails(movieId)
-    }
-
-    fun refreshCredits(movieId: Int) {
-        _creditsUIState.update {
-            CreditsUIState(
+        _detailUIState.update {
+            DetailUIState(
                 isLoading = true,
+                movieDetails = null,
                 cast = emptyList(),
                 crew = emptyList(),
+                directors = "Unknown",
                 error = null
             )
         }
-        loadMovieCredits(movieId)
+        loadMovieDetails(movieId)
     }
 
     private fun loadMovies() {
@@ -98,9 +87,19 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         }
     }
 
+    /* TODO: Parallel API calls */
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
-            _detailUIState.update { it.copy(isLoading = true, error = null) }
+            _detailUIState.update {
+                it.copy(
+                    isLoading = true,
+                    movieDetails = null,
+                    cast = emptyList(),
+                    crew = emptyList(),
+                    directors = "Unknown",
+                    error = null
+                )
+            }
             // Simulate Network Delay
             delay(1000)
             movieRepo.getMovieDetails(movieId).fold(
@@ -109,7 +108,6 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                         it.copy(
                             movieDetails = details,
                             error = null,
-                            isLoading = false
                         )
                     }
                 },
@@ -117,20 +115,11 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                     _detailUIState.update {
                         it.copy(
                             error = e.toAPIError(),
-                            isLoading = false
                         )
                     }
                     e.printStackTrace()
                 }
             )
-        }
-    }
-
-    private fun loadMovieCredits(movieId: Int) {
-        viewModelScope.launch {
-            _creditsUIState.update { it.copy(isLoading = true, error = null) }
-            // Simulate Network Delay
-            delay(2000)
             movieRepo.getMovieCredits(movieId).fold(
                 onSuccess = { credits ->
                     val directors = credits.crew
@@ -139,7 +128,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                         ?.joinToString(", ") { it.name }
                         ?: "Unknown"
 
-                    _creditsUIState.update {
+                    _detailUIState.update {
                         it.copy(
                             cast = credits.cast,
                             crew = credits.crew,
@@ -149,7 +138,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                     }
                 },
                 onFailure = { e ->
-                    _creditsUIState.update {
+                    _detailUIState.update {
                         it.copy(
                             error = e.toAPIError(),
                             isLoading = false
