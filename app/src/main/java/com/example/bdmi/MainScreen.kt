@@ -51,20 +51,19 @@ import com.example.bdmi.ui.viewmodels.UserViewModel
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 
-
 @Composable
 fun MainScreen(
     rootNavController: NavHostController,
     navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel,
-    darkTheme: Boolean = true,
-    switchTheme: () -> Unit = {},
+    darkTheme: Boolean,
+    switchTheme: () -> Unit,
 ) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            // Hide outer top bar if onboarding or moving to notifications or detail screen
+            // Hide outer top bar if onboarding or moving to full screen
             AnimatedVisibility(
                 visible = currentRoute != null && (!currentRoute.contains("MovieDetailScreen")),
                 enter = fadeIn() + slideInVertically { -it },
@@ -93,7 +92,7 @@ fun MainScreen(
             ) {
                 BottomBar(
                     currentRoute = currentRoute,
-                    onItemClicked = { route : String ->
+                    onItemClicked = { route: String ->
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -106,7 +105,7 @@ fun MainScreen(
             }
         }
     ) { padding ->
-          Box(
+        Box(
             modifier = Modifier
                 .padding(padding)
                 .background(MaterialTheme.colorScheme.background)
@@ -137,7 +136,9 @@ fun TopBar(
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "BDMi",
-                modifier = Modifier.size(UIConstants.logoSize).clip(RoundedCornerShape(Spacing.small))
+                modifier = Modifier
+                    .size(UIConstants.logoSize)
+                    .clip(RoundedCornerShape(Spacing.small))
             )
         },
         actions = {
@@ -146,10 +147,12 @@ fun TopBar(
                     Badge(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        modifier = Modifier.size(UIConstants.badgeSize).offset(
-                            x = -Spacing.small,
-                            y = Spacing.extraSmall
-                        )
+                        modifier = Modifier
+                            .size(UIConstants.badgeSize)
+                            .offset(
+                                x = -Spacing.small,
+                                y = Spacing.extraSmall
+                            )
                     ) {
                         // Number of notifications
                         Text("9")
@@ -165,14 +168,16 @@ fun TopBar(
                     )
                 }
             }
-          Spacer(Modifier.width(Spacing.medium))
+            Spacer(Modifier.width(Spacing.medium))
 
             IconButton(onClick = onThemeClick) {
                 Icon(
                     imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
                     tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.rotate(rotation).size(UIConstants.topBarIconSizes)
+                    modifier = Modifier
+                        .rotate(rotation)
+                        .size(UIConstants.topBarIconSizes)
                 )
             }
 

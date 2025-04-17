@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import com.example.bdmi.navigation.RootNavigation
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
-import com.example.bdmi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,9 +19,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            AppTheme(darkTheme = true) {
-                RootNavigation(userId)
-            }
+            RootNavigation(userId)
         }
     }
 }

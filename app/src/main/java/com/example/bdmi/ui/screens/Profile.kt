@@ -157,7 +157,7 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 1000,
+                durationMillis = 3000,
                 easing = LinearEasing
             )
         )
