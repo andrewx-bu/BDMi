@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
-import com.example.bdmi.data.utils.ImageURLHelper
+import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.valentinilk.shimmer.LocalShimmerTheme
@@ -31,38 +31,21 @@ import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun MoviePoster(title: String, posterPath: String?, isLoading: Boolean, onClick: () -> Unit) {
+fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
     val imageUrl = ImageURLHelper.getPosterURL(posterPath)
 
     Box(
         modifier = Modifier
             .aspectRatio(UIConstants.POSTERSASPECTRATIO)
             .clip(RoundedCornerShape(Spacing.medium))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(enabled = !isLoading) { onClick() },
-        contentAlignment = Alignment.Center
     ) {
-        when {
-            isLoading -> {
-                val shimmerTheme = defaultShimmerTheme.copy(
-                    shaderColors = listOf(
-                        MaterialTheme.colorScheme.onPrimaryContainer,
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    blendMode = BlendMode.SrcOver
-                )
-                CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
-                    Box(
-                        modifier = Modifier
-                            .shimmer()
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.onPrimaryContainer)
-                    )
-                }
-            }
-
-            imageUrl.isNotEmpty() -> {
+        if (imageUrl.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { onClick() },
+                contentAlignment = Alignment.Center
+            ) {
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
@@ -70,8 +53,13 @@ fun MoviePoster(title: String, posterPath: String?, isLoading: Boolean, onClick:
                     contentScale = ContentScale.Crop
                 )
             }
-
-            else -> {
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Icons.Default.Movie,

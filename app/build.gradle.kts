@@ -89,7 +89,7 @@ dependencies {
     //Libraries needed for Cloudinary and image fetching
     implementation(libs.cloudinary.android)
     implementation(libs.coil.kt.coil.compose)
-
+    //UI Libraries
     implementation(libs.compose.shimmer)
     implementation(libs.jetpack.loading)
 }

@@ -8,7 +8,7 @@ import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.toAPIError
-import com.example.bdmi.data.repositories.MovieRepository
+import com.example.bdmi.data.api.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +35,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         override val isLoading: Boolean = false,
         val cast: List<CastMember> = emptyList(),
         val crew: List<CrewMember> = emptyList(),
+        val directors: String = "Unknown",
         override val error: APIError? = null
     ) : UIState
 
@@ -132,10 +133,17 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             delay(2000)
             movieRepo.getMovieCredits(movieId).fold(
                 onSuccess = { credits ->
+                    val directors = credits.crew
+                        .filter { it.job.equals("director", ignoreCase = true) }
+                        .takeIf { it.isNotEmpty() }
+                        ?.joinToString(", ") { it.name }
+                        ?: "Unknown"
+
                     _creditsUIState.update {
                         it.copy(
                             cast = credits.cast,
                             crew = credits.crew,
+                            directors = directors,
                             isLoading = false
                         )
                     }

@@ -17,13 +17,16 @@ object UIConstants {
     val noPosterIconSize = 50.dp
 
     // MovieDetailScreen
+    val loadingOffset = 50.dp
     const val BACKDROPASPECTRATIO = 3f / 2f
     val noBackdropIconSize = 50.dp
     val backdropButtonSize = 35.dp
     val backdropIconSize = 20.dp
     val posterRowOffset = 225.dp
     val posterSize = 225.dp
-    val trailerButtonSize = 16.dp
+    val trailerButtonWidth = 100.dp
+    val trailerButtonHeight = 30.dp
+    val trailerIconSize = 14.dp
 }
 
 object Spacing {

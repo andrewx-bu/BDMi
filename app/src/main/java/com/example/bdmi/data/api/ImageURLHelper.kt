@@ -1,4 +1,4 @@
-package com.example.bdmi.data.utils
+package com.example.bdmi.data.api
 
 object ImageURLHelper {
     private const val BASE_BACKDROP_IMAGE_URL = "https://image.tmdb.org/t/p/"

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -46,16 +46,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.example.bdmi.data.api.CrewMember
+import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
-import androidx.core.net.toUri
-import com.spr.jetpack_loading.components.indicators.PulsatingDot
+import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 
 @Composable
 fun MovieDetailScreen(
@@ -79,19 +78,26 @@ fun MovieDetailScreen(
             )
         }
 
+        detailUIState.isLoading || creditsUIState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize().offset(y = UIConstants.loadingOffset),
+                contentAlignment = Alignment.Center
+            ) {
+                BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
+
         else -> {
             Box(
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             ) {
                 MovieBackdrop(
                     detailUIState.movieDetails,
-                    onNavigateBack,
-                    isLoading = detailUIState.isLoading
+                    onNavigateBack
                 )
                 PosterRow(
-                    movieDetails = detailUIState.movieDetails,
-                    crew = creditsUIState.crew,
-                    isLoading = detailUIState.isLoading || creditsUIState.isLoading,
+                    creditsState = creditsUIState,
+                    movieDetails = detailUIState.movieDetails
                 )
             }
         }
@@ -106,7 +112,7 @@ fun Modifier.fadingEdge(brush: Brush) = this
     }
 
 @Composable
-fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoading: Boolean) {
+fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
     val fadeBrush = Brush.verticalGradient(
@@ -119,114 +125,94 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoa
             .fillMaxWidth()
             .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
     ) {
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.onSecondary),
-                    contentAlignment = Alignment.Center
+        if (backdropURL.isNotEmpty()) {
+            AsyncImage(
+                model = backdropURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fadingEdge(fadeBrush),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    PulsatingDot(color = MaterialTheme.colorScheme.secondary)
-                }
-            }
-
-            backdropURL.isNotEmpty() -> {
-                AsyncImage(
-                    model = backdropURL,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .fadingEdge(fadeBrush),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            else -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Movie,
-                            contentDescription = "No backdrop available",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(UIConstants.noBackdropIconSize)
+                    Icon(
+                        imageVector = Icons.Default.Movie,
+                        contentDescription = "No backdrop available",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
+                    )
+                    Spacer(modifier = Modifier.height(Spacing.small))
+                    if (movieDetails != null) {
+                        Text(
+                            text = movieDetails.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = Spacing.small),
+                            textAlign = TextAlign.Center
                         )
-                        Spacer(modifier = Modifier.height(Spacing.small))
-                        if (movieDetails != null) {
-                            Text(
-                                text = movieDetails.title,
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier.padding(horizontal = Spacing.small),
-                                textAlign = TextAlign.Center
-                            )
-                        }
                     }
                 }
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.medium),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Back Button
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                        CircleShape
-                    )
-                    .size(UIConstants.backdropButtonSize)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(UIConstants.backdropIconSize),
-                )
-            }
+    }
 
-            // Menu Button
-            IconButton(
-                onClick = { /* TODO: Implement functionality */ },
-                modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                        CircleShape
-                    )
-                    .size(UIConstants.backdropButtonSize)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreHoriz,
-                    contentDescription = "Menu",
-                    modifier = Modifier.size(UIConstants.backdropIconSize),
-                    tint = MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Spacing.medium),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Back Button
+        IconButton(
+            onClick = onNavigateBack,
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                    CircleShape
                 )
-            }
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+            )
+        }
+
+        // Menu Button
+        IconButton(
+            onClick = { /* TODO: Implement functionality */ },
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                    CircleShape
+                )
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Menu",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
 
 @Composable
 fun PosterRow(
-    movieDetails: MovieDetails?,
-    crew: List<CrewMember>,
-    isLoading: Boolean
+    creditsState: HomeViewModel.CreditsUIState,
+    movieDetails: MovieDetails?
 ) {
-    // TODO: Handle multiple directors
-    val director = remember(crew) {
-        crew.firstOrNull { it.job.lowercase() == "director" }?.name ?: "Unknown"
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -241,14 +227,12 @@ fun PosterRow(
             MoviePoster(
                 title = movieDetails.title,
                 posterPath = movieDetails.posterPath,
-                isLoading = isLoading,
                 onClick = {}
             )
         } else {
             MoviePoster(
                 title = "",
                 posterPath = null,
-                isLoading = true,
                 onClick = {}
             )
         }
@@ -284,7 +268,7 @@ fun PosterRow(
                     Spacer(Modifier.height(Spacing.extraSmall))
 
                     Text(
-                        text = director,
+                        text = creditsState.directors,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -301,16 +285,24 @@ fun PosterRow(
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 context.startActivity(intent, null)
                             },
-                            shape = RoundedCornerShape(Spacing.small),
+                            modifier = Modifier
+                                .size(width = UIConstants.trailerButtonWidth, height = UIConstants.trailerButtonHeight),
                             contentPadding = PaddingValues(
                                 start = Spacing.extraSmall,
                                 end = Spacing.small
                             ),
+                            shape = RoundedCornerShape(Spacing.small),
+                            colors = ButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.PlayArrow,
                                 contentDescription = "Play",
-                                modifier = Modifier.size(UIConstants.trailerButtonSize)
+                                modifier = Modifier.size(UIConstants.trailerIconSize)
                             )
                             Text("TRAILER", style = MaterialTheme.typography.labelMedium)
                         }

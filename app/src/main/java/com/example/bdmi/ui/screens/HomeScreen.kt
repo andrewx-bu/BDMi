@@ -81,7 +81,6 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
             MoviePoster(
                 title = movie.title,
                 posterPath = movie.posterPath,
-                isLoading = false,
                 onClick = { onMovieClick(movie.id) }
             )
         }
