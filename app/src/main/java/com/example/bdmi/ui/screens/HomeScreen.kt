@@ -48,7 +48,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
         when {
             uiState.error != null -> {
-                ErrorMessage(message = uiState.error!!, onRetry = { viewModel.refreshHome() })
+                ErrorMessage(message = uiState.error.toString(), onRetry = { viewModel.refreshHome() })
             }
 
             uiState.isLoading -> {

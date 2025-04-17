@@ -74,8 +74,9 @@ fun MovieDetailScreen(
     when {
         detailUIState.error != null -> {
             ErrorMessage(
-                message = detailUIState.error!!,
-                onRetry = { viewModel.refreshDetails(movieId) })
+                message = detailUIState.error.toString(),
+                onRetry = { viewModel.refreshDetails(movieId) }
+            )
         }
 
         else -> {
