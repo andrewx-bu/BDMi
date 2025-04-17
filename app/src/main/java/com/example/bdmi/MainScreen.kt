@@ -65,6 +65,7 @@ fun MainScreen(
         topBar = {
             // Hide outer top bar if onboarding or moving to full screen
             AnimatedVisibility(
+                // TODO: More elegant route checking
                 visible = currentRoute != null && (!currentRoute.contains("movie_detail")),
                 enter = fadeIn() + slideInVertically { -it },
                 exit = fadeOut() + slideOutVertically { -it }

@@ -1,11 +1,7 @@
 package com.example.bdmi.ui.screens
 
 import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -126,7 +122,8 @@ fun MovieDetailScreen(
                 ShimmeringDivider()
 
                 val reviews = listOf(
-                    "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
+                    "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+                            "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
                     "Flint and Steel",
                     "Ender Pearl",
                     "Water Bucket Release",
@@ -390,20 +387,8 @@ fun ReviewCarousel(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AnimatedVisibility(
-            visible = selectedIndex >= 0,
-            enter = slideInHorizontally(
-                initialOffsetX = { 1000 },
-                animationSpec = tween(1000)
-            ),
-            exit = slideOutHorizontally(
-                targetOffsetX = { -1000 },
-                animationSpec = tween(1000)
-            )
-        ) {
-            Crossfade(targetState = reviews[selectedIndex]) { reviewText ->
-                ReviewCard(text = reviewText)
-            }
+        Crossfade(targetState = reviews[selectedIndex]) { reviewText ->
+            ReviewCard(text = reviewText)
         }
 
         Spacer(modifier = Modifier.height(Spacing.small))
