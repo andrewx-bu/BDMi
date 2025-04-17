@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,10 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.ui.viewmodels.FriendStatus
 import com.example.bdmi.ui.viewmodels.FriendViewModel
 import com.example.bdmi.ui.viewmodels.ProfileBanner
 import com.example.bdmi.ui.viewmodels.UserInfo
@@ -41,14 +40,16 @@ private const val TAG = "ProfileScreen"
 fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
     val friendViewModel: FriendViewModel = hiltViewModel()
     var currentUser = userViewModel.userInfo.collectAsState()
-    var profileInfo by remember { mutableStateOf<UserInfo?>(null) }
+    var profileInfo = friendViewModel.friendProfile.collectAsState()
+    var friendButtonState = friendViewModel.friendState.collectAsState()
     LaunchedEffect(profileUserId) {
         friendViewModel.loadProfile(profileUserId) { userInfo ->
-            profileInfo = userInfo
         }
+        friendViewModel.getFriendStatus(currentUser.value?.userId.toString(), profileUserId)
     }
 
-    if (profileInfo == null) {
+
+    if (profileInfo.value == null) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -62,48 +63,123 @@ fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            ProfilePicture(profileInfo?.profilePicture.toString())
+            ProfilePicture(profileInfo.value?.profilePicture.toString())
             Text(
-                text = profileInfo?.displayName.toString()
+                text = profileInfo.value?.displayName.toString()
             )
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = profileInfo?.friendCount.toString() + " Friends"
+                    text = profileInfo.value?.friendCount.toString() + " Friends"
                 )
-                IconButton(
-                    onClick = {
-                        friendViewModel.sendFriendInvite(
-                            senderInfo = ProfileBanner(
-                                userId = currentUser.value?.userId.toString(),
-                                displayName = currentUser.value?.displayName.toString(),
-                                profilePicture = currentUser.value?.profilePicture.toString(),
-                                friendCount = currentUser.value?.friendCount,
-                                listCount = currentUser.value?.listCount,
-                                reviewCount = currentUser.value?.reviewCount,
-                                isPublic = currentUser.value?.isPublic
+                FriendButton(friendButtonState.value, profileUserId, currentUser.value, friendViewModel)
+//                IconButton(
+//                    onClick = {
+//                        friendViewModel.sendFriendInvite(
+//                            senderInfo = ProfileBanner(
+//                                userId = currentUser.value?.userId.toString(),
+//                                displayName = currentUser.value?.displayName.toString(),
+//                                profilePicture = currentUser.value?.profilePicture.toString(),
+//                                friendCount = currentUser.value?.friendCount,
+//                                listCount = currentUser.value?.listCount,
+//                                reviewCount = currentUser.value?.reviewCount,
+//                                isPublic = currentUser.value?.isPublic
+//                                ),
+//                            recipientId = profileUserId,
+//                            onComplete = {
+//                                Log.d(TAG, "Friend invite sent: $it")
+//                            }
+//                        )
+//                    },
+//                    colors = IconButtonDefaults.iconButtonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    modifier = Modifier.clip(CircleShape)
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Add,
+//                        contentDescription = "Go to friend search",
+//                        tint = Color.Black
+//                    )
+//                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser: UserInfo?, friendViewModel: FriendViewModel) {
+    when (friendStatus) {
+        FriendStatus.FRIEND -> {
+            IconButton(
+                onClick = {
+                    friendViewModel.removeFriend(
+                        currentUser?.userId.toString(),
+                        profileUserId,
+                        onComplete = {
+                            Log.d(TAG, "Friend removed: $it")
+                        }
+                    )
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Remove Friend")
+            }
+        }
+        FriendStatus.PENDING -> {
+            IconButton(
+                onClick = {
+                    friendViewModel.cancelFriendRequest(
+                        currentUser?.userId.toString(),
+                        profileUserId
+                    )
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.LightGray,
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(imageVector = Icons.Default.AccessTime, contentDescription = "Remove Friend")
+            }
+        }
+        FriendStatus.NOT_FRIENDS -> {
+            IconButton(
+                onClick = {
+                    friendViewModel.sendFriendInvite(
+                        senderInfo = ProfileBanner(
+                            userId = currentUser?.userId.toString(),
+                            displayName = currentUser?.displayName.toString(),
+                            profilePicture = currentUser?.profilePicture.toString(),
+                            friendCount = currentUser?.friendCount,
+                            listCount = currentUser?.listCount,
+                            reviewCount = currentUser?.reviewCount,
+                            isPublic = currentUser?.isPublic
                                 ),
                             recipientId = profileUserId,
                             onComplete = {
                                 Log.d(TAG, "Friend invite sent: $it")
                             }
-                        )
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    modifier = Modifier.clip(CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Go to friend search",
-                        tint = Color.Black
                     )
-                }
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color(0xFF00BCD4),
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier.clip(CircleShape)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Friend")
             }
+        }
+        else -> {
+            Text(text = "Loading...")
         }
     }
 }

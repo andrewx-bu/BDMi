@@ -22,6 +22,12 @@ data class ProfileBanner(
     val isPublic: Boolean? = true
 )
 
+enum class FriendStatus {
+    NOT_FRIENDS,
+    PENDING,
+    FRIEND
+}
+
 private const val TAG = "FriendViewModel"
 
 @HiltViewModel
@@ -36,6 +42,9 @@ class FriendViewModel @Inject constructor(
     // Current Profile Visiting. Takes in a UserInfo object retrieved from Profile Collection
     private val _friendProfile = MutableStateFlow<UserInfo?>(null)
     val friendProfile: StateFlow<UserInfo?> = _friendProfile.asStateFlow()
+
+    private val _friendState = MutableStateFlow<FriendStatus?>(null)
+    val friendState: StateFlow<FriendStatus?> = _friendState.asStateFlow()
 
     private val _searchResults = MutableStateFlow<List<ProfileBanner>>(emptyList())
     val searchResults: StateFlow<List<ProfileBanner>> = _searchResults.asStateFlow()
@@ -69,6 +78,7 @@ class FriendViewModel @Inject constructor(
         Log.d(TAG, "Sending friend invite to user with ID: $recipientId")
         viewModelScope.launch {
             friendRepository.sendFriendInvite(senderInfo, recipientId) {
+                _friendState.value = FriendStatus.PENDING
                 onComplete(it)
             }
         }
@@ -86,6 +96,7 @@ class FriendViewModel @Inject constructor(
                     // Remove friend from list
                     _friends.value = _friends.value.toMutableList().apply {
                         removeIf { it.userId == friendId }
+                        _friendState.value = FriendStatus.NOT_FRIENDS
                     }
                 }
             }
@@ -98,7 +109,33 @@ class FriendViewModel @Inject constructor(
 
         viewModelScope.launch {
             userRepository.loadUser(profileId) { userProfile ->
+                _friendProfile.value = userProfile
                 onComplete(userProfile)
+            }
+        }
+    }
+
+    fun getFriendStatus(userId: String, friendId: String) {
+        Log.d(TAG, "Getting friend status for user: $userId and friend: $friendId")
+
+        viewModelScope.launch {
+            friendRepository.getFriendStatus(userId, friendId) { friendStatus ->
+                _friendState.value = friendStatus
+                Log.d(TAG, "Friend status: $friendStatus")
+            }
+        }
+    }
+
+    fun cancelFriendRequest(userId: String, friendId: String) {
+        Log.d(TAG, "Cancelling friend request for user: $userId and friend: $friendId")
+        viewModelScope.launch {
+            friendRepository.cancelFriendRequest(userId, friendId) {
+                if (it) {
+                    Log.d(TAG, "Friend request cancelled")
+                    _friendState.value = FriendStatus.NOT_FRIENDS
+                } else {
+                    Log.d(TAG, "Failed to cancel friend request")
+                }
             }
         }
     }
