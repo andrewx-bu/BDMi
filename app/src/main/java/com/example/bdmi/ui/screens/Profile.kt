@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.example.bdmi.ui.viewmodels.UserViewModel
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +54,8 @@ private const val TAG = "ProfileScreen"
 fun ProfileScreen(
     userViewModel: UserViewModel,
     onLogoutClick: () -> Unit,
-    navigateToUserSearch: () -> Unit
+    navigateToUserSearch: () -> Unit,
+    navigateToFriends: () -> Unit
 ) {
     val userInfo by userViewModel.userInfo.collectAsState()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
@@ -90,7 +91,12 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = userInfo?.friendCount.toString()+" Friends"
+                    text = userInfo?.friendCount.toString()+" Friends",
+                    modifier = Modifier.clickable(
+                        enabled = true
+                    ) {
+                        navigateToFriends()
+                    }
                 )
                 IconButton(
                     onClick = {
@@ -217,13 +223,3 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
         }
     }
 }
-
-//    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-//    val userId = sharedPreferences.getString("userId", null)
-//    LaunchedEffect(Unit) {
-//        if (userId != null) {
-//            userViewModel.loadUser(userId) {
-//                Log.d(TAG, "Loaded user info: $it")
-//            }
-//        }
-//    }

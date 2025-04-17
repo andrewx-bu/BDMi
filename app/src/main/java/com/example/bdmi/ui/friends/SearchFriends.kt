@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -47,7 +50,10 @@ import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
-fun FriendSearch(onProfileClick: (String) -> Unit) {
+fun FriendSearch(
+    onNavigateBack: () -> Unit,
+    onProfileClick: (String) -> Unit
+) {
     val friendViewModel: FriendViewModel = hiltViewModel()
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<ProfileBanner>>(emptyList()) }
@@ -71,8 +77,8 @@ fun FriendSearch(onProfileClick: (String) -> Unit) {
             TopAppBar(
                 title = { Text(text = "Friend Search") },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
-
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
                     }
                 }
             )
@@ -147,7 +153,7 @@ fun ProfileCard(user: ProfileBanner, onProfileClick: (String) -> Unit) {
                     text = user.displayName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
-                    color = Color.Black
+                    color = Color.White
                 )
                 Row {
                     UserStats("Friends", user.friendCount.toString())

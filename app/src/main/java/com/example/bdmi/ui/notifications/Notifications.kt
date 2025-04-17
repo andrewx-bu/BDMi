@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.bdmi.ui.viewmodels.FriendViewModel
 import com.example.bdmi.ui.viewmodels.Notification
 import com.example.bdmi.ui.viewmodels.NotificationType
 import com.example.bdmi.ui.viewmodels.NotificationViewModel
@@ -300,8 +298,8 @@ fun UserStats(text: String, stat: String) {
         modifier = Modifier.padding(end = 10.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(text = stat, color = Color.Gray)
-        Text(text = text, fontWeight = FontWeight.Bold, color = Color.Gray)
+        Text(text = stat, color = Color.LightGray)
+        Text(text = text, fontWeight = FontWeight.Bold, color = Color.LightGray)
     }
 }
 

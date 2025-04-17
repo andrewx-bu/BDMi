@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
@@ -91,6 +92,9 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
                 },
                 navigateToUserSearch = {
                     navController.navigate("friend_search")
+                },
+                navigateToFriends = {
+                    navController.navigate("friends")
                 }
             )
         }
@@ -107,15 +111,32 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
             MovieDetailScreen(movieId) { navController.popBackStack() }
         }
 
-        composable("friend_search") {
-            FriendSearch { userId ->
-                navController.navigate("user_profile/$userId") {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
+        composable("friends") {
+            FriendListScreen(
+                userViewModel = userViewModel,
+                onNavigateBack = { navController.navigateUp() },
+                onProfileClick = { userId ->
+                    navController.navigate("user_profile/$userId") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
                     }
-                    restoreState = true
                 }
-            }
+            )
+        }
+
+        composable("friend_search") {
+            FriendSearch(
+                onNavigateBack = { navController.navigateUp() },
+                onProfileClick = { userId ->
+                    navController.navigate("user_profile/$userId") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }
+            )
         }
 
         composable("user_profile/{userId}") { backStackEntry ->

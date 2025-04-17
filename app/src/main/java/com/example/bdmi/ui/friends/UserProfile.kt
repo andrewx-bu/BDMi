@@ -75,36 +75,6 @@ fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
                     text = profileInfo.value?.friendCount.toString() + " Friends"
                 )
                 FriendButton(friendButtonState.value, profileUserId, currentUser.value, friendViewModel)
-//                IconButton(
-//                    onClick = {
-//                        friendViewModel.sendFriendInvite(
-//                            senderInfo = ProfileBanner(
-//                                userId = currentUser.value?.userId.toString(),
-//                                displayName = currentUser.value?.displayName.toString(),
-//                                profilePicture = currentUser.value?.profilePicture.toString(),
-//                                friendCount = currentUser.value?.friendCount,
-//                                listCount = currentUser.value?.listCount,
-//                                reviewCount = currentUser.value?.reviewCount,
-//                                isPublic = currentUser.value?.isPublic
-//                                ),
-//                            recipientId = profileUserId,
-//                            onComplete = {
-//                                Log.d(TAG, "Friend invite sent: $it")
-//                            }
-//                        )
-//                    },
-//                    colors = IconButtonDefaults.iconButtonColors(
-//                        containerColor = Color.White,
-//                        contentColor = Color.Black
-//                    ),
-//                    modifier = Modifier.clip(CircleShape)
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Add,
-//                        contentDescription = "Go to friend search",
-//                        tint = Color.Black
-//                    )
-//                }
             }
         }
     }

@@ -94,7 +94,7 @@ class FriendRepository @Inject constructor(
                 documentReference.update("notificationId", documentReference.id) // Set the notificationId
 
                 // Adds the recipients id to the senders outgoing request subcollection
-                val senderRef = db.collection(USERS_COLLECTION).document(recipientId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+                val senderRef = db.collection(USERS_COLLECTION).document(sender.userId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
                 val outgoingRequest = mapOf(
                     "userId" to recipientId,
                     "timestamp" to Timestamp.now(),
@@ -272,6 +272,7 @@ class FriendRepository @Inject constructor(
         // First check if the currentUser and userId of the visiting profile are friends
         db.collection(USERS_COLLECTION).document(currentUserId).collection(FRIENDS_SUBCOLLECTION)
             .whereEqualTo("userId", friendId)
+            .limit(1)
             .get()
             .addOnSuccessListener { querySnapshot ->
                     if (!querySnapshot.isEmpty) {
@@ -280,9 +281,11 @@ class FriendRepository @Inject constructor(
                         // Check if the currentUser has sent a friend request to the userId of the visiting profile
                         db.collection(USERS_COLLECTION).document(currentUserId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
                             .whereEqualTo("userId", friendId)
+                            .limit(1)
                             .get()
                             .addOnSuccessListener { querySnapshot ->
-                                    if (!querySnapshot.isEmpty) {
+                                    Log.d("$TAG$dbFunction", "Friend status query snapshot: ${querySnapshot.documents}")
+                                    if (!querySnapshot.documents.isEmpty()) {
                                         onComplete(FriendStatus.PENDING)
                                     } else {
                                         onComplete(FriendStatus.NOT_FRIENDS)
@@ -312,30 +315,30 @@ class FriendRepository @Inject constructor(
     ) {
         val dbFunction = "cancelFriendRequest"
 
-        val outgoingRequestsRef = db.collection(USERS_COLLECTION)
-            .document(currentUserId)
-            .collection(OUTGOING_REQUESTS_SUBCOLLECTION)
-            .document(friendId)
-
-        db.runTransaction { transaction ->
-            transaction.delete(outgoingRequestsRef)
-        }.addOnSuccessListener {
-            db.collection(USERS_COLLECTION).document(friendId)
-                .collection(NOTIFICATIONS_SUBCOLLECTION)
-                .whereEqualTo("type", "friend_request")
-                .whereEqualTo("data.userId", currentUserId)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot.documents) {
-                        document.reference.delete()
+        db.collection(USERS_COLLECTION).document(currentUserId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+            .whereEqualTo("userId", friendId)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    document.reference.delete()
+                }
+                db.collection(USERS_COLLECTION).document(friendId)
+                    .collection(NOTIFICATIONS_SUBCOLLECTION)
+                    .whereEqualTo("type", "friend_request")
+                    .whereEqualTo("data.userId", currentUserId)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        for (document in querySnapshot.documents) {
+                            document.reference.delete()
+                        }
+                        Log.d("$TAG$dbFunction", "Friend request cancelled successfully")
+                        onComplete(true)
                     }
-                    Log.d("$TAG$dbFunction", "Friend request cancelled successfully")
-                    onComplete(true)
-                }
-                .addOnFailureListener { e ->
-                    Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
-                    onComplete(false)
-                }
+                    .addOnFailureListener { e ->
+                        Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
+                        onComplete(false)
+                    }
         }.addOnFailureListener { e ->
             Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
             onComplete(false)

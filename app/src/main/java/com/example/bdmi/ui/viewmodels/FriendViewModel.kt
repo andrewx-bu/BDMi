@@ -115,11 +115,11 @@ class FriendViewModel @Inject constructor(
         }
     }
 
-    fun getFriendStatus(userId: String, friendId: String) {
-        Log.d(TAG, "Getting friend status for user: $userId and friend: $friendId")
+    fun getFriendStatus(currentUserId: String, friendId: String) {
+        Log.d(TAG, "Getting friend status for user: $currentUserId and friend: $friendId")
 
         viewModelScope.launch {
-            friendRepository.getFriendStatus(userId, friendId) { friendStatus ->
+            friendRepository.getFriendStatus(currentUserId, friendId) { friendStatus ->
                 _friendState.value = friendStatus
                 Log.d(TAG, "Friend status: $friendStatus")
             }
@@ -138,11 +138,5 @@ class FriendViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    // Do we need?
-    fun closeFriendProfile() {
-        Log.d(TAG, "Closing friend profile")
-        _friendProfile.value = null
     }
 }
