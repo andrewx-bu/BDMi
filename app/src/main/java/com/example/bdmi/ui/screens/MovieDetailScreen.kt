@@ -1,6 +1,11 @@
 package com.example.bdmi.ui.screens
 
 import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +25,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
@@ -29,6 +36,9 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +47,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -48,6 +61,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -57,6 +72,7 @@ import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
+import kotlinx.coroutines.delay
 
 @Composable
 fun MovieDetailScreen(
@@ -92,17 +108,37 @@ fun MovieDetailScreen(
         }
 
         else -> {
-            Box(
-                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
             ) {
-                MovieBackdrop(
-                    detailUIState.movieDetails,
-                    onNavigateBack
+                Box {
+                    MovieBackdrop(
+                        detailUIState.movieDetails,
+                        onNavigateBack
+                    )
+                    PosterRow(
+                        creditsState = creditsUIState,
+                        movieDetails = detailUIState.movieDetails
+                    )
+                }
+
+                Spacer(Modifier.height(UIConstants.midpointSpacer))
+
+                MovieDescription()
+
+                HorizontalDivider()
+
+                val reviews = listOf(
+                    "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
+                    "Flint and Steel",
+                    "Ender Pearl",
+                    "Water Bucket Release",
+                    "Diamond Armor, Full Set"
                 )
-                PosterRow(
-                    creditsState = creditsUIState,
-                    movieDetails = detailUIState.movieDetails
-                )
+
+                ReviewCarousel(reviews = reviews, autoScrollDelay = 5000L)
             }
         }
     }
@@ -329,5 +365,82 @@ fun PosterRow(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MovieDescription() {
+
+}
+
+@Composable
+fun ReviewCarousel(
+    reviews: List<String>,
+    currentIndex: Int = 0,
+    onIndexChanged: (Int) -> Unit = {},
+    autoScrollDelay: Long
+) {
+    var selectedIndex by remember { mutableIntStateOf(currentIndex) }
+
+    LaunchedEffect(selectedIndex) {
+        while (true) {
+            delay(autoScrollDelay)
+            selectedIndex = (selectedIndex + 1) % reviews.size
+            onIndexChanged(selectedIndex)
+        }
+    }
+
+    Spacer(Modifier.height(Spacing.medium))
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AnimatedVisibility(
+            visible = selectedIndex >= 0,
+            enter = slideInHorizontally(
+                initialOffsetX = { 1000 },
+                animationSpec = tween(1000)
+            ),
+            exit = slideOutHorizontally(
+                targetOffsetX = { -1000 },
+                animationSpec = tween(1000)
+            )
+        ) {
+            Crossfade(targetState = reviews[selectedIndex]) { reviewText ->
+                ReviewCard(text = reviewText)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(Spacing.small))
+
+        DotsIndicator(
+            numDots = reviews.size,
+            currentIndex = selectedIndex,
+            onDotClick = { index ->
+                selectedIndex = index
+                onIndexChanged(index)
+            }
+        )
+    }
+}
+
+@Composable
+fun ReviewCard(text: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.medium)
+            .height(UIConstants.reviewCardHeight),
+        shape = RoundedCornerShape(Spacing.medium),
+        elevation = CardDefaults.cardElevation(Spacing.small)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(Spacing.medium),
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = UIConstants.REVIEWMAXLINES,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }

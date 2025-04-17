@@ -3,14 +3,18 @@ package com.example.bdmi.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -71,6 +75,36 @@ fun GenreChip(name: String, onClick: () -> Unit) {
             style = MaterialTheme.typography.labelMedium,
         )
     }
+}
+
+@Composable
+fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Spacing.small),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        for (i in 0 until numDots) {
+            Dot(index = i, isSelected = i == currentIndex, onDotClick)
+            Spacer(modifier = Modifier.width(Spacing.medium))
+        }
+    }
+}
+
+@Composable
+fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
+    val color =
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+    Box(
+        modifier = Modifier
+            .size(UIConstants.carouselDotSize)
+            .background(color = color, shape = CircleShape)
+            .clickable {
+                onDotClick(index)
+            }
+    )
 }
 
 @Composable

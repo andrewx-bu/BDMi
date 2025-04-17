@@ -28,6 +28,10 @@ object UIConstants {
     val trailerButtonWidth = 100.dp
     val trailerButtonHeight = 30.dp
     val trailerIconSize = 14.dp
+    val midpointSpacer = 180.dp
+    val reviewCardHeight = 95.dp
+    const val REVIEWMAXLINES = 3
+    val carouselDotSize = 10.dp
 }
 
 object Spacing {

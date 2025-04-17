@@ -84,7 +84,7 @@ val AppTypography = Typography(
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
+        fontSize = 17.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp
     ),
