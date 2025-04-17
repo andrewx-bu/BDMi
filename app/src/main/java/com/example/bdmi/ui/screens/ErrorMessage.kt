@@ -45,7 +45,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "Retry",
                 tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(UIConstants.iconButtonSize)
+                modifier = Modifier.size(UIConstants.backdropButtonSize)
             )
         }
     }

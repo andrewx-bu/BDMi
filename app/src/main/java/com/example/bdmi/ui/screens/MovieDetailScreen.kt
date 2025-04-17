@@ -31,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,11 +54,8 @@ import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
-import com.spr.jetpack_loading.components.indicators.PulsatingDot
-import com.valentinilk.shimmer.LocalShimmerTheme
-import com.valentinilk.shimmer.defaultShimmerTheme
-import com.valentinilk.shimmer.shimmer
 import androidx.core.net.toUri
+import com.spr.jetpack_loading.components.indicators.PulsatingDot
 
 @Composable
 fun MovieDetailScreen(
@@ -113,7 +109,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoa
     val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
     val fadeBrush = Brush.verticalGradient(
-        0.7f to Color.Black,
+        0.75f to Color.Black,
         1f to Color.Transparent.copy(alpha = 0.2f)
     )
 
@@ -124,33 +120,13 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoa
     ) {
         when {
             isLoading -> {
-                val shimmerTheme = defaultShimmerTheme.copy(
-                    shaderColors = listOf(
-                        // TODO: Find Theme
-                        Color(0xFFFF5F6D),
-                        Color(0xFFFFC371),
-                        Color(0xFFFF5F6D)
-                    ),
-                    blendMode = BlendMode.SrcOver
-                )
-                CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
-                    Box(
-                        modifier = Modifier
-                            .shimmer()
-                            .fillMaxSize()
-                    )
-                }
                 Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onSecondary),
+                    contentAlignment = Alignment.Center
                 ) {
-                    PulsatingDot(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        ballDiameter = UIConstants.LOADINGBALLDIAMETER,
-                        horizontalSpace = UIConstants.LOADINGBALLHSPACE,
-                        animationDuration = UIConstants.LOADINGBALLDURATION,
-                        minAlpha = UIConstants.LOADINGBALLMINALPHA,
-                        maxAlpha = UIConstants.LOADINGBALLMAXALPHA
-                    )
+                    PulsatingDot(color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
@@ -209,13 +185,12 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoa
                         MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
                         CircleShape
                     )
-                    .size(UIConstants.iconButtonSize)
+                    .size(UIConstants.backdropButtonSize)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    modifier = Modifier.size(UIConstants.iconSize),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    modifier = Modifier.size(UIConstants.backdropIconSize),
                 )
             }
 
@@ -227,12 +202,12 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit, isLoa
                         MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
                         CircleShape
                     )
-                    .size(UIConstants.iconButtonSize)
+                    .size(UIConstants.backdropButtonSize)
             ) {
                 Icon(
                     imageVector = Icons.Default.MoreHoriz,
                     contentDescription = "Menu",
-                    modifier = Modifier.size(UIConstants.iconSize),
+                    modifier = Modifier.size(UIConstants.backdropIconSize),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }

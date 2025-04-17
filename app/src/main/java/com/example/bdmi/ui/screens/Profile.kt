@@ -163,7 +163,7 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
         )
     )
 
-    // Animation provided by https://rodrigomartind.medium.com/the-art-of-small-animations-in-android-with-jetpack-compose-566caa94deba
+    // Animation from https://rodrigomartind.medium.com/the-art-of-small-animations-in-android-with-jetpack-compose-566caa94deba
     val colors = listOf(
         Color(0xFF405DE6),
         Color(0xFFC13584),

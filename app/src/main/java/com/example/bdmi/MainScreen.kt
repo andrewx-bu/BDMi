@@ -148,7 +148,7 @@ fun TopBar(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier
-                            .size(UIConstants.badgeSize)
+                            .size(UIConstants.notificationBadgeSize)
                             .offset(
                                 x = -Spacing.small,
                                 y = Spacing.extraSmall

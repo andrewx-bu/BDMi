@@ -110,7 +110,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }
             // Simulate Network Delay
-            delay(1000)
+            delay(5000)
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
                     _detailUIState.update {
@@ -147,7 +147,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         viewModelScope.launch {
             _creditsUIState.update { it.copy(isLoading = true, error = null) }
             // Simulate Network Delay
-            delay(1000)
+            delay(2000)
             movieRepo.getMovieCredits(movieId).fold(
                 onSuccess = { credits ->
                     _creditsUIState.update {
