@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -80,7 +82,9 @@ fun MovieDetailScreen(
 
         detailUIState.isLoading || creditsUIState.isLoading -> {
             Box(
-                modifier = Modifier.fillMaxSize().offset(y = UIConstants.loadingOffset),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = UIConstants.loadingOffset),
                 contentAlignment = Alignment.Center
             ) {
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -176,8 +180,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
             onClick = onNavigateBack,
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                    CircleShape
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
                 )
                 .size(UIConstants.backdropButtonSize)
         ) {
@@ -193,8 +196,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
             onClick = { /* TODO: Implement functionality */ },
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
-                    CircleShape
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
                 )
                 .size(UIConstants.backdropButtonSize)
         ) {
@@ -242,20 +244,25 @@ fun PosterRow(
         LazyColumn(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(top = Spacing.medium),
+                .padding(top = Spacing.extraLarge),
             verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall)
         ) {
             if (movieDetails != null) {
-                item {
-                    Spacer(Modifier.height(Spacing.medium))
-                }
-
                 item {
                     Text(
                         text = movieDetails.title,
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+
+                    LazyRow(
+                        modifier = Modifier.padding(bottom = Spacing.extraSmall),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                    ) {
+                        items(movieDetails.genres) { genre ->
+                            GenreChip(name = genre.name, onClick = {})
+                        }
+                    }
 
                     Spacer(Modifier.height(Spacing.extraSmall))
 
@@ -286,7 +293,10 @@ fun PosterRow(
                                 context.startActivity(intent, null)
                             },
                             modifier = Modifier
-                                .size(width = UIConstants.trailerButtonWidth, height = UIConstants.trailerButtonHeight),
+                                .size(
+                                    width = UIConstants.trailerButtonWidth,
+                                    height = UIConstants.trailerButtonHeight
+                                ),
                             contentPadding = PaddingValues(
                                 start = Spacing.extraSmall,
                                 end = Spacing.small

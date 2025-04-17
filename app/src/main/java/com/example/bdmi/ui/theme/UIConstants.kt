@@ -24,6 +24,7 @@ object UIConstants {
     val backdropIconSize = 20.dp
     val posterRowOffset = 225.dp
     val posterSize = 225.dp
+    val genreChipBorder = 2.dp
     val trailerButtonWidth = 100.dp
     val trailerButtonHeight = 30.dp
     val trailerIconSize = 14.dp
