@@ -41,7 +41,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     ) {
         Text(
             text = "Popular this week",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.displaySmall
         )
 
         Spacer(Modifier.height(MaterialTheme.dimens.small3))

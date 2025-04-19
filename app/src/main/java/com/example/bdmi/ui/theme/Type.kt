@@ -38,7 +38,8 @@ val MediumTypography = Typography(
     headlineSmall = TextStyle(
         fontSize = 20.sp,
         fontWeight = FontWeight.Medium,
-        lineHeight = 28.sp
+        lineHeight = 28.sp,
+        letterSpacing = 0.5.sp
     ),
 
     titleLarge = TextStyle(
@@ -60,12 +61,14 @@ val MediumTypography = Typography(
     bodyLarge = TextStyle(
         fontSize = 16.sp,
         fontWeight = FontWeight.Normal,
-        lineHeight = 24.sp
+        lineHeight = 24.sp,
+        letterSpacing = 1.sp
     ),
     bodyMedium = TextStyle(
         fontSize = 14.sp,
         fontWeight = FontWeight.Normal,
-        lineHeight = 20.sp
+        lineHeight = 20.sp,
+        letterSpacing = 2.sp
     ),
     bodySmall = TextStyle(
         fontSize = 12.sp,

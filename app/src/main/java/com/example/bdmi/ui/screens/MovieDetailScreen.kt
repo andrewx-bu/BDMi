@@ -28,7 +28,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -47,21 +46,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.api.ImageURLHelper
-import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
@@ -105,97 +99,48 @@ fun MovieDetailScreen(
         }
 
         else -> {
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Box {
-                    MovieBackdrop(detailUIState.movieDetails, onNavigateBack)
-                    PosterRow(detailState = detailUIState)
+            LazyColumn {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
+                        TopSection(detailState = detailUIState)
+                        TempTopBar(onNavigateBack)
+                    }
                 }
 
-                Spacer(Modifier.height(MaterialTheme.dimens.midpointSpacer))
+                item {
+                    Spacer(Modifier.height(MaterialTheme.dimens.midpointSpacer))
 
-                MovieDescription()
+                    MovieDescription()
 
-                ShimmeringDivider()
+                    ShimmeringDivider()
+                }
 
-                val reviews = listOf(
-                    "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-                            "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
-                    "Flint and Steel",
-                    "Ender Pearl",
-                    "Water Bucket Release",
-                    "Diamond Armor, Full Set"
-                )
+                item {
+                    val reviews = listOf(
+                        "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+                                "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
+                        "Flint and Steel",
+                        "Ender Pearl",
+                        "Water Bucket Release",
+                        "Diamond Armor, Full Set"
+                    )
 
-                ReviewCarousel(reviews = reviews, autoScrollDelay = 5000L)
+                    ReviewCarousel(
+                        reviews = reviews,
+                        autoScrollDelay = MaterialTheme.uiConstants.reviewScrollDelay
+                    )
+                }
             }
         }
     }
 }
 
-fun Modifier.fadingEdge(brush: Brush) = this
-    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-    .drawWithContent {
-        drawContent()
-        drawRect(brush = brush, blendMode = BlendMode.DstIn)
-    }
-
 @Composable
-fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
-    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
-
-    val fadeBrush = Brush.verticalGradient(
-        0.75f to Color.Black,
-        1f to Color.Transparent.copy(alpha = 0.2f)
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
-    ) {
-        if (backdropURL.isNotEmpty()) {
-            AsyncImage(
-                model = backdropURL,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fadingEdge(fadeBrush),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Movie,
-                        contentDescription = "No backdrop available",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconHuge)
-                    )
-                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
-                    if (movieDetails != null) {
-                        Text(
-                            text = movieDetails.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-
+fun TempTopBar(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -239,13 +184,38 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun PosterRow(detailState: HomeViewModel.DetailUIState) {
+fun TopSection(detailState: HomeViewModel.DetailUIState) {
     val movieDetails = detailState.movieDetails
+    val backdropURL = ImageURLHelper.getBackdropURL("")
+    val hasBackdrop = backdropURL.isNotEmpty()
+
+    val fadeBrush = Brush.verticalGradient(
+        0.75f to Color.Black,
+        1f to Color.Transparent.copy(alpha = 0.2f)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
+    ) {
+        if (hasBackdrop) {
+            AsyncImage(
+                model = backdropURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fadingEdge(fadeBrush),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(MaterialTheme.dimens.posterSize)
-            .offset(y = MaterialTheme.dimens.posterRowOffset)
+            .offset(y = if (hasBackdrop) 200.dp else 65.dp)
             .padding(
                 start = MaterialTheme.dimens.medium3,
                 end = MaterialTheme.dimens.small3
@@ -267,91 +237,98 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
 
         Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
 
-        LazyColumn(
+        val fadeBrush = Brush.verticalGradient(
+            colorStops = arrayOf(
+                0f to Color.Transparent.copy(alpha = 0.2f),
+                0.2f to Color.Black
+            )
+        )
+
+        Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(top = MaterialTheme.dimens.large3),
+                .padding(top = MaterialTheme.dimens.large3)
+                .fadingEdge(fadeBrush)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
         ) {
             if (movieDetails != null) {
-                item {
-                    Text(
-                        text = movieDetails.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                Spacer(Modifier.height(MaterialTheme.dimens.large1))
 
-                    LazyRow(
-                        modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
-                    ) {
-                        items(movieDetails.genres) { genre ->
-                            GenreChip(name = genre.name, onClick = {})
-                        }
+                Text(
+                    text = movieDetails.title,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                LazyRow(
+                    modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+                ) {
+                    items(movieDetails.genres) { genre ->
+                        GenreChip(name = genre.name, onClick = {})
                     }
-
-                    Spacer(Modifier.height(MaterialTheme.dimens.small2))
-
-                    Text(
-                        text = "${movieDetails.releaseDate} | DIRECTED BY",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    )
-
-                    Spacer(Modifier.height(MaterialTheme.dimens.small2))
-
-                    Text(
-                        text = detailState.directors,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
                 }
 
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val context = LocalContext.current
-                        Button(
-                            // TODO: Add Videos Endpoint
-                            onClick = {
-                                val intent =
-                                    Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent, null)
-                            },
-                            modifier = Modifier
-                                .size(
-                                    width = MaterialTheme.dimens.buttonWidthSmall,
-                                    height = MaterialTheme.dimens.buttonHeightSmall
-                                ),
-                            contentPadding = PaddingValues(
-                                start = MaterialTheme.dimens.small2,
-                                end = MaterialTheme.dimens.small3
+                Spacer(Modifier.height(MaterialTheme.dimens.small2))
+
+                Text(
+                    text = "${movieDetails.releaseDate} | DIRECTED BY",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                )
+
+                Spacer(Modifier.height(MaterialTheme.dimens.small2))
+
+                Text(
+                    text = detailState.directors,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val context = LocalContext.current
+                    Button(
+                        // TODO: Add Videos Endpoint
+                        onClick = {
+                            val intent =
+                                Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent, null)
+                        },
+                        modifier = Modifier
+                            .size(
+                                width = MaterialTheme.dimens.buttonWidthSmall,
+                                height = MaterialTheme.dimens.buttonHeightSmall
                             ),
-                            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                            colors = ButtonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "Play",
-                                modifier = Modifier.size(MaterialTheme.dimens.iconTiny)
-                            )
-                            Text("TRAILER", style = MaterialTheme.typography.labelMedium)
-                        }
-
-                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
-
-                        Text(
-                            // TODO: Add MPAA Rating Endpoint
-                            text = "${movieDetails.runtime} min | R",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        contentPadding = PaddingValues(
+                            start = MaterialTheme.dimens.small2,
+                            end = MaterialTheme.dimens.small3
+                        ),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Play",
+                            modifier = Modifier.size(MaterialTheme.dimens.iconTiny)
+                        )
+                        Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
                     }
+
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+
+                    Text(
+                        // TODO: Add MPAA Rating Endpoint
+                        text = "${movieDetails.runtime} min | R",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                    )
                 }
             }
         }
@@ -404,6 +381,7 @@ fun ReviewCarousel(
     }
 }
 
+// TODO: Add Profile, Stars, Heart?
 @Composable
 fun ReviewCard(text: String) {
     Card(
@@ -416,8 +394,8 @@ fun ReviewCard(text: String) {
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(MaterialTheme.dimens.small3),
-            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(MaterialTheme.dimens.medium1),
+            style = MaterialTheme.typography.bodyLarge,
             maxLines = MaterialTheme.uiConstants.reviewMaxLines,
             overflow = TextOverflow.Ellipsis
         )

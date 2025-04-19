@@ -11,7 +11,7 @@ data class Dimens(
     val medium1: Dp,
     val medium2: Dp,
     val medium3: Dp,
-    val large: Dp,
+    val large1: Dp,
     val large2: Dp,
     val large3: Dp,
 
@@ -65,7 +65,7 @@ val MediumDimens = Dimens(
     medium1 = 10.dp,
     medium2 = 12.dp,
     medium3 = 16.dp,
-    large = 20.dp,
+    large1 = 20.dp,
     large2 = 24.dp,
     large3 = 32.dp,
 
@@ -117,7 +117,7 @@ val ExpandedDimens = Dimens(
     medium1 = 0.dp,
     medium2 = 0.dp,
     medium3 = 0.dp,
-    large = 0.dp,
+    large1 = 0.dp,
     large2 = 0.dp,
     large3 = 0.dp,
     iconTiny = 0.dp,

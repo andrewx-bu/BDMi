@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,37 +27,41 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import com.example.bdmi.ui.theme.dimens
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
 
+// Horizontal Divider with custom shimmer
 @Composable
 fun ShimmeringDivider() {
     val shimmerTheme = defaultShimmerTheme.copy(
         shaderColors = listOf(
             MaterialTheme.colorScheme.onPrimaryContainer,
-            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.tertiaryContainer,
             MaterialTheme.colorScheme.onPrimaryContainer
         ),
         blendMode = BlendMode.SrcOver
     )
 
     CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
-        Row(
+        HorizontalDivider(
             modifier = Modifier
-                .height(MaterialTheme.dimens.small2)
+                .height(MaterialTheme.dimens.small1)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
                 .shimmer()
-        ) {
-            Text("")
-        }
+        )
     }
 }
 
+// Genre chips in MovieDetail screen
 @Composable
 fun GenreChip(name: String, onClick: () -> Unit) {
     Box(
@@ -65,19 +70,23 @@ fun GenreChip(name: String, onClick: () -> Unit) {
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .border(
                 width = MaterialTheme.dimens.small1,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small2)
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shape = RoundedCornerShape(MaterialTheme.dimens.small3)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = MaterialTheme.dimens.medium3, vertical = MaterialTheme.dimens.small2)
+            .padding(
+                horizontal = MaterialTheme.dimens.medium3,
+                vertical = MaterialTheme.dimens.small2
+            )
     ) {
         Text(
             text = name,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
 
+// Dots for ReviewCarousel in MovieDetail screen
 @Composable
 fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
     Row(
@@ -94,11 +103,12 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
     }
 }
 
+// Individual dots in DotIndicator
 // TODO: Increase size on selected dot
 @Composable
 fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
     val color =
-        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
+        if (isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer
     Box(
         modifier = Modifier
             .size(MaterialTheme.dimens.carouselDotSize)
@@ -109,23 +119,22 @@ fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
     )
 }
 
+// Error container displaying error message
 @Composable
 fun ErrorMessage(message: String, onRetry: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.errorContainer)
-            .padding(MaterialTheme.dimens.medium3),
+            .padding(MaterialTheme.dimens.medium1),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = message,
             color = MaterialTheme.colorScheme.onErrorContainer,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         IconButton(
             onClick = onRetry,
@@ -134,8 +143,16 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "Retry",
                 tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(MaterialTheme.dimens.iconSmall)
+                modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
             )
         }
     }
 }
+
+// Fading edge gradient
+fun Modifier.fadingEdge(brush: Brush) = this
+    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+    .drawWithContent {
+        drawContent()
+        drawRect(brush = brush, blendMode = BlendMode.DstIn)
+    }
