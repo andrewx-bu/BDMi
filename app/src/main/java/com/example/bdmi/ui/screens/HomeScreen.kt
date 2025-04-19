@@ -20,8 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.api.Movie
-import com.example.bdmi.ui.theme.Spacing
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 
@@ -37,14 +37,14 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(Spacing.medium)
+            .padding(MaterialTheme.dimens.medium3)
     ) {
         Text(
             text = "Popular this week",
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Spacer(Modifier.height(Spacing.small))
+        Spacer(Modifier.height(MaterialTheme.dimens.small3))
 
         when {
             uiState.error != null -> {
@@ -62,7 +62,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
             else -> {
                 MovieGrid(
-                    movies = uiState.movies.take(UIConstants.MOVIESSHOWN),
+                    movies = uiState.movies.take(MaterialTheme.uiConstants.moviesShown),
                     onMovieClick = onMovieClick,
                 )
             }
@@ -73,9 +73,9 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 @Composable
 fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(UIConstants.MOVIECOLUMNS),
-        verticalArrangement = Arrangement.spacedBy(Spacing.small),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+        columns = GridCells.Fixed(MaterialTheme.uiConstants.movieColumns),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
     ) {
         items(movies) { movie ->
             MoviePoster(

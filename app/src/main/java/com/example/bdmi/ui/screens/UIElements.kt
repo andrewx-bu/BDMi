@@ -28,8 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.text.style.TextAlign
-import com.example.bdmi.ui.theme.Spacing
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.theme.dimens
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
@@ -48,7 +47,7 @@ fun ShimmeringDivider() {
     CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
         Row(
             modifier = Modifier
-                .height(Spacing.extraSmall)
+                .height(MaterialTheme.dimens.small2)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
                 .shimmer()
@@ -62,15 +61,15 @@ fun ShimmeringDivider() {
 fun GenreChip(name: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(Spacing.small))
+            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .border(
-                width = UIConstants.genreChipBorder,
+                width = MaterialTheme.dimens.small1,
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(Spacing.small)
+                shape = RoundedCornerShape(MaterialTheme.dimens.small2)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = Spacing.medium, vertical = Spacing.extraSmall)
+            .padding(horizontal = MaterialTheme.dimens.medium3, vertical = MaterialTheme.dimens.small2)
     ) {
         Text(
             text = name,
@@ -84,13 +83,13 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(Spacing.small),
+            .padding(MaterialTheme.dimens.small2),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 0 until numDots) {
             Dot(index = i, isSelected = i == currentIndex, onDotClick)
-            Spacer(modifier = Modifier.width(Spacing.medium))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
         }
     }
 }
@@ -102,7 +101,7 @@ fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
         if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
     Box(
         modifier = Modifier
-            .size(UIConstants.carouselDotSize)
+            .size(MaterialTheme.dimens.carouselDotSize)
             .background(color = color, shape = CircleShape)
             .clickable {
                 onDotClick(index)
@@ -116,7 +115,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.errorContainer)
-            .padding(Spacing.medium),
+            .padding(MaterialTheme.dimens.medium3),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -126,7 +125,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(Spacing.small))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         IconButton(
             onClick = onRetry,
@@ -135,7 +134,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "Retry",
                 tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(UIConstants.backdropButtonSize)
+                modifier = Modifier.size(MaterialTheme.dimens.iconSmall)
             )
         }
     }

@@ -62,8 +62,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.ui.theme.Spacing
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import kotlinx.coroutines.delay
@@ -97,7 +97,7 @@ fun MovieDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset(y = UIConstants.loadingOffset),
+                    .offset(y = MaterialTheme.dimens.contentOffset),
                 contentAlignment = Alignment.Center
             ) {
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -115,7 +115,7 @@ fun MovieDetailScreen(
                     PosterRow(detailState = detailUIState)
                 }
 
-                Spacer(Modifier.height(UIConstants.midpointSpacer))
+                Spacer(Modifier.height(MaterialTheme.dimens.midpointSpacer))
 
                 MovieDescription()
 
@@ -155,7 +155,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
+            .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
     ) {
         if (backdropURL.isNotEmpty()) {
             AsyncImage(
@@ -180,14 +180,14 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                         imageVector = Icons.Default.Movie,
                         contentDescription = "No backdrop available",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
+                        modifier = Modifier.size(MaterialTheme.dimens.iconHuge)
                     )
-                    Spacer(modifier = Modifier.height(Spacing.small))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
                     if (movieDetails != null) {
                         Text(
                             text = movieDetails.title,
                             style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = Spacing.small),
+                            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -199,7 +199,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(Spacing.medium),
+            .padding(MaterialTheme.dimens.medium3),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -210,12 +210,12 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                 .background(
                     MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
                 )
-                .size(UIConstants.backdropButtonSize)
+                .size(MaterialTheme.dimens.iconLarge)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
+                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
             )
         }
 
@@ -226,12 +226,12 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
                 .background(
                     MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
                 )
-                .size(UIConstants.backdropButtonSize)
+                .size(MaterialTheme.dimens.iconLarge)
         ) {
             Icon(
                 imageVector = Icons.Default.MoreHoriz,
                 contentDescription = "Menu",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
+                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -244,11 +244,11 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(UIConstants.posterSize)
-            .offset(y = UIConstants.posterRowOffset)
+            .height(MaterialTheme.dimens.posterSize)
+            .offset(y = MaterialTheme.dimens.posterRowOffset)
             .padding(
-                start = Spacing.medium,
-                end = Spacing.small
+                start = MaterialTheme.dimens.medium3,
+                end = MaterialTheme.dimens.small3
             )
     ) {
         if (movieDetails != null) {
@@ -265,13 +265,13 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
             )
         }
 
-        Spacer(modifier = Modifier.width(Spacing.medium))
+        Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(top = Spacing.extraLarge),
-            verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall)
+                .padding(top = MaterialTheme.dimens.large3),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
         ) {
             if (movieDetails != null) {
                 item {
@@ -282,15 +282,15 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
                     )
 
                     LazyRow(
-                        modifier = Modifier.padding(bottom = Spacing.extraSmall),
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                        modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
                     ) {
                         items(movieDetails.genres) { genre ->
                             GenreChip(name = genre.name, onClick = {})
                         }
                     }
 
-                    Spacer(Modifier.height(Spacing.extraSmall))
+                    Spacer(Modifier.height(MaterialTheme.dimens.small2))
 
                     Text(
                         text = "${movieDetails.releaseDate} | DIRECTED BY",
@@ -298,7 +298,7 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     )
 
-                    Spacer(Modifier.height(Spacing.extraSmall))
+                    Spacer(Modifier.height(MaterialTheme.dimens.small2))
 
                     Text(
                         text = detailState.directors,
@@ -320,14 +320,14 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
                             },
                             modifier = Modifier
                                 .size(
-                                    width = UIConstants.trailerButtonWidth,
-                                    height = UIConstants.trailerButtonHeight
+                                    width = MaterialTheme.dimens.buttonWidthSmall,
+                                    height = MaterialTheme.dimens.buttonHeightSmall
                                 ),
                             contentPadding = PaddingValues(
-                                start = Spacing.extraSmall,
-                                end = Spacing.small
+                                start = MaterialTheme.dimens.small2,
+                                end = MaterialTheme.dimens.small3
                             ),
-                            shape = RoundedCornerShape(Spacing.small),
+                            shape = RoundedCornerShape(MaterialTheme.dimens.small3),
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -338,12 +338,12 @@ fun PosterRow(detailState: HomeViewModel.DetailUIState) {
                             Icon(
                                 imageVector = Icons.Default.PlayArrow,
                                 contentDescription = "Play",
-                                modifier = Modifier.size(UIConstants.trailerIconSize)
+                                modifier = Modifier.size(MaterialTheme.dimens.iconTiny)
                             )
                             Text("TRAILER", style = MaterialTheme.typography.labelMedium)
                         }
 
-                        Spacer(modifier = Modifier.width(Spacing.small))
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
                         Text(
                             // TODO: Add MPAA Rating Endpoint
@@ -381,7 +381,7 @@ fun ReviewCarousel(
         }
     }
 
-    Spacer(Modifier.height(Spacing.medium))
+    Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -391,7 +391,7 @@ fun ReviewCarousel(
             ReviewCard(text = reviewText)
         }
 
-        Spacer(modifier = Modifier.height(Spacing.small))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         DotsIndicator(
             numDots = reviews.size,
@@ -409,16 +409,16 @@ fun ReviewCard(text: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.medium)
-            .height(UIConstants.reviewCardHeight),
-        shape = RoundedCornerShape(Spacing.medium),
-        elevation = CardDefaults.cardElevation(Spacing.small)
+            .padding(horizontal = MaterialTheme.dimens.medium3)
+            .height(MaterialTheme.dimens.reviewCardHeight),
+        shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
+        elevation = CardDefaults.cardElevation(MaterialTheme.dimens.small3)
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(Spacing.medium),
+            modifier = Modifier.padding(MaterialTheme.dimens.small3),
             style = MaterialTheme.typography.bodyMedium,
-            maxLines = UIConstants.REVIEWMAXLINES,
+            maxLines = MaterialTheme.uiConstants.reviewMaxLines,
             overflow = TextOverflow.Ellipsis
         )
     }

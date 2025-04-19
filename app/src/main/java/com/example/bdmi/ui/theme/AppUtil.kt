@@ -5,18 +5,27 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 
-// Guide from https://www.youtube.com/watch?v=Dj_X-RKL-c0
 @Composable
 fun ProvideAppUtils(
     dimens: Dimens,
-    content: @Composable () -> Unit,
+    constants: UIConstants,
+    content: @Composable () -> Unit
 ) {
     val appDimens = remember { dimens }
-    CompositionLocalProvider(LocalAppDimens provides appDimens) {
+    val uiConstants = remember { constants }
+
+    CompositionLocalProvider(
+        LocalAppDimens provides appDimens,
+        LocalUIConstants provides uiConstants
+    ) {
         content()
     }
 }
 
 val LocalAppDimens = compositionLocalOf {
     MediumDimens
+}
+
+val LocalUIConstants = compositionLocalOf {
+    MediumUIConstants
 }

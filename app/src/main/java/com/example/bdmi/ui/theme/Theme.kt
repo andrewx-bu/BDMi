@@ -128,36 +128,41 @@ fun AppTheme(
         }
     }
 
-    // Depending on screen size class, set app dimensions and typography
+    // Depending on screen size class, set typography, app dimensions, and UI constant vals
     val window = calculateWindowSizeClass(activity = activity)
 
     val typography: Typography
     val appDimens: Dimens
+    val uiConstants: UIConstants
 
     when (window.widthSizeClass) {
         // TODO: Add support for Compact devices
         WindowWidthSizeClass.Compact -> {
             appDimens = MediumDimens
             typography = MediumTypography
+            uiConstants = MediumUIConstants
         }
 
         WindowWidthSizeClass.Medium -> {
             appDimens = MediumDimens
             typography = MediumTypography
+            uiConstants = MediumUIConstants
         }
 
         WindowWidthSizeClass.Expanded -> {
             appDimens = ExpandedDimens
             typography = ExpandedTypography
+            uiConstants = ExpandedUIConstants
         }
 
         else -> {
             appDimens = ExpandedDimens
             typography = ExpandedTypography
+            uiConstants = ExpandedUIConstants
         }
     }
 
-    ProvideAppUtils(dimens = appDimens) {
+    ProvideAppUtils(dimens = appDimens, constants = MediumUIConstants) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = typography,
@@ -169,3 +174,7 @@ fun AppTheme(
 val MaterialTheme.dimens
     @Composable
     get() = LocalAppDimens.current
+
+val MaterialTheme.uiConstants
+    @Composable
+    get() = LocalUIConstants.current

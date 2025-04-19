@@ -52,7 +52,7 @@ data class Dimens(
     // Offsets / alignment
     val contentOffset: Dp,
     val posterRowOffset: Dp,
-    val midpointSpacer: Dp
+    val midpointSpacer: Dp,
 )
 
 // TODO: Add dimens for Compact devices
