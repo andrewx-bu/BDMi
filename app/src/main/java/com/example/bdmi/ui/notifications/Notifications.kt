@@ -53,8 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.bdmi.ui.viewmodels.Notification
-import com.example.bdmi.ui.viewmodels.NotificationType
 import com.example.bdmi.ui.viewmodels.NotificationViewModel
 import com.example.bdmi.ui.viewmodels.UserViewModel
 
