@@ -60,6 +60,7 @@ import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 
 @Composable
@@ -91,7 +92,7 @@ fun MovieDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset(y = MaterialTheme.dimens.contentOffset),
+                    .offset(y = MaterialTheme.dimens.loadingOffset),
                 contentAlignment = Alignment.Center
             ) {
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -99,6 +100,7 @@ fun MovieDetailScreen(
         }
 
         else -> {
+            val hasBackdrop = detailUIState.hasBackdrop
             LazyColumn {
                 item {
                     Box(
@@ -106,16 +108,19 @@ fun MovieDetailScreen(
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
                     ) {
-                        TopSection(detailState = detailUIState)
+                        TopSection(detailState = detailUIState, hasBackdrop = hasBackdrop)
                         TempTopBar(onNavigateBack)
                     }
                 }
 
                 item {
-                    Spacer(Modifier.height(MaterialTheme.dimens.midpointSpacer))
-
+                    Spacer(
+                        modifier = Modifier.height(
+                            if (hasBackdrop == true) MaterialTheme.dimens.posterRowSpacer
+                            else MaterialTheme.dimens.posterRowSpacerAlt
+                        )
+                    )
                     MovieDescription()
-
                     ShimmeringDivider()
                 }
 
@@ -139,6 +144,7 @@ fun MovieDetailScreen(
     }
 }
 
+// TODO: Integrate with scaffold
 @Composable
 fun TempTopBar(onNavigateBack: () -> Unit) {
     Row(
@@ -184,43 +190,49 @@ fun TempTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun TopSection(detailState: HomeViewModel.DetailUIState) {
+fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) {
     val movieDetails = detailState.movieDetails
-    val backdropURL = ImageURLHelper.getBackdropURL("")
-    val hasBackdrop = backdropURL.isNotEmpty()
+    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
-    val fadeBrush = Brush.verticalGradient(
+    // Image fades at the bottom
+    val bottomFadeBrush = Brush.verticalGradient(
         0.75f to Color.Black,
         1f to Color.Transparent.copy(alpha = 0.2f)
     )
 
+    // Backdrop box
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
     ) {
-        if (hasBackdrop) {
+        if (hasBackdrop == true) {
             AsyncImage(
                 model = backdropURL,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .fadingEdge(fadeBrush),
+                    .fadingEdge(bottomFadeBrush),
                 contentScale = ContentScale.Crop
             )
         }
     }
 
+    // Poster row
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(MaterialTheme.dimens.posterSize)
-            .offset(y = if (hasBackdrop) 200.dp else 65.dp)
+            .offset(
+                y = if (hasBackdrop == true) MaterialTheme.dimens.posterRowOffset
+                else MaterialTheme.dimens.posterRowOffsetAlt
+            )
             .padding(
                 start = MaterialTheme.dimens.medium3,
                 end = MaterialTheme.dimens.small3
             )
     ) {
+        // Display poster if exists, otherwise placeholder
         if (movieDetails != null) {
             MoviePoster(
                 title = movieDetails.title,
@@ -237,30 +249,34 @@ fun TopSection(detailState: HomeViewModel.DetailUIState) {
 
         Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
 
-        val fadeBrush = Brush.verticalGradient(
+        // Column fades upwards into the backdrop
+        val topFadeBrush = Brush.verticalGradient(
             colorStops = arrayOf(
                 0f to Color.Transparent.copy(alpha = 0.2f),
-                0.2f to Color.Black
+                0.2f to Color.Black,
             )
         )
 
+        // Details column
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .padding(top = MaterialTheme.dimens.large3)
-                .fadingEdge(fadeBrush)
+                .fadingEdge(topFadeBrush)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
         ) {
             if (movieDetails != null) {
-                Spacer(Modifier.height(MaterialTheme.dimens.large1))
+                Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
+                // Movie Title
                 Text(
                     text = movieDetails.title,
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
+                // Genre Chips
                 LazyRow(
                     modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
@@ -270,15 +286,14 @@ fun TopSection(detailState: HomeViewModel.DetailUIState) {
                     }
                 }
 
-                Spacer(Modifier.height(MaterialTheme.dimens.small2))
+                Spacer(Modifier.height(MaterialTheme.dimens.small1))
 
+                // Release date, director
                 Text(
                     text = "${movieDetails.releaseDate} | DIRECTED BY",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 )
-
-                Spacer(Modifier.height(MaterialTheme.dimens.small2))
 
                 Text(
                     text = detailState.directors,
@@ -286,8 +301,10 @@ fun TopSection(detailState: HomeViewModel.DetailUIState) {
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
+                // Trailer button, runtime, MPAA rating
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val context = LocalContext.current
+
                     Button(
                         // TODO: Add Videos Endpoint
                         onClick = {
@@ -316,7 +333,9 @@ fun TopSection(detailState: HomeViewModel.DetailUIState) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
                             contentDescription = "Play",
-                            modifier = Modifier.size(MaterialTheme.dimens.iconTiny)
+                            modifier = Modifier
+                                .size(MaterialTheme.dimens.iconTiny)
+                                .shimmer()
                         )
                         Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
                     }
@@ -377,27 +396,6 @@ fun ReviewCarousel(
                 selectedIndex = index
                 onIndexChanged(index)
             }
-        )
-    }
-}
-
-// TODO: Add Profile, Stars, Heart?
-@Composable
-fun ReviewCard(text: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.medium3)
-            .height(MaterialTheme.dimens.reviewCardHeight),
-        shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
-        elevation = CardDefaults.cardElevation(MaterialTheme.dimens.small3)
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(MaterialTheme.dimens.medium1),
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = MaterialTheme.uiConstants.reviewMaxLines,
-            overflow = TextOverflow.Ellipsis
         )
     }
 }

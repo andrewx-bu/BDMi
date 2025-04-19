@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +35,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
@@ -148,6 +152,28 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
         }
     }
 }
+
+// TODO: Add Profile, Stars, Heart?
+@Composable
+fun ReviewCard(text: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium3)
+            .height(MaterialTheme.dimens.reviewCardHeight),
+        shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
+        elevation = CardDefaults.cardElevation(MaterialTheme.dimens.small3)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(MaterialTheme.dimens.medium1),
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = MaterialTheme.uiConstants.reviewMaxLines,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
 
 // Fading edge gradient
 fun Modifier.fadingEdge(brush: Brush) = this

@@ -28,6 +28,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     data class DetailUIState(
         override val isLoading: Boolean = false,
         val movieDetails: MovieDetails? = null,
+        val hasBackdrop: Boolean? = null,
         val cast: List<CastMember> = emptyList(),
         val crew: List<CrewMember> = emptyList(),
         val directors: String = "Unknown",
@@ -50,6 +51,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             DetailUIState(
                 isLoading = true,
                 movieDetails = null,
+                hasBackdrop = null,
                 cast = emptyList(),
                 crew = emptyList(),
                 directors = "Unknown",
@@ -94,6 +96,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                 it.copy(
                     isLoading = true,
                     movieDetails = null,
+                    hasBackdrop = null,
                     cast = emptyList(),
                     crew = emptyList(),
                     directors = "Unknown",
@@ -104,9 +107,12 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             delay(1000)
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
+                    val hasBackdrop = details.backdropPath?.isNotEmpty()
+
                     _detailUIState.update {
                         it.copy(
                             movieDetails = details,
+                            hasBackdrop = hasBackdrop,
                             error = null,
                         )
                     }

@@ -37,22 +37,24 @@ data class Dimens(
     val posterSize: Dp,
     val noPosterIconSize: Dp,
     val backdropHeight: Dp,
-    val backdropButtonSize: Dp,
-    val backdropIconSize: Dp,
 
     // Specific UI components
     val topBarHeight: Dp,
     val bottomBarHeight: Dp,
     val topBarIconSize: Dp,
     val notificationBadgeSize: Dp,
+    // Movie Detail
     val reviewCardHeight: Dp,
     val carouselDotSize: Dp,
     val chipBorderWidth: Dp,
 
-    // Offsets / alignment
-    val contentOffset: Dp,
+    // Offsets / Alignment
+    val loadingOffset: Dp,
     val posterRowOffset: Dp,
-    val midpointSpacer: Dp,
+    // Alt: No Backdrop
+    val posterRowOffsetAlt: Dp,
+    val posterRowSpacer: Dp,
+    val posterRowSpacerAlt: Dp
 )
 
 // TODO: Add dimens for Compact devices
@@ -91,22 +93,24 @@ val MediumDimens = Dimens(
     posterSize = 225.dp,
     noPosterIconSize = 50.dp,
     backdropHeight = 180.dp,
-    backdropButtonSize = 35.dp,
-    backdropIconSize = 20.dp,
 
-    // UI components
+    // Specific UI components
     topBarHeight = 100.dp,
     bottomBarHeight = 75.dp,
     topBarIconSize = 30.dp,
     notificationBadgeSize = 18.dp,
+    // Movie Detail
     reviewCardHeight = 95.dp,
     carouselDotSize = 10.dp,
     chipBorderWidth = 2.dp,
 
-    // Offsets
-    contentOffset = 50.dp,
-    posterRowOffset = 225.dp,
-    midpointSpacer = 180.dp
+    // Offsets / Alignment
+    loadingOffset = 50.dp,
+    posterRowOffset = 210.dp,
+    // Alt: No Backdrop
+    posterRowOffsetAlt = 65.dp,
+    posterRowSpacer = 165.dp,
+    posterRowSpacerAlt = 20.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -137,8 +141,6 @@ val ExpandedDimens = Dimens(
     posterSize = 0.dp,
     noPosterIconSize = 0.dp,
     backdropHeight = 0.dp,
-    backdropButtonSize = 0.dp,
-    backdropIconSize = 0.dp,
     topBarHeight = 0.dp,
     bottomBarHeight = 0.dp,
     topBarIconSize = 0.dp,
@@ -146,7 +148,9 @@ val ExpandedDimens = Dimens(
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
     chipBorderWidth = 0.dp,
-    contentOffset = 0.dp,
+    loadingOffset = 0.dp,
     posterRowOffset = 0.dp,
-    midpointSpacer = 0.dp,
+    posterRowOffsetAlt = 0.dp,
+    posterRowSpacer = 0.dp,
+    posterRowSpacerAlt = 0.dp,
 )
