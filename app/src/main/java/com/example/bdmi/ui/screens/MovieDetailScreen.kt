@@ -51,7 +51,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.api.ImageURLHelper
+import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.ui.viewmodels.HomeViewModel
@@ -65,26 +67,30 @@ fun MovieDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val detailUIState by viewModel.detailUIState.collectAsState()
+    val uiState by viewModel.detailUIState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.refreshDetails(movieId)
     }
 
+    val details = uiState.details
+    val error = uiState.error
+    val isLoading = uiState.isLoading
+
     when {
-        detailUIState.error != null -> {
+        error != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 ErrorMessage(
-                    message = detailUIState.error.toString(),
+                    message = error.toString(),
                     onRetry = { viewModel.refreshDetails(movieId) }
                 )
             }
         }
 
-        detailUIState.isLoading -> {
+        isLoading -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -95,8 +101,18 @@ fun MovieDetailScreen(
             }
         }
 
-        else -> {
-            val hasBackdrop = detailUIState.hasBackdrop
+        details != null -> {
+            // String mangling done by ChatGPT
+            val hasBackdrop = details.backdropPath?.isNotEmpty() == true
+            val directors = details.credits.crew
+                .filter { it.job.equals("director", ignoreCase = true) }
+                .joinToString(", ") { it.name }
+                .ifEmpty { "Unknown" }
+            val us = details.releaseDates.results.firstOrNull { it.iso31661 == "US" }
+            val certification =
+                us?.releaseDates?.firstOrNull()?.certification.takeUnless { it?.isBlank() == true }
+                    ?: "NR"
+
             LazyColumn {
                 item {
                     Box(
@@ -104,7 +120,12 @@ fun MovieDetailScreen(
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
                     ) {
-                        TopSection(detailState = detailUIState, hasBackdrop = hasBackdrop)
+                        TopSection(
+                            details = details,
+                            hasBackdrop = hasBackdrop,
+                            directors = directors,
+                            certification = certification
+                        )
                         TempTopBar(onNavigateBack)
                     }
                 }
@@ -112,7 +133,7 @@ fun MovieDetailScreen(
                 item {
                     Spacer(
                         modifier = Modifier.height(
-                            if (hasBackdrop == true) MaterialTheme.dimens.posterRowSpacer
+                            if (hasBackdrop) MaterialTheme.dimens.posterRowSpacer
                             else MaterialTheme.dimens.posterRowSpacerAlt
                         )
                     )
@@ -135,6 +156,18 @@ fun MovieDetailScreen(
                         autoScrollDelay = MaterialTheme.uiConstants.reviewScrollDelay
                     )
                 }
+            }
+        }
+
+        else -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorMessage(
+                    message = "An internal error occurred. No details available",
+                    onRetry = { viewModel.refreshDetails(movieId) }
+                )
             }
         }
     }
@@ -186,9 +219,8 @@ fun TempTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) {
-    val movieDetails = detailState.movieDetails
-    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
+fun TopSection(details: MovieDetails, hasBackdrop: Boolean, directors: String, certification: String) {
+    val backdropURL = ImageURLHelper.getBackdropURL(details.backdropPath)
 
     // Image fades at the bottom
     val bottomFadeBrush = Brush.verticalGradient(
@@ -202,7 +234,7 @@ fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) 
             .fillMaxWidth()
             .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
     ) {
-        if (hasBackdrop == true) {
+        if (hasBackdrop) {
             AsyncImage(
                 model = backdropURL,
                 contentDescription = null,
@@ -220,7 +252,7 @@ fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) 
             .fillMaxWidth()
             .height(MaterialTheme.dimens.posterSize)
             .offset(
-                y = if (hasBackdrop == true) MaterialTheme.dimens.posterRowOffset
+                y = if (hasBackdrop) MaterialTheme.dimens.posterRowOffset
                 else MaterialTheme.dimens.posterRowOffsetAlt
             )
             .padding(
@@ -228,20 +260,11 @@ fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) 
                 end = MaterialTheme.dimens.small3
             )
     ) {
-        // Display poster if exists, otherwise placeholder
-        if (movieDetails != null) {
-            MoviePoster(
-                title = movieDetails.title,
-                posterPath = movieDetails.posterPath,
-                onClick = {}
-            )
-        } else {
-            MoviePoster(
-                title = "",
-                posterPath = null,
-                onClick = {}
-            )
-        }
+        MoviePoster(
+            title = details.title,
+            posterPath = details.posterPath,
+            onClick = {}
+        )
 
         Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
 
@@ -262,89 +285,86 @@ fun TopSection(detailState: HomeViewModel.DetailUIState, hasBackdrop: Boolean?) 
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
         ) {
-            if (movieDetails != null) {
-                Spacer(Modifier.height(MaterialTheme.dimens.medium3))
+            Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
-                // Movie Title
-                Text(
-                    text = movieDetails.title,
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+            // Movie Title
+            Text(
+                text = details.title,
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
-                // Genre Chips
-                LazyRow(
-                    modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+            // Genre Chips
+            LazyRow(
+                modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+            ) {
+                items(details.genres) { genre ->
+                    GenreChip(name = genre.name, onClick = {})
+                }
+            }
+
+            Spacer(Modifier.height(MaterialTheme.dimens.small1))
+
+            // Release date, director
+            Text(
+                text = "${details.releaseDate} | DIRECTED BY",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+            )
+
+            Text(
+                text = directors,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            // Trailer button, runtime, MPAA rating
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val context = LocalContext.current
+
+                Button(
+                    // TODO: Add Videos Endpoint
+                    onClick = {
+                        val intent =
+                            Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent, null)
+                    },
+                    modifier = Modifier
+                        .size(
+                            width = MaterialTheme.dimens.buttonWidthSmall,
+                            height = MaterialTheme.dimens.buttonHeightSmall
+                        ),
+                    contentPadding = PaddingValues(
+                        start = MaterialTheme.dimens.small2,
+                        end = MaterialTheme.dimens.small3
+                    ),
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 ) {
-                    items(movieDetails.genres) { genre ->
-                        GenreChip(name = genre.name, onClick = {})
-                    }
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play",
+                        modifier = Modifier
+                            .size(MaterialTheme.dimens.iconTiny)
+                            .shimmer()
+                    )
+                    Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
                 }
 
-                Spacer(Modifier.height(MaterialTheme.dimens.small1))
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
-                // Release date, director
                 Text(
-                    text = "${movieDetails.releaseDate} | DIRECTED BY",
+                    text = "${details.runtime} min | $certification",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 )
-
-                Text(
-                    text = detailState.directors,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                // Trailer button, runtime, MPAA rating
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val context = LocalContext.current
-
-                    Button(
-                        // TODO: Add Videos Endpoint
-                        onClick = {
-                            val intent =
-                                Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(intent, null)
-                        },
-                        modifier = Modifier
-                            .size(
-                                width = MaterialTheme.dimens.buttonWidthSmall,
-                                height = MaterialTheme.dimens.buttonHeightSmall
-                            ),
-                        contentPadding = PaddingValues(
-                            start = MaterialTheme.dimens.small2,
-                            end = MaterialTheme.dimens.small3
-                        ),
-                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Play",
-                            modifier = Modifier
-                                .size(MaterialTheme.dimens.iconTiny)
-                                .shimmer()
-                        )
-                        Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
-                    }
-
-                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
-
-                    Text(
-                        // TODO: Add MPAA Rating Endpoint
-                        text = "${movieDetails.runtime} min | R",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    )
-                }
             }
         }
     }
