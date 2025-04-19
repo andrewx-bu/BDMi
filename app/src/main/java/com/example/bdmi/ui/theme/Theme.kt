@@ -1,5 +1,6 @@
 package com.example.bdmi.ui.theme
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -8,12 +9,16 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.bdmi.MainActivity
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -91,10 +96,13 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic Color uses wallpaper background as color scheme
     dynamicColor: Boolean = false,
+    @SuppressLint("ContextCastToActivity") activity: Activity = LocalContext.current as MainActivity,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -107,16 +115,21 @@ fun AppTheme(
         else -> lightScheme
     }
 
+    // Ensure the status bar responds to light/dark theme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Deprecated. Maybe change.
+            // Deprecated. Maybe change. Can't find another method.
             window.statusBarColor = colorScheme.background.toArgb()
             window.navigationBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
+
+    // Depending on screen size class, set app dimensions and typography
+    val window = calculateWindowSizeClass(activity = activity)
+    val config = LocalConfiguration.current
 
     MaterialTheme(
         colorScheme = colorScheme,

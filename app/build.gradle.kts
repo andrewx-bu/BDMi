@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.window.size.class1.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,12 +79,13 @@ dependencies {
     //Navigation libraries
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
-    //API related libraries
+    //API libraries
     implementation(libs.retrofit)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+    //Image loading libraries
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     //Libraries needed for Cloudinary and image fetching

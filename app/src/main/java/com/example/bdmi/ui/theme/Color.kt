@@ -39,6 +39,7 @@ val surfaceContainerLight = Color(0xFFF5EDDD)
 val surfaceContainerHighLight = Color(0xFFEFE8D7)
 val surfaceContainerHighestLight = Color(0xFFE9E2D1)
 
+// TODO: Utilize contrast themes for better accessibility/customizability
 val primaryLightMediumContrast = Color(0xFF403600)
 val onPrimaryLightMediumContrast = Color(0xFFFFFFFF)
 val primaryContainerLightMediumContrast = Color(0xFF7F6C00)
