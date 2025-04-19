@@ -28,12 +28,6 @@ data class Movie(
     @Json(name = "video") val video: Boolean,
     @Json(name = "vote_average") val voteAverage: Double,
     @Json(name = "vote_count") val voteCount: Int,
-    @Json(name = "credits") val credits: MovieCreditsResponse,
-    @Json(name = "videos") val videos: VideosResponse,
-    @Json(name = "release_dates") val releaseDates: ReleaseDatesResponse,
-    @Json(name = "recommendations") val recommendations: MoviesResponse,
-    @Json(name = "similar") val similar: MoviesResponse,
-    @Json(name = "images") val images: ImagesResponse
 )
 
 // Details endpoint
@@ -60,7 +54,13 @@ data class MovieDetails(
     @Json(name = "title") val title: String,
     @Json(name = "video") val video: Boolean,
     @Json(name = "vote_average") val voteAverage: Double,
-    @Json(name = "vote_count") val voteCount: Int
+    @Json(name = "vote_count") val voteCount: Int,
+    @Json(name = "credits") val credits: MovieCreditsResponse,
+    @Json(name = "videos") val videos: VideosResponse,
+    @Json(name = "release_dates") val releaseDates: ReleaseDatesResponse,
+    @Json(name = "recommendations") val recommendations: MoviesResponse,
+    @Json(name = "similar") val similar: MoviesResponse,
+    @Json(name = "images") val images: ImagesResponse
 )
 
 @JsonClass(generateAdapter = true)

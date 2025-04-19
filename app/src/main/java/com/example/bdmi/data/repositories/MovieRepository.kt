@@ -18,9 +18,4 @@ class MovieRepository @Inject constructor(
         runCatching {
             apiService.getMovieDetails(movieId = movieId)
         }
-
-    suspend fun getMovieCredits(movieId: Int): Result<MovieCreditsResponse> =
-        runCatching {
-            apiService.getMovieCredits(movieId = movieId)
-        }
 }

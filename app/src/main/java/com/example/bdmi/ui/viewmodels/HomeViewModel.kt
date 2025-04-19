@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.api.CastMember
 import com.example.bdmi.data.api.CrewMember
+import com.example.bdmi.data.api.ImagesResponse
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.data.api.ReleaseDatesResponse
+import com.example.bdmi.data.api.Video
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +35,11 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         val cast: List<CastMember> = emptyList(),
         val crew: List<CrewMember> = emptyList(),
         val directors: String = "Unknown",
+        val videos: List<Video> = emptyList(),
+        val releaseDates: ReleaseDatesResponse? = null,
+        val recommendations: List<Movie> = emptyList(),
+        val similar: List<Movie> = emptyList(),
+        val images: ImagesResponse? = null,
         override val error: APIError? = null
     ) : UIState
 
@@ -56,6 +63,11 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                 cast = emptyList(),
                 crew = emptyList(),
                 directors = "Unknown",
+                videos = emptyList(),
+                releaseDates = null,
+                recommendations = emptyList(),
+                similar = emptyList(),
+                images = null,
                 error = null
             )
         }
@@ -99,70 +111,45 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         }
     }
 
-    // TODO: Handle Empty Details/Credit Response
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }
-            // Simulate Network Delay
             delay(1000)
-            try {
-                // Start requests in parallel and await results
-                val detailsDeferred = async { movieRepo.getMovieDetails(movieId) }
-                val creditsDeferred = async { movieRepo.getMovieCredits(movieId) }
+            movieRepo.getMovieDetails(movieId).fold(
+                onSuccess = { details ->
+                    val directors = details.credits.crew
+                        .filter { it.job.equals("director", ignoreCase = true) }
+                        .joinToString(", ") { it.name }
+                        .ifEmpty { "Unknown" }
 
-                val detailsResult = detailsDeferred.await()
-                val creditsResult = creditsDeferred.await()
+                    val hasBackdrop = details.backdropPath?.isNotEmpty() == true
 
-                detailsResult.fold(
-                    onSuccess = { details ->
-                        val hasBackdrop = details.backdropPath?.isNotEmpty()
-                        _detailUIState.update {
-                            it.copy(
-                                movieDetails = details,
-                                hasBackdrop = hasBackdrop,
-                                error = null,
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        _detailUIState.update { it.copy(error = e.toAPIError()) }
+                    _detailUIState.update {
+                        it.copy(
+                            movieDetails = details,
+                            hasBackdrop = hasBackdrop,
+                            cast = details.credits.cast,
+                            crew = details.credits.crew,
+                            directors = directors,
+                            videos = details.videos.results,
+                            releaseDates = details.releaseDates,
+                            recommendations = details.recommendations.results,
+                            similar = details.similar.results,
+                            images = details.images,
+                            isLoading = false,
+                            error = null
+                        )
                     }
-                )
-
-                creditsResult.fold(
-                    onSuccess = { credits ->
-                        val directors = credits.crew
-                            .filter { it.job.equals("director", ignoreCase = true) }
-                            .takeIf { it.isNotEmpty() }
-                            ?.joinToString(", ") { it.name }
-                            ?: "Unknown"
-
-                        _detailUIState.update {
-                            it.copy(
-                                cast = credits.cast,
-                                crew = credits.crew,
-                                directors = directors,
-                                isLoading = false
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        _detailUIState.update {
-                            it.copy(
-                                error = it.error ?: e.toAPIError(),
-                                isLoading = false
-                            )
-                        }
+                },
+                onFailure = { e ->
+                    _detailUIState.update {
+                        it.copy(
+                            error = e.toAPIError(),
+                            isLoading = false
+                        )
                     }
-                )
-            } catch (e: Exception) {
-                _detailUIState.update {
-                    it.copy(
-                        error = e.toAPIError(),
-                        isLoading = false
-                    )
                 }
-            }
+            )
         }
     }
 }
