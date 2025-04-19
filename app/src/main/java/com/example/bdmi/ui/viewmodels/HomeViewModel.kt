@@ -8,7 +8,7 @@ import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.toAPIError
-import com.example.bdmi.data.api.MovieRepository
+import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

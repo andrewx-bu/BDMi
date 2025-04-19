@@ -165,7 +165,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             Text(
                 text = notificationType,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.DarkGray,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = modifier.padding(horizontal = 10.dp)
             )
             // Delete a notification
@@ -232,7 +232,7 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
                     text = data.displayName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Row {
                     UserStats("Friends", data.friendCount.toString())
@@ -298,8 +298,8 @@ fun UserStats(text: String, stat: String) {
         modifier = Modifier.padding(end = 10.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(text = stat, color = Color.LightGray)
-        Text(text = text, fontWeight = FontWeight.Bold, color = Color.LightGray)
+        Text(text = stat, color = MaterialTheme.colorScheme.primary)
+        Text(text = text, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
     }
 }
 
