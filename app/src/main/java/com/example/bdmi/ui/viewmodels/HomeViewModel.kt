@@ -111,6 +111,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         }
     }
 
+    // TODO: Handle empty response
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }

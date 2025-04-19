@@ -1,7 +1,6 @@
 package com.example.bdmi.data.repositories
 
 import com.example.bdmi.data.api.APIService
-import com.example.bdmi.data.api.MovieCreditsResponse
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.MoviesResponse
 import javax.inject.Inject

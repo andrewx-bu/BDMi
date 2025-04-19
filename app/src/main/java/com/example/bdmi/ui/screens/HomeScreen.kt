@@ -39,6 +39,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
             .fillMaxSize()
             .padding(MaterialTheme.dimens.medium3)
     ) {
+        // TODO: Make this a row, add a menu button top right
         Text(
             text = "Popular this week",
             style = MaterialTheme.typography.displaySmall
