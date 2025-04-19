@@ -104,10 +104,18 @@ fun MovieDetailScreen(
         details != null -> {
             // String mangling done by ChatGPT
             val hasBackdrop = details.backdropPath?.isNotEmpty() == true
+            // Handle multiple directors
             val directors = details.credits.crew
                 .filter { it.job.equals("director", ignoreCase = true) }
                 .joinToString(", ") { it.name }
                 .ifEmpty { "Unknown" }
+            // en-US by default. Extract YT key from most recent official trailer
+            val trailerKey = details.videos.results.filter {
+                it.site.equals("YouTube", ignoreCase = true) &&
+                        it.type.equals("Trailer", ignoreCase = true) && it.official
+            }
+                .maxByOrNull { it.publishedAt }?.key
+            // Extract MPAA certification from US release
             val us = details.releaseDates.results.firstOrNull { it.iso31661 == "US" }
             val certification =
                 us?.releaseDates?.firstOrNull()?.certification.takeUnless { it?.isBlank() == true }
@@ -124,6 +132,7 @@ fun MovieDetailScreen(
                             details = details,
                             hasBackdrop = hasBackdrop,
                             directors = directors,
+                            trailerKey = trailerKey,
                             certification = certification
                         )
                         TempTopBar(onNavigateBack)
@@ -219,7 +228,13 @@ fun TempTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun TopSection(details: MovieDetails, hasBackdrop: Boolean, directors: String, certification: String) {
+fun TopSection(
+    details: MovieDetails,
+    hasBackdrop: Boolean,
+    directors: String,
+    trailerKey: String?,
+    certification: String
+) {
     val backdropURL = ImageURLHelper.getBackdropURL(details.backdropPath)
 
     // Image fades at the bottom
@@ -323,14 +338,20 @@ fun TopSection(details: MovieDetails, hasBackdrop: Boolean, directors: String, c
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val context = LocalContext.current
 
+                // Only shimmer if trailer available
+                val iconModifier = Modifier
+                    .size(MaterialTheme.dimens.iconTiny)
+                    .let { base -> if (trailerKey != null) base.shimmer() else base }
+
                 Button(
-                    // TODO: Add Videos Endpoint
                     onClick = {
-                        val intent =
-                            Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        val url = "https://www.youtube.com/watch?v=$trailerKey"
+                        val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
                         context.startActivity(intent, null)
                     },
+                    enabled = trailerKey != null,
                     modifier = Modifier
                         .size(
                             width = MaterialTheme.dimens.buttonWidthSmall,
@@ -344,16 +365,14 @@ fun TopSection(details: MovieDetails, hasBackdrop: Boolean, directors: String, c
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Play",
-                        modifier = Modifier
-                            .size(MaterialTheme.dimens.iconTiny)
-                            .shimmer()
+                        modifier = iconModifier
                     )
                     Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
                 }
