@@ -3,9 +3,9 @@ package com.example.bdmi.data.repositories
 import android.util.Log
 import com.example.bdmi.ui.notifications.Notification
 import com.example.bdmi.ui.notifications.NotificationType
-import com.example.bdmi.ui.viewmodels.FriendStatus
-import com.example.bdmi.ui.viewmodels.ProfileBanner
-import com.example.bdmi.ui.viewmodels.UserInfo
+import com.example.bdmi.ui.friends.FriendStatus
+import com.example.bdmi.ui.friends.ProfileBanner
+import com.example.bdmi.UserInfo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore

@@ -1,13 +1,10 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.notifications
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.NotificationRepository
-import com.example.bdmi.ui.notifications.Notification
-import com.example.bdmi.ui.notifications.NotificationType
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

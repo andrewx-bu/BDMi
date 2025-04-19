@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
+import com.example.bdmi.ui.screens.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

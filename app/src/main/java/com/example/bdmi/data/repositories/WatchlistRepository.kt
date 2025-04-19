@@ -123,7 +123,7 @@ class WatchlistRepository @Inject constructor(
             }
     }
 
-    fun removeFromList(userId: String, listId: String, itemId: Int) {
+    fun removeFromList(userId: String, listId: String, itemId: Int, onComplete: (Boolean) -> Unit) {
         val dbFunction = "RemoveFromList"
 
         // Get the document ID of the item to remove
@@ -137,14 +137,17 @@ class WatchlistRepository @Inject constructor(
                     document.reference.delete()
                         .addOnSuccessListener {
                             Log.d("$TAG$dbFunction", "Item removed from list")
-                            }
+                            onComplete(true)
+                        }
                         .addOnFailureListener { e ->
                             Log.w("$TAG$dbFunction", "Error removing item from list", e)
+                            onComplete(false)
                         }
                 }
-                }
+            }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error getting item to remove", e)
+                onComplete(false)
             }
     }
 
@@ -162,7 +165,7 @@ class WatchlistRepository @Inject constructor(
             }
     }
 
-    fun updateListInfo(userId: String, listId: String, list: CustomList) {
+    fun updateListInfo(userId: String, listId: String, list: CustomList, onComplete: (Boolean) -> Unit) {
         val dbFunction = "UpdateListInfo"
 
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
@@ -170,9 +173,11 @@ class WatchlistRepository @Inject constructor(
             .set(list)
             .addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "List updated successfully")
-                }
+                onComplete(true)
+            }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error updating list", e)
+                onComplete(false)
             }
     }
 }

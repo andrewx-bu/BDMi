@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi
 
 import android.content.SharedPreferences
 import android.net.Uri

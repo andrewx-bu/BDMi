@@ -22,7 +22,7 @@ import com.example.bdmi.ui.screens.HomeScreen
 import com.example.bdmi.ui.screens.MovieDetailScreen
 import com.example.bdmi.ui.screens.ProfileScreen
 import com.example.bdmi.ui.screens.SearchScreen
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable

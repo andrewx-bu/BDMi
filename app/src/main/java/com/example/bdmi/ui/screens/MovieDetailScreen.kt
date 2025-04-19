@@ -64,7 +64,7 @@ import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
-import com.example.bdmi.ui.viewmodels.HomeViewModel
+import com.example.bdmi.ui.screens.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import kotlinx.coroutines.delay
 

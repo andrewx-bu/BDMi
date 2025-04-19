@@ -17,9 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.ui.viewmodels.FriendViewModel
-import com.example.bdmi.ui.viewmodels.ProfileBanner
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
