@@ -54,7 +54,7 @@ data class Dimens(
     val midpointSpacer: Dp
 )
 
-// TODO: Add dimens for Compact phones and smaller
+// TODO: Add dimens for Compact devices
 
 val MediumDimens = Dimens(
     // Spacing
@@ -108,3 +108,42 @@ val MediumDimens = Dimens(
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
+val ExpandedDimens = Dimens(
+    small1 = 0.dp,
+    small2 = 0.dp,
+    small3 = 0.dp,
+    medium1 = 0.dp,
+    medium2 = 0.dp,
+    medium3 = 0.dp,
+    large = 0.dp,
+    large2 = 0.dp,
+    iconTiny = 0.dp,
+    iconSmall = 0.dp,
+    iconMedium = 0.dp,
+    iconLarge = 0.dp,
+    iconHuge = 0.dp,
+    buttonHeightSmall = 0.dp,
+    buttonHeightMedium = 0.dp,
+    buttonHeightLarge = 0.dp,
+    buttonWidthSmall = 0.dp,
+    buttonWidthMedium = 0.dp,
+    buttonWidthLarge = 0.dp,
+    logoSizeSmall = 0.dp,
+    logoSizeMedium = 0.dp,
+    logoSizeLarge = 0.dp,
+    posterSize = 0.dp,
+    noPosterIconSize = 0.dp,
+    backdropHeight = 0.dp,
+    backdropButtonSize = 0.dp,
+    backdropIconSize = 0.dp,
+    topBarHeight = 0.dp,
+    bottomBarHeight = 0.dp,
+    topBarIconSize = 0.dp,
+    notificationBadgeSize = 0.dp,
+    reviewCardHeight = 0.dp,
+    carouselDotSize = 0.dp,
+    chipBorderWidth = 0.dp,
+    contentOffset = 0.dp,
+    posterRowOffset = 0.dp,
+    midpointSpacer = 0.dp,
+)

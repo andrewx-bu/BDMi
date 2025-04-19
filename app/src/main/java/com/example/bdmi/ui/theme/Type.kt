@@ -2,119 +2,93 @@ package com.example.bdmi.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-val AppTypography = Typography(
-    // Display styles
+// TODO: Add typography for Compact devices
+
+val MediumTypography = Typography(
+    // TODO: Customize letter spacing, font style/family, etc.
     displayLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Light,
-        fontSize = 60.sp,
-        lineHeight = 60.sp,
-        letterSpacing = (-0.25).sp
+        fontSize = 48.sp,
+        fontWeight = FontWeight.Bold,
+        lineHeight = 56.sp
     ),
     displayMedium = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 45.sp,
-        lineHeight = 50.sp,
-        letterSpacing = 0.sp
+        fontSize = 40.sp,
+        fontWeight = FontWeight.Bold,
+        lineHeight = 48.sp
     ),
     displaySmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 35.sp,
-        lineHeight = 45.sp,
-        letterSpacing = 0.sp
-    ),
-    // Headline styles
-    headlineLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 34.sp,
         fontWeight = FontWeight.Bold,
-        fontSize = 35.sp,
-        lineHeight = 40.sp,
-        letterSpacing = 0.sp
+        lineHeight = 40.sp
+    ),
+
+    headlineLarge = TextStyle(
+        fontSize = 30.sp,
+        fontWeight = FontWeight.SemiBold,
+        lineHeight = 36.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 35.sp,
-        lineHeight = 35.sp,
-        letterSpacing = 0.sp
+        fontSize = 24.sp,
+        fontWeight = FontWeight.SemiBold,
+        lineHeight = 32.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        lineHeight = 30.sp,
-        letterSpacing = 0.sp
+        fontWeight = FontWeight.Medium,
+        lineHeight = 28.sp
     ),
-    // Title styles
+
     titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
-        lineHeight = 25.sp,
-        letterSpacing = 0.sp
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Medium,
+        lineHeight = 24.sp
     ),
     titleMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
-        fontSize = 15.sp,
-        lineHeight = 25.sp,
-        letterSpacing = 0.15.sp
+        lineHeight = 22.sp
     ),
     titleSmall = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 14.sp,
         fontWeight = FontWeight.Medium,
-        fontSize = 15.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
+        lineHeight = 20.sp
     ),
-    // Body styles
+
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 16.sp,
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
-        lineHeight = 25.sp,
-        letterSpacing = 0.5.sp
+        lineHeight = 24.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 14.sp,
         fontWeight = FontWeight.Normal,
-        fontSize = 17.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
+        lineHeight = 20.sp
     ),
     bodySmall = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 12.sp,
         fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 10.sp,
-        letterSpacing = 0.5.sp
+        lineHeight = 16.sp
     ),
-    // Label styles
+
     labelLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.1.sp
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium,
+        lineHeight = 20.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontSize = 12.sp,
         fontWeight = FontWeight.Medium,
-        fontSize = 15.sp,
-        lineHeight = 15.sp,
-        letterSpacing = 1.5.sp
+        lineHeight = 16.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
         fontSize = 10.sp,
-        lineHeight = 15.sp,
-        letterSpacing = 0.5.sp
+        fontWeight = FontWeight.Medium,
+        lineHeight = 14.sp
     )
 )
+
+// TODO: Add typography for Expanded devices (tablet)
+val ExpandedTypography = Typography()

@@ -5,16 +5,17 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -129,11 +130,38 @@ fun AppTheme(
 
     // Depending on screen size class, set app dimensions and typography
     val window = calculateWindowSizeClass(activity = activity)
-    val config = LocalConfiguration.current
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    val typography: Typography
+    val appDimens: Dimens
+
+    when (window.widthSizeClass) {
+        // TODO: Add support for Compact devices
+        WindowWidthSizeClass.Compact -> {
+            appDimens = MediumDimens
+            typography = MediumTypography
+        }
+
+        WindowWidthSizeClass.Medium -> {
+            appDimens = MediumDimens
+            typography = MediumTypography
+        }
+
+        WindowWidthSizeClass.Expanded -> {
+            appDimens = ExpandedDimens
+            typography = ExpandedTypography
+        }
+
+        else -> {
+            appDimens = ExpandedDimens
+            typography = ExpandedTypography
+        }
+    }
+
+    ProvideAppUtils(dimens = appDimens) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = typography,
+            content = content
+        )
+    }
 }
