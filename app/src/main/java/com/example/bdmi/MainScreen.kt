@@ -48,8 +48,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
 import com.example.bdmi.ui.viewmodels.UserViewModel
-import com.example.bdmi.ui.theme.Spacing
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.theme.dimens
 
 @Composable
 fun MainScreen(
@@ -139,8 +138,8 @@ fun TopBar(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "BDMi",
                 modifier = Modifier
-                    .size(UIConstants.logoSize)
-                    .clip(RoundedCornerShape(Spacing.small))
+                    .size(MaterialTheme.dimens.logoSizeMedium)
+                    .clip(RoundedCornerShape(MaterialTheme.dimens.small3))
             )
         },
         actions = {
@@ -150,10 +149,10 @@ fun TopBar(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier
-                            .size(UIConstants.notificationBadgeSize)
+                            .size(MaterialTheme.dimens.notificationBadgeSize)
                             .offset(
-                                x = -Spacing.small,
-                                y = Spacing.extraSmall
+                                x = -MaterialTheme.dimens.small3,
+                                y = MaterialTheme.dimens.small2
                             )
                     ) {
                         // TODO: Implement Notifications #
@@ -166,11 +165,11 @@ fun TopBar(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(UIConstants.topBarIconSizes)
+                        modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
                     )
                 }
             }
-            Spacer(Modifier.width(Spacing.medium))
+            Spacer(Modifier.width(MaterialTheme.dimens.medium3))
 
             IconButton(onClick = onThemeClick) {
                 Icon(
@@ -179,16 +178,16 @@ fun TopBar(
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .rotate(rotation)
-                        .size(UIConstants.topBarIconSizes)
+                        .size(MaterialTheme.dimens.iconMedium)
                 )
             }
 
-            Spacer(Modifier.width(Spacing.medium))
+            Spacer(Modifier.width(MaterialTheme.dimens.medium3))
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent
         ),
-        modifier = Modifier.height(UIConstants.topBarSize)
+        modifier = Modifier.height(MaterialTheme.dimens.topBarHeight)
     )
 }
 
@@ -202,7 +201,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
     )
 
     NavigationBar(
-        modifier = Modifier.height(UIConstants.bottomBarSize),
+        modifier = Modifier.height(MaterialTheme.dimens.bottomBarHeight),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         screens.forEach { screen ->
@@ -237,6 +236,6 @@ fun RowScope.AddItem(
         },
         selected = isSelected,
         onClick = { onItemClicked(screen.route) },
-        modifier = Modifier.offset(y = Spacing.extraSmall)
+        modifier = Modifier.offset(y = MaterialTheme.dimens.small2)
     )
 }

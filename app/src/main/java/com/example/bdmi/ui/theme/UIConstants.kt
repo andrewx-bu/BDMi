@@ -3,13 +3,6 @@ package com.example.bdmi.ui.theme
 import androidx.compose.ui.unit.dp
 
 object UIConstants {
-    // MainScreen
-    val logoSize = 75.dp
-    val topBarSize = 100.dp
-    val bottomBarSize = 75.dp
-    val topBarIconSizes = 30.dp
-    val notificationBadgeSize = 18.dp
-
     // Home
     const val MOVIECOLUMNS = 3
     const val MOVIESSHOWN = 18
@@ -35,9 +28,8 @@ object UIConstants {
 }
 
 object Spacing {
-    val extraSmall = 4.dp
-    val small = 8.dp
-    val medium = 16.dp
-    val large = 24.dp
-    val extraLarge = 32.dp
+    val extraSmall = 4.dp //small2
+    val small = 8.dp //small3
+    val medium = 16.dp //medium3
+    val extraLarge = 32.dp // large3
 }
