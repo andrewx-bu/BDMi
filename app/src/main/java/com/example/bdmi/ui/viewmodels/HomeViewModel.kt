@@ -10,6 +10,7 @@ import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,12 +69,22 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             delay(1000)
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
-                    _homeUIState.update {
-                        it.copy(
-                            movies = response.results,
-                            error = null,
-                            isLoading = false
-                        )
+                    // If no movies are fetched, we'll throw an empty response error
+                    if (response.results.isEmpty()) {
+                        _homeUIState.update {
+                            it.copy(
+                                error = APIError.EmptyResponseError(),
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _homeUIState.update {
+                            it.copy(
+                                movies = response.results,
+                                error = null,
+                                isLoading = false
+                            )
+                        }
                     }
                 },
                 onFailure = { e ->
@@ -83,76 +94,75 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
                             isLoading = false
                         )
                     }
-                    e.printStackTrace()
                 }
             )
         }
     }
 
-    /* TODO: Parallel API calls */
+    // TODO: Handle Empty Details/Credit Response
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
-            _detailUIState.update {
-                it.copy(
-                    isLoading = true,
-                    movieDetails = null,
-                    hasBackdrop = null,
-                    cast = emptyList(),
-                    crew = emptyList(),
-                    directors = "Unknown",
-                    error = null
-                )
-            }
+            _detailUIState.update { it.copy(isLoading = true, error = null) }
             // Simulate Network Delay
             delay(1000)
-            movieRepo.getMovieDetails(movieId).fold(
-                onSuccess = { details ->
-                    val hasBackdrop = details.backdropPath?.isNotEmpty()
+            try {
+                // Start requests in parallel and await results
+                val detailsDeferred = async { movieRepo.getMovieDetails(movieId) }
+                val creditsDeferred = async { movieRepo.getMovieCredits(movieId) }
 
-                    _detailUIState.update {
-                        it.copy(
-                            movieDetails = details,
-                            hasBackdrop = hasBackdrop,
-                            error = null,
-                        )
-                    }
-                },
-                onFailure = { e ->
-                    _detailUIState.update {
-                        it.copy(
-                            error = e.toAPIError(),
-                        )
-                    }
-                    e.printStackTrace()
-                }
-            )
-            movieRepo.getMovieCredits(movieId).fold(
-                onSuccess = { credits ->
-                    val directors = credits.crew
-                        .filter { it.job.equals("director", ignoreCase = true) }
-                        .takeIf { it.isNotEmpty() }
-                        ?.joinToString(", ") { it.name }
-                        ?: "Unknown"
+                val detailsResult = detailsDeferred.await()
+                val creditsResult = creditsDeferred.await()
 
-                    _detailUIState.update {
-                        it.copy(
-                            cast = credits.cast,
-                            crew = credits.crew,
-                            directors = directors,
-                            isLoading = false
-                        )
+                detailsResult.fold(
+                    onSuccess = { details ->
+                        val hasBackdrop = details.backdropPath?.isNotEmpty()
+                        _detailUIState.update {
+                            it.copy(
+                                movieDetails = details,
+                                hasBackdrop = hasBackdrop,
+                                error = null,
+                            )
+                        }
+                    },
+                    onFailure = { e ->
+                        _detailUIState.update { it.copy(error = e.toAPIError()) }
                     }
-                },
-                onFailure = { e ->
-                    _detailUIState.update {
-                        it.copy(
-                            error = e.toAPIError(),
-                            isLoading = false
-                        )
+                )
+
+                creditsResult.fold(
+                    onSuccess = { credits ->
+                        val directors = credits.crew
+                            .filter { it.job.equals("director", ignoreCase = true) }
+                            .takeIf { it.isNotEmpty() }
+                            ?.joinToString(", ") { it.name }
+                            ?: "Unknown"
+
+                        _detailUIState.update {
+                            it.copy(
+                                cast = credits.cast,
+                                crew = credits.crew,
+                                directors = directors,
+                                isLoading = false
+                            )
+                        }
+                    },
+                    onFailure = { e ->
+                        _detailUIState.update {
+                            it.copy(
+                                error = it.error ?: e.toAPIError(),
+                                isLoading = false
+                            )
+                        }
                     }
-                    e.printStackTrace()
+                )
+            } catch (e: Exception) {
+                _detailUIState.update {
+                    it.copy(
+                        error = e.toAPIError(),
+                        isLoading = false
+                    )
                 }
-            )
+            }
         }
     }
 }
