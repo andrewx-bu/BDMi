@@ -356,6 +356,7 @@ fun MovieDescription() {
 
 }
 
+// TODO: Implement horizontal pager functionality?
 @Composable
 fun ReviewCarousel(
     reviews: List<String>,
