@@ -31,8 +31,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-//            RootNavigation(userId)
-            SwitchTestScreen()
+            RootNavigation(userId)
         }
     }
 }

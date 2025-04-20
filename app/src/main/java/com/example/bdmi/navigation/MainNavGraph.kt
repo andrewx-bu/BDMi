@@ -111,7 +111,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         // Movie detail route
         composable("movie_detail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
-            MovieDetailScreen(movieId) { navController.popBackStack() }
+            MovieDetailScreen(userViewModel, movieId) { navController.popBackStack() }
         }
 
 
@@ -152,6 +152,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         // Watchlist journey
         composable(MainRoutes.Bookmarks.route) {
             WatchlistsScreen(userViewModel) { (userId, listId)->
+                Log.d("WatchlistScreen", "Clicked on watchlist with userId: $userId, listId: $listId")
                 navController.navigate("watchlist/$userId/$listId")
             }
         }
@@ -159,6 +160,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         composable("watchlist/{userId}/{listId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             val listId = backStackEntry.arguments?.getString("listId") ?: ""
+            Log.d("WatchlistScreen", "Loading CustomListScreen with userId: $userId, listId: $listId")
             CustomListScreen(
                 userViewModel = userViewModel,
                 listId = listId,

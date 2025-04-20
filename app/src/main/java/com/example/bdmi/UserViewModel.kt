@@ -13,6 +13,8 @@ import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.data.repositories.WatchlistRepository
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
@@ -28,6 +30,7 @@ data class UserInfo(
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepo: UserRepository,
+    private val watchlistRepository: WatchlistRepository,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     private val _userInfo = MutableStateFlow<UserInfo?>(null)
@@ -45,6 +48,9 @@ class UserViewModel @Inject constructor(
     private val _tempImageURI = MutableStateFlow<Uri?>(null)
     val tempImageURI: StateFlow<Uri?> = _tempImageURI.asStateFlow()
 
+    private val _watchlists = MutableStateFlow<List<CustomList>>(emptyList())
+    val watchlists: StateFlow<List<CustomList>> = _watchlists.asStateFlow()
+
     // Collection of functions from the UserRepository
     fun loadUser(
         userId: String?,
@@ -61,6 +67,7 @@ class UserViewModel @Inject constructor(
                 _userInfo.value = loadedUserInfo
                 _isLoggedIn.value = loadedUserInfo != null
                 _isInitialized.value = true
+                loadCachedInfo()
                 Log.d("UserViewModel", "User loaded: ${_userInfo.value}")
                 onComplete(_userInfo.value)
             }
@@ -80,13 +87,26 @@ class UserViewModel @Inject constructor(
                         _userInfo.value = loadedUserInfo
                         _isLoggedIn.value = loadedUserInfo != null
                         sharedPreferences.edit { putString("userId", userId) }
+                        loadCachedInfo()
                         Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
                         onComplete(loadedUserInfo)
                     }
                 }
             }
         }
+    }
 
+    // Load various session info to be cached for later use
+    /*
+     * Loads the user's custom lists from the db.
+     * TODO: Load discover movies from TMDB
+     */
+    private fun loadCachedInfo() {
+        viewModelScope.launch {
+            watchlistRepository.getLists(_userInfo.value?.userId.toString()) { lists ->
+                _watchlists.value = lists
+            }
+        }
     }
 
     fun logout() {
@@ -110,7 +130,6 @@ class UserViewModel @Inject constructor(
                 onComplete(loadedUserInfo)
             }
         }
-
     }
 
     // Needs testing still

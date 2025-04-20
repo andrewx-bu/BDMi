@@ -2,6 +2,7 @@ package com.example.bdmi.data.repositories
 
 import android.util.Log
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 
@@ -126,11 +127,17 @@ class WatchlistRepository @Inject constructor(
     fun addToList(listId: String, userId: String, listItem: MediaItem) {
         val dbFunction = "AddToList"
 
+        val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            .collection(LISTS_COLLECTION).document(listId)
+
+        Log.d("$TAG$dbFunction", "User ID: $userId")
+        Log.d("$TAG$dbFunction", "Adding item to list with ID: $listId")
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
             .collection(LISTS_COLLECTION).document(listId)
             .collection(ITEMS_COLLECTION)
             .add(listItem)
             .addOnSuccessListener { documentReference ->
+                listRef.update("numOfItems", FieldValue.increment(1))
                 Log.d("$TAG$dbFunction", "Item added to list with ID: ${documentReference.id}")
             }
             .addOnFailureListener { e ->
@@ -148,16 +155,20 @@ class WatchlistRepository @Inject constructor(
             .whereEqualTo("id", itemId)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot.documents) {
-                    document.reference.delete()
-                        .addOnSuccessListener {
-                            Log.d("$TAG$dbFunction", "Item removed from list")
-                            onComplete(true)
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("$TAG$dbFunction", "Error removing item from list", e)
-                            onComplete(false)
-                        }
+                db.runTransaction { transaction ->
+                    for (document in querySnapshot.documents) {
+                        transaction.delete(document.reference)
+                    }
+                    val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId).collection(LISTS_COLLECTION).document(listId)
+                    transaction.update(listRef, "numOfItems", FieldValue.increment(-1))
+                }
+                .addOnSuccessListener {
+                    Log.d("$TAG$dbFunction", "Item removed from list")
+                    onComplete(true)
+                }
+                .addOnFailureListener { e ->
+                    Log.w("$TAG$dbFunction", "Error removing item from list", e)
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { e ->
@@ -166,7 +177,7 @@ class WatchlistRepository @Inject constructor(
             }
     }
 
-    fun deleteList(userId: String, listId: String) {
+    fun deleteList(userId: String, listId: String, onComplete: (Boolean) -> Unit) {
         val dbFunction = "DeleteList"
 
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
@@ -174,9 +185,11 @@ class WatchlistRepository @Inject constructor(
             .delete()
             .addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "List deleted successfully")
-                }
+                onComplete(true)
+            }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error deleting list", e)
+                onComplete(false)
             }
     }
 
@@ -201,6 +214,7 @@ data class CustomList(
     val listId: String = "",
     val name: String = "",
     val description: String = "",
+    val numOfItems: Int = 0,
     val timestamp: Timestamp = Timestamp.now(),
     val isPublic: Boolean = true
 )

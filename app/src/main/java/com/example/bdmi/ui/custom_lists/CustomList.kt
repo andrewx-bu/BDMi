@@ -99,9 +99,9 @@ fun CustomListScreen(
                     }
                 },
                 actions = {
-                    if (editPrivileges) {
+                    if (editPrivileges && listInfo != null) {
                         EditButton(
-                            currentInfo = listInfo!!,
+                            currentInfo = listInfo,
                             onClick = { newList: CustomList ->
                                 customListViewModel.updateListInfo(userId, listId, newList)
                             }

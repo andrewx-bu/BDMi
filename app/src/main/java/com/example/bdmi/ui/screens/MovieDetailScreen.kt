@@ -34,6 +34,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +45,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,8 +63,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.DotsIndicator
 import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.GenreChip
@@ -70,17 +76,25 @@ import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MovieDetailScreen(
+    userViewModel: UserViewModel? = null,
     movieId: Int,
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val detailUIState by viewModel.detailUIState.collectAsState()
+    var userPrivileges by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshDetails(movieId)
+    LaunchedEffect(movieId) {
+        launch {viewModel.refreshDetails(movieId)}
+        if (userViewModel != null) {
+            if (userViewModel.userInfo.value != null) {
+                userPrivileges = true
+            }
+        }
     }
 
     when {
@@ -114,7 +128,7 @@ fun MovieDetailScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Box {
-                    MovieBackdrop(detailUIState.movieDetails, onNavigateBack)
+                    MovieBackdrop(userPrivileges, userViewModel, detailUIState.movieDetails, onNavigateBack)
                     PosterRow(detailState = detailUIState)
                 }
 
@@ -147,7 +161,7 @@ fun Modifier.fadingEdge(brush: Brush) = this
     }
 
 @Composable
-fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
+fun MovieBackdrop(userPrivileges: Boolean, userViewModel: UserViewModel?, movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
 
     val fadeBrush = Brush.verticalGradient(
@@ -223,21 +237,7 @@ fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
         }
 
         // Menu Button
-        IconButton(
-            onClick = { /* TODO: Implement functionality */ },
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
-                )
-                .size(UIConstants.backdropButtonSize)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = "Menu",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        MenuButton(userPrivileges, userViewModel, movieDetails)
     }
 }
 
@@ -424,5 +424,86 @@ fun ReviewCard(text: String) {
             maxLines = UIConstants.REVIEWMAXLINES,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun MenuButton(
+    userPrivileges: Boolean,
+    userViewModel: UserViewModel?,
+    movieDetails: MovieDetails?,
+) {
+    val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
+    var expanded by remember { mutableStateOf(false) }
+    var showWatchlists by remember { mutableStateOf(false) }
+    val watchlists = movieDetailViewModel.lists.collectAsState()
+    val userId = userViewModel?.userInfo?.collectAsState()?.value?.userId
+    LaunchedEffect(Unit) {
+        if (userId != null)
+            movieDetailViewModel.getLists(userId.toString())
+    }
+
+
+
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Menu",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                showWatchlists = false
+            }
+        ) {
+            if (userPrivileges) {
+                DropdownMenuItem(
+                    text = { Text("Add to Watchlist") },
+                    onClick = {
+                        showWatchlists = true
+                    }
+                )
+            }
+        }
+
+        if (showWatchlists && movieDetails != null) {
+            DropdownMenu(
+                expanded = showWatchlists,
+                onDismissRequest = { showWatchlists = false },
+            ) {
+                watchlists.value.forEach { list ->
+                    DropdownMenuItem(
+                        text = { Text(list.name) },
+                        onClick = {
+                            movieDetailViewModel.addToWatchlist(
+                                userId.toString(),
+                                list.listId,
+                                MediaItem(
+                                    id = movieDetails.id,
+                                    title = movieDetails.title,
+                                    posterPath = movieDetails.posterPath.toString(),
+                                    releaseDate = movieDetails.releaseDate.toString()
+                                )
+                            )
+                            showWatchlists = false
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

@@ -102,21 +102,4 @@ class CustomListViewModel @Inject constructor(
             }
         }
     }
-
-
-    // Move to different view model
-    /*
-    fun createList(userId: String, list: CustomList) {
-        Log.d(TAG, "Creating a list for user: $userId")
-
-        viewModelScope.launch {
-            watchlistRepository.createList(userId, list) { success ->
-                if (success) {
-                    Log.d(TAG, "List created successfully")
-                } else {
-                    Log.d(TAG, "Failed to create list")
-                }
-            }
-        }
-    }*/
 }
