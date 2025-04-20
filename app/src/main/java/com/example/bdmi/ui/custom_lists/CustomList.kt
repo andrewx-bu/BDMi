@@ -3,7 +3,6 @@ package com.example.bdmi.ui.custom_lists
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,9 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.UserViewModel
@@ -66,6 +62,7 @@ import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.screens.MoviePoster
 import com.example.bdmi.ui.theme.UIConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +70,6 @@ fun CustomListScreen(
     userViewModel: UserViewModel = hiltViewModel(),
     listId: String,
     userId: String,
-    customListInfo: CustomList,
     onMovieClick: (Int) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -86,9 +82,11 @@ fun CustomListScreen(
     val editPrivileges = customListViewModel.editPrivilege.collectAsState().value
 
     LaunchedEffect(listId) {
-        customListViewModel.loadList(userId, listId)
-        customListViewModel.setListInfo(customListInfo)
-        customListViewModel.setEditPrivileges(currentUserId!!, userId)
+        launch { customListViewModel.loadList(userId, listId) }
+        launch { customListViewModel.loadListInfo(userId, listId) }
+        if (currentUserId != null) {
+            launch { customListViewModel.setEditPrivileges(currentUserId, userId) }
+        }
     }
 
     Scaffold(
@@ -100,7 +98,6 @@ fun CustomListScreen(
                         Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
                     }
                 },
-                // TODO: Toggle grid and list view. Add sliding animation
                 actions = {
                     if (editPrivileges) {
                         EditButton(
@@ -117,6 +114,11 @@ fun CustomListScreen(
                             contentDescription = "Toggle View"
                         )
                     }
+
+                    MediaDisplaySwitchButton(
+                        isGridView = displayGridView,
+                        onToggle = { customListViewModel.toggleDisplay() }
+                    )
                 }
             )
         },
@@ -185,8 +187,11 @@ fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
 
 @Composable
 fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
-    LazyColumn() {
-
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(Spacing.small),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
         items(mediaItems) { movie : MediaItem ->
             MediaListItem(
                 media = movie,
@@ -233,7 +238,7 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
     var isPublic by remember { mutableStateOf(currentInfo.isPublic) }
     var showDialog by remember { mutableStateOf(false) }
 
-    IconButton(onClick = { onClick(currentInfo) }) {
+    IconButton(onClick = { !showDialog }) {
         Icon(Icons.Default.Edit, contentDescription = "Edit")
     }
 
@@ -300,9 +305,6 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
     val switchHeight = switchWidth / 2
     val roundedCorner = 10.dp
 
-    // Drag state
-    var dragOffset by remember { mutableFloatStateOf(0f) }
-
     // Animation states
     val offsetX by animateDpAsState(
         targetValue = if (isGridView) 0.dp else switchWidth / 2,
@@ -331,7 +333,6 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
             .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(roundedCorner))
             .clip(RoundedCornerShape(roundedCorner))
     ) {
-        // Moving Surface with elevation + drag support
         Surface(
             modifier = Modifier
                 .offset(x = offsetX)

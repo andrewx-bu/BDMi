@@ -17,12 +17,13 @@ import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
-import com.example.bdmi.ui.screens.BookmarksScreen
 import com.example.bdmi.ui.screens.HomeScreen
 import com.example.bdmi.ui.screens.MovieDetailScreen
 import com.example.bdmi.ui.screens.ProfileScreen
 import com.example.bdmi.ui.screens.SearchScreen
 import com.example.bdmi.UserViewModel
+import com.example.bdmi.ui.custom_lists.CustomListScreen
+import com.example.bdmi.ui.custom_lists.WatchlistsScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -67,21 +68,9 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         startDestination = MainRoutes.Home.route,
         route = MainRoutes.Root.route
     ) {
-        composable(MainRoutes.Home.route) {
-            HomeScreen(
-                onMovieClick = { movieId ->
-                    navController.navigate("movie_detail/$movieId") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
-        }
+
+        // Main routes
         composable(MainRoutes.Search.route) { SearchScreen() }
-        composable(MainRoutes.Bookmarks.route) { BookmarksScreen() }
         composable(MainRoutes.Profile.route) {
             ProfileScreen(
                 userViewModel = userViewModel,
@@ -105,12 +94,28 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
             )
         }
 
-        // Deeper screens can go here too
+        composable(MainRoutes.Home.route) {
+            HomeScreen(
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        // Movie detail route
         composable("movie_detail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
             MovieDetailScreen(movieId) { navController.popBackStack() }
         }
 
+
+        // Friend Journey
         composable("friends") {
             FriendListScreen(
                 userViewModel = userViewModel,
@@ -142,6 +147,33 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         composable("user_profile/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             UserProfile(userId, userViewModel)
+        }
+
+        // Watchlist journey
+        composable(MainRoutes.Bookmarks.route) {
+            WatchlistsScreen(userViewModel) { (userId, listId)->
+                navController.navigate("watchlist/$userId/$listId")
+            }
+        }
+
+        composable("watchlist/{userId}/{listId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            val listId = backStackEntry.arguments?.getString("listId") ?: ""
+            CustomListScreen(
+                userViewModel = userViewModel,
+                listId = listId,
+                userId = userId,
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
     }
 }

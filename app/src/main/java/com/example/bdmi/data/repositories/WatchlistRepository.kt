@@ -59,7 +59,22 @@ class WatchlistRepository @Inject constructor(
                 Log.w("$TAG$dbFunction", "Error getting list", e)
                 onComplete(emptyList())
             }
+    }
 
+    fun getListInfo(userId: String, listId: String, onComplete: (CustomList?) -> Unit) {
+        val dbFunction = "GetListInfo"
+
+        db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            .collection(LISTS_COLLECTION).document(listId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                val list = documentSnapshot.toObject(CustomList::class.java)
+                onComplete(list)
+            }
+            .addOnFailureListener { e ->
+                Log.w("$TAG$dbFunction", "Error getting list info", e)
+                onComplete(null)
+            }
     }
 
     // Retrieves all custom lists from the database given a user ID

@@ -51,8 +51,14 @@ class CustomListViewModel @Inject constructor(
         _displayGridView.value = !_displayGridView.value
     }
 
-    fun setListInfo(listInfo: CustomList) {
-        _listInfo.value = listInfo
+    fun loadListInfo(userId: String, listId: String) {
+        Log.d(TAG, "Getting list info for user: $userId")
+        viewModelScope.launch {
+            watchlistRepository.getListInfo(userId, listId) { listInfo ->
+                _listInfo.value = listInfo
+                Log.d(TAG, "List info retrieved: $listInfo")
+            }
+        }
     }
 
     fun loadList(userId: String, listId: String) {
