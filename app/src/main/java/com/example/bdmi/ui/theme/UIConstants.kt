@@ -32,6 +32,9 @@ object UIConstants {
     val reviewCardHeight = 95.dp
     const val REVIEWMAXLINES = 3
     val carouselDotSize = 10.dp
+
+    // CustomListScreen
+    val movieListItemHeight = 50.dp
 }
 
 object Spacing {

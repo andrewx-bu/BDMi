@@ -62,9 +62,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.ui.DotsIndicator
+import com.example.bdmi.ui.ErrorMessage
+import com.example.bdmi.ui.GenreChip
+import com.example.bdmi.ui.ShimmeringDivider
 import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
-import com.example.bdmi.ui.screens.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import kotlinx.coroutines.delay
 
