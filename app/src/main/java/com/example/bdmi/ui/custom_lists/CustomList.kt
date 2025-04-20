@@ -1,20 +1,28 @@
 package com.example.bdmi.ui.custom_lists
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -27,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,11 +45,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.repositories.CustomList
@@ -209,6 +225,7 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
     }
 }
 
+// Edit button for changing list information
 @Composable
 fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
     var name by remember { mutableStateOf(currentInfo.name) }
@@ -272,4 +289,84 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
             }
         )
     }
+}
+
+
+// Custom Switch button for switching between grid and list view
+// ChatGPT helped with the horizontal sliding
+@Composable
+fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
+    val switchWidth = 90.dp
+    val switchHeight = switchWidth / 2
+    val roundedCorner = 10.dp
+
+    // Drag state
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+
+    // Animation states
+    val offsetX by animateDpAsState(
+        targetValue = if (isGridView) 0.dp else switchWidth / 2,
+        label = "Switch Animation"
+    )
+    val startCornerRadius by animateDpAsState(
+        targetValue = if (isGridView) 10.dp else 0.dp,
+        label = "Corner Radius Animation"
+    )
+    val endCornerRadius by animateDpAsState(
+        targetValue = if (isGridView) 0.dp else 10.dp,
+        label = "Corner Radius Animation"
+    )
+    val cornerRadius = if (isGridView) startCornerRadius else endCornerRadius
+
+    val shape = if (isGridView)
+        RoundedCornerShape(topStart = cornerRadius, bottomStart = cornerRadius)
+    else
+        RoundedCornerShape(topEnd = cornerRadius, bottomEnd = cornerRadius)
+
+    Box(
+        modifier = Modifier
+            .clickable { onToggle() }
+            .width(switchWidth)
+            .height(switchHeight)
+            .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(roundedCorner))
+            .clip(RoundedCornerShape(roundedCorner))
+    ) {
+        // Moving Surface with elevation + drag support
+        Surface(
+            modifier = Modifier
+                .offset(x = offsetX)
+                .width(switchWidth / 2)
+                .fillMaxHeight(),
+            color = Color.Red,
+            shape = shape,
+            tonalElevation = 6.dp,
+            shadowElevation = 6.dp
+        ) {}
+
+        // Icons
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Icon(
+                imageVector = Icons.Default.GridView,
+                contentDescription = "Grid View",
+                tint = if (isGridView) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.weight(1f).size(switchHeight*.7f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ViewList,
+                contentDescription = "List View",
+                tint = if (isGridView) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f).size(switchHeight*.9f)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ShowComposable() {
+    MediaDisplaySwitchButton(isGridView = true, onToggle = {})
 }
