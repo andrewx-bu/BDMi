@@ -108,13 +108,6 @@ fun CustomListScreen(
                         )
                     }
 
-                    IconButton(onClick = { customListViewModel.toggleDisplay() }) {
-                        Icon(
-                            imageVector = if (displayGridView) Icons.Default.GridView else Icons.AutoMirrored.Filled.ViewList,
-                            contentDescription = "Toggle View"
-                        )
-                    }
-
                     MediaDisplaySwitchButton(
                         isGridView = displayGridView,
                         onToggle = { customListViewModel.toggleDisplay() }
@@ -238,7 +231,7 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
     var isPublic by remember { mutableStateOf(currentInfo.isPublic) }
     var showDialog by remember { mutableStateOf(false) }
 
-    IconButton(onClick = { !showDialog }) {
+    IconButton(onClick = { showDialog = true }) {
         Icon(Icons.Default.Edit, contentDescription = "Edit")
     }
 
@@ -268,15 +261,14 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
             },
             confirmButton = {
                 Button(onClick = {
-                    onClick(
-                        CustomList(
-                            listId = currentInfo.listId,
-                            name = name,
-                            description = description,
-                            timestamp = currentInfo.timestamp,
-                            isPublic = isPublic
-                        )
-                    )
+                    val newInfo = CustomList(
+                        listId = currentInfo.listId,
+                        name = name,
+                        description = description,
+                        numOfItems = currentInfo.numOfItems,
+                        timestamp = currentInfo.timestamp,
+                        isPublic = isPublic)
+                    onClick(newInfo)
                     showDialog = false
                 }) {
                     Text("Confirm")
@@ -301,7 +293,7 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
 // ChatGPT helped with the horizontal sliding
 @Composable
 fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
-    val switchWidth = 90.dp
+    val switchWidth = 80.dp
     val switchHeight = switchWidth / 2
     val roundedCorner = 10.dp
 

@@ -122,9 +122,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
                 onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
                     navController.navigate("user_profile/$userId") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
+                        restoreState = true
                     }
                 }
             )
@@ -135,9 +133,6 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
                 onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
                     navController.navigate("user_profile/$userId") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
                         restoreState = true
                     }
                 }
@@ -167,11 +162,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
                 userId = userId,
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 onNavigateBack = { navController.navigateUp() }
