@@ -20,6 +20,7 @@ fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewMo
     } else {
         OnboardingRoutes.Root.route
     }
+    // TODO: Implement dark theme into preferences
     val systemDark = isSystemInDarkTheme()
     //var darkTheme by remember { mutableStateOf(systemDark) }
     var darkTheme by remember { mutableStateOf(true) }

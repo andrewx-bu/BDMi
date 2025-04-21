@@ -72,7 +72,7 @@ fun WatchlistList(userId: String, modifier: Modifier, lists: List<CustomList>, o
         modifier = modifier
     ) {
         items(lists) { list : CustomList ->
-            WatchlistItem(userId, list) {
+            WatchlistItem(list) {
                 onListClick(Pair(userId, list.listId))
             }
         }
@@ -80,7 +80,7 @@ fun WatchlistList(userId: String, modifier: Modifier, lists: List<CustomList>, o
 }
 
 @Composable
-fun WatchlistItem(userId: String, list: CustomList, onListClick: () -> Unit) {
+fun WatchlistItem(list: CustomList, onListClick: () -> Unit) {
     Row(
         modifier = Modifier.padding(16.dp)
             .clickable {

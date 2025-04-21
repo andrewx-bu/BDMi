@@ -57,10 +57,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
-import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.screens.MoviePoster
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import kotlinx.coroutines.launch
 
@@ -127,7 +127,7 @@ fun CustomListScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(Modifier.height(Spacing.small))
+            Spacer(Modifier.height(MaterialTheme.dimens.small3))
 
             when {
                 uiState.error != null -> {
@@ -164,9 +164,9 @@ fun CustomListScreen(
 @Composable
 fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(UIConstants.MOVIECOLUMNS),
-        verticalArrangement = Arrangement.spacedBy(Spacing.small),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+        columns = GridCells.Fixed(MaterialTheme.uiConstants.movieColumns),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
     ) {
         items(mediaItems) { movie ->
             MoviePoster(
@@ -181,7 +181,7 @@ fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
 @Composable
 fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(Spacing.small),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
@@ -200,10 +200,10 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
-            .padding(Spacing.small)
+            .padding(MaterialTheme.dimens.small3)
             .clickable { onMovieClick(media.id) }
             .fillMaxWidth()
-            .height(UIConstants.movieListItemHeight)
+            .height(75.dp)
     ) {
             MoviePoster(
                 title = media.title,

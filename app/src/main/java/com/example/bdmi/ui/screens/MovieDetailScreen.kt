@@ -31,8 +31,6 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -44,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,18 +57,15 @@ import coil3.compose.AsyncImage
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
-
-
-
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
-import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.DotsIndicator
 import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.GenreChip
+import com.example.bdmi.ui.ReviewCard
 import com.example.bdmi.ui.ShimmeringDivider
-import com.example.bdmi.ui.theme.UIConstants
+import com.example.bdmi.ui.fadingEdge
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
@@ -121,19 +117,6 @@ fun MovieDetailScreen(
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
-        /*
-            else -> {
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Box {
-                    MovieBackdrop(userPrivileges, userViewModel, detailUIState.movieDetails, onNavigateBack)
-                    PosterRow(detailState = detailUIState)
-                }
-
-         */
 
         details != null -> {
             // String mangling done by ChatGPT
@@ -169,7 +152,7 @@ fun MovieDetailScreen(
                             trailerKey = trailerKey,
                             certification = certification
                         )
-                        TempTopBar(onNavigateBack)
+                        TempTopBar(userPrivileges, userViewModel, details, onNavigateBack)
                     }
                 }
 
@@ -218,7 +201,7 @@ fun MovieDetailScreen(
 
 // TODO: Integrate with scaffold
 @Composable
-fun TempTopBar(onNavigateBack: () -> Unit) {
+fun TempTopBar(userPrivileges: Boolean, userViewModel: UserViewModel?, movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -243,21 +226,6 @@ fun TempTopBar(onNavigateBack: () -> Unit) {
         }
 
         // Menu Button
-        IconButton(
-            onClick = { /* TODO: Implement functionality */ },
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
-                )
-                .size(MaterialTheme.dimens.iconLarge)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = "Menu",
-                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
         MenuButton(userPrivileges, userViewModel, movieDetails)
     }
 }
@@ -471,26 +439,7 @@ fun ReviewCarousel(
     }
 }
 
-@Composable
-fun ReviewCard(text: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.medium)
-            .height(UIConstants.reviewCardHeight),
-        shape = RoundedCornerShape(Spacing.medium),
-        elevation = CardDefaults.cardElevation(Spacing.small)
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(Spacing.medium),
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = UIConstants.REVIEWMAXLINES,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
+// TODO: Issue with dropdown menu overlapping
 @Composable
 fun MenuButton(
     userPrivileges: Boolean,
@@ -506,70 +455,65 @@ fun MenuButton(
         if (userId != null)
             movieDetailViewModel.getLists(userId.toString())
     }
-
-
-
-    Box {
-        IconButton(
-            onClick = { expanded = true },
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
-                )
-                .size(UIConstants.backdropButtonSize)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = "Menu",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
-                tint = MaterialTheme.colorScheme.onSurface
+    IconButton(
+        onClick = { expanded = true },
+        modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+            )
+            .size(MaterialTheme.dimens.iconLarge)
+    ) {
+        Icon(
+            imageVector = Icons.Default.MoreHoriz,
+            contentDescription = "Menu",
+            modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = {
+            expanded = false
+            showWatchlists = false
+        }
+    ) {
+        if (userPrivileges) {
+            DropdownMenuItem(
+                text = { Text("Add to Watchlist") },
+                onClick = {
+                    showWatchlists = true
+                }
             )
         }
+    }
 
+    if (showWatchlists && movieDetails != null) {
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-                showWatchlists = false
-            }
+            expanded = true,
+            onDismissRequest = { showWatchlists = false },
         ) {
-            if (userPrivileges) {
+            watchlists.value.forEach { list ->
                 DropdownMenuItem(
-                    text = { Text("Add to Watchlist") },
+                    text = { Text(list.name) },
                     onClick = {
-                        showWatchlists = true
+                        movieDetailViewModel.addToWatchlist(
+                            userId.toString(),
+                            list.listId,
+                            MediaItem(
+                                id = movieDetails.id,
+                                title = movieDetails.title,
+                                posterPath = movieDetails.posterPath.toString(),
+                                releaseDate = movieDetails.releaseDate.toString()
+                            )
+                        )
+                        showWatchlists = false
+                        expanded = false
                     }
                 )
             }
         }
-
-        if (showWatchlists && movieDetails != null) {
-            DropdownMenu(
-                expanded = showWatchlists,
-                onDismissRequest = { showWatchlists = false },
-            ) {
-                watchlists.value.forEach { list ->
-                    DropdownMenuItem(
-                        text = { Text(list.name) },
-                        onClick = {
-                            movieDetailViewModel.addToWatchlist(
-                                userId.toString(),
-                                list.listId,
-                                MediaItem(
-                                    id = movieDetails.id,
-                                    title = movieDetails.title,
-                                    posterPath = movieDetails.posterPath.toString(),
-                                    releaseDate = movieDetails.releaseDate.toString()
-                                )
-                            )
-                            showWatchlists = false
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
     }
+
 }
 
 /*
