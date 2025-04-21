@@ -15,20 +15,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.api.ImageURLHelper
-import com.example.bdmi.ui.theme.Spacing
-import com.example.bdmi.ui.theme.UIConstants
-import com.valentinilk.shimmer.LocalShimmerTheme
-import com.valentinilk.shimmer.defaultShimmerTheme
-import com.valentinilk.shimmer.shimmer
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
 fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
@@ -36,8 +31,8 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .aspectRatio(UIConstants.POSTERSASPECTRATIO)
-            .clip(RoundedCornerShape(Spacing.medium))
+            .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
+            .clip(RoundedCornerShape(MaterialTheme.dimens.medium3))
     ) {
         if (imageUrl.isNotEmpty()) {
             Box(
@@ -65,12 +60,12 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
                         imageVector = Icons.Default.Movie,
                         contentDescription = "No poster available",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(UIConstants.noPosterIconSize)
+                        modifier = Modifier.size(MaterialTheme.dimens.iconHuge)
                     )
                     Text(
                         text = title,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(Spacing.extraSmall),
+                        modifier = Modifier.padding(MaterialTheme.dimens.small2),
                         textAlign = TextAlign.Center
                     )
                 }

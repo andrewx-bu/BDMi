@@ -25,9 +25,8 @@ data class Movie(
     @Json(name = "poster_path") val posterPath: String?,
     @Json(name = "release_date") val releaseDate: String,
     @Json(name = "title") val title: String,
-    @Json(name = "video") val video: Boolean,
     @Json(name = "vote_average") val voteAverage: Double,
-    @Json(name = "vote_count") val voteCount: Int
+    @Json(name = "vote_count") val voteCount: Int,
 )
 
 // Details endpoint
@@ -54,7 +53,13 @@ data class MovieDetails(
     @Json(name = "title") val title: String,
     @Json(name = "video") val video: Boolean,
     @Json(name = "vote_average") val voteAverage: Double,
-    @Json(name = "vote_count") val voteCount: Int
+    @Json(name = "vote_count") val voteCount: Int,
+    @Json(name = "credits") val credits: MovieCreditsResponse,
+    @Json(name = "videos") val videos: VideosResponse,
+    @Json(name = "release_dates") val releaseDates: ReleaseDatesResponse,
+    @Json(name = "recommendations") val recommendations: MoviesResponse,
+    @Json(name = "similar") val similar: MoviesResponse,
+    @Json(name = "images") val images: ImagesResponse
 )
 
 @JsonClass(generateAdapter = true)
@@ -84,7 +89,6 @@ data class SpokenLanguage(
 // Credits endpoint
 @JsonClass(generateAdapter = true)
 data class MovieCreditsResponse(
-    @Json(name = "id") val movieId: Int,
     @Json(name = "cast") val cast: List<CastMember>,
     @Json(name = "crew") val crew: List<CrewMember>
 )
@@ -114,4 +118,59 @@ data class CrewMember(
     @Json(name = "credit_id") val creditId: String,
     @Json(name = "department") val department: String,
     @Json(name = "job") val job: String
+)
+
+// Videos endpoint
+@JsonClass(generateAdapter = true)
+data class VideosResponse(
+    @Json(name = "results") val results: List<Video>
+)
+
+@JsonClass(generateAdapter = true)
+data class Video(
+    @Json(name = "name") val name: String,
+    @Json(name = "key") val key: String,
+    @Json(name = "site") val site: String,
+    @Json(name = "size") val size: Int,
+    @Json(name = "type") val type: String,
+    @Json(name = "official") val official: Boolean,
+    @Json(name = "published_at") val publishedAt: String,
+    @Json(name = "id") val id: String
+)
+
+// Release Dates endpoint
+@JsonClass(generateAdapter = true)
+data class ReleaseDatesResponse(
+    @Json(name = "results") val results: List<ReleaseDateGroup>
+)
+
+@JsonClass(generateAdapter = true)
+data class ReleaseDateGroup(
+    @Json(name = "iso_3166_1") val iso31661: String,
+    @Json(name = "release_dates") val releaseDates: List<ReleaseDate>
+)
+
+@JsonClass(generateAdapter = true)
+data class ReleaseDate(
+    @Json(name = "certification") val certification: String,
+    @Json(name = "type") val type: Int
+)
+
+// Images endpoint
+@JsonClass(generateAdapter = true)
+data class ImagesResponse(
+    @Json(name = "backdrops") val backdrops: List<Image>,
+    @Json(name = "logos") val logos: List<Image>,
+    @Json(name = "posters") val posters: List<Image>
+)
+
+@JsonClass(generateAdapter = true)
+data class Image(
+    @Json(name = "aspect_ratio") val aspectRatio: Double,
+    @Json(name = "height") val height: Int,
+    @Json(name = "iso_639_1") val iso6391: String?,
+    @Json(name = "file_path") val filePath: String,
+    @Json(name = "vote_average") val voteAverage: Double,
+    @Json(name = "vote_count") val voteCount: Int,
+    @Json(name = "width") val width: Int
 )

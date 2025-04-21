@@ -19,7 +19,7 @@ val errorLight = Color(0xFFBA1A1A)
 val onErrorLight = Color(0xFFFFFFFF)
 val errorContainerLight = Color(0xFFFFDAD6)
 val onErrorContainerLight = Color(0xFF93000A)
-val backgroundLight = Color(0xFFFFF9EE)
+val backgroundLight = Color.LightGray
 val onBackgroundLight = Color(0xFF1E1B11)
 val surfaceLight = Color(0xFFFFF9EE)
 val onSurfaceLight = Color(0xFF1E1B11)
@@ -39,6 +39,7 @@ val surfaceContainerLight = Color(0xFFF5EDDD)
 val surfaceContainerHighLight = Color(0xFFEFE8D7)
 val surfaceContainerHighestLight = Color(0xFFE9E2D1)
 
+// TODO: Utilize contrast themes for better accessibility/customizability
 val primaryLightMediumContrast = Color(0xFF403600)
 val onPrimaryLightMediumContrast = Color(0xFFFFFFFF)
 val primaryContainerLightMediumContrast = Color(0xFF7F6C00)

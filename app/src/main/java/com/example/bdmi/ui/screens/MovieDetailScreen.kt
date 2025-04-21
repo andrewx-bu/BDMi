@@ -28,7 +28,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -45,36 +44,34 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
+
+
+
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.DotsIndicator
 import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.GenreChip
 import com.example.bdmi.ui.ShimmeringDivider
-import com.example.bdmi.ui.theme.Spacing
 import com.example.bdmi.ui.theme.UIConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -85,7 +82,7 @@ fun MovieDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val detailUIState by viewModel.detailUIState.collectAsState()
+    val uiState by viewModel.detailUIState.collectAsState()
     var userPrivileges by remember { mutableStateOf(false) }
 
     LaunchedEffect(movieId) {
@@ -97,31 +94,35 @@ fun MovieDetailScreen(
         }
     }
 
+    val details = uiState.details
+    val error = uiState.error
+    val isLoading = uiState.isLoading
+
     when {
-        detailUIState.error != null -> {
+        error != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 ErrorMessage(
-                    message = detailUIState.error.toString(),
+                    message = error.toString(),
                     onRetry = { viewModel.refreshDetails(movieId) }
                 )
             }
         }
 
-        detailUIState.isLoading -> {
+        isLoading -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset(y = UIConstants.loadingOffset),
+                    .offset(y = MaterialTheme.dimens.loadingOffset),
                 contentAlignment = Alignment.Center
             ) {
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
-
-        else -> {
+        /*
+            else -> {
             Column(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.background)
@@ -132,91 +133,96 @@ fun MovieDetailScreen(
                     PosterRow(detailState = detailUIState)
                 }
 
-                Spacer(Modifier.height(UIConstants.midpointSpacer))
+         */
 
-                MovieDescription()
+        details != null -> {
+            // String mangling done by ChatGPT
+            val hasBackdrop = details.backdropPath?.isNotEmpty() == true
+            // Handle multiple directors
+            val directors = details.credits.crew
+                .filter { it.job.equals("director", ignoreCase = true) }
+                .joinToString(", ") { it.name }
+                .ifEmpty { "Unknown" }
+            // en-US by default. Extract YT key from most recent official trailer
+            val trailerKey = details.videos.results.filter {
+                it.site.equals("YouTube", ignoreCase = true) &&
+                        it.type.equals("Trailer", ignoreCase = true) && it.official
+            }
+                .maxByOrNull { it.publishedAt }?.key
+            // Extract MPAA certification from US release
+            val us = details.releaseDates.results.firstOrNull { it.iso31661 == "US" }
+            val certification =
+                us?.releaseDates?.firstOrNull()?.certification.takeUnless { it?.isBlank() == true }
+                    ?: "NR"
 
-                ShimmeringDivider()
+            LazyColumn {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
+                        TopSection(
+                            details = details,
+                            hasBackdrop = hasBackdrop,
+                            directors = directors,
+                            trailerKey = trailerKey,
+                            certification = certification
+                        )
+                        TempTopBar(onNavigateBack)
+                    }
+                }
 
-                val reviews = listOf(
-                    "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-                            "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
-                    "Flint and Steel",
-                    "Ender Pearl",
-                    "Water Bucket Release",
-                    "Diamond Armor, Full Set"
+                item {
+                    Spacer(
+                        modifier = Modifier.height(
+                            if (hasBackdrop) MaterialTheme.dimens.posterRowSpacer
+                            else MaterialTheme.dimens.posterRowSpacerAlt
+                        )
+                    )
+                    MovieDescription()
+                    ShimmeringDivider()
+                }
+
+                item {
+                    val reviews = listOf(
+                        "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+                                "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
+                        "Flint and Steel",
+                        "Ender Pearl",
+                        "Water Bucket Release",
+                        "Diamond Armor, Full Set"
+                    )
+
+                    ReviewCarousel(
+                        reviews = reviews,
+                        autoScrollDelay = MaterialTheme.uiConstants.reviewScrollDelay
+                    )
+                }
+            }
+        }
+
+        else -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ErrorMessage(
+                    message = "An internal error occurred. No details available",
+                    onRetry = { viewModel.refreshDetails(movieId) }
                 )
-
-                ReviewCarousel(reviews = reviews, autoScrollDelay = 5000L)
             }
         }
     }
 }
 
-fun Modifier.fadingEdge(brush: Brush) = this
-    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-    .drawWithContent {
-        drawContent()
-        drawRect(brush = brush, blendMode = BlendMode.DstIn)
-    }
-
+// TODO: Integrate with scaffold
 @Composable
-fun MovieBackdrop(userPrivileges: Boolean, userViewModel: UserViewModel?, movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
-    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
-
-    val fadeBrush = Brush.verticalGradient(
-        0.75f to Color.Black,
-        1f to Color.Transparent.copy(alpha = 0.2f)
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
-    ) {
-        if (backdropURL.isNotEmpty()) {
-            AsyncImage(
-                model = backdropURL,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fadingEdge(fadeBrush),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Movie,
-                        contentDescription = "No backdrop available",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
-                    )
-                    Spacer(modifier = Modifier.height(Spacing.small))
-                    if (movieDetails != null) {
-                        Text(
-                            text = movieDetails.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = Spacing.small),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-
+fun TempTopBar(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(Spacing.medium),
+            .padding(MaterialTheme.dimens.medium3),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -227,135 +233,192 @@ fun MovieBackdrop(userPrivileges: Boolean, userViewModel: UserViewModel?, movieD
                 .background(
                     MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
                 )
-                .size(UIConstants.backdropButtonSize)
+                .size(MaterialTheme.dimens.iconLarge)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
+                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
             )
         }
 
         // Menu Button
+        IconButton(
+            onClick = { /* TODO: Implement functionality */ },
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(MaterialTheme.dimens.iconLarge)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Menu",
+                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
         MenuButton(userPrivileges, userViewModel, movieDetails)
     }
 }
 
 @Composable
-fun PosterRow(detailState: HomeViewModel.DetailUIState) {
-    val movieDetails = detailState.movieDetails
+fun TopSection(
+    details: MovieDetails,
+    hasBackdrop: Boolean,
+    directors: String,
+    trailerKey: String?,
+    certification: String
+) {
+    val backdropURL = ImageURLHelper.getBackdropURL(details.backdropPath)
+
+    // Image fades at the bottom
+    val bottomFadeBrush = Brush.verticalGradient(
+        0.75f to Color.Black,
+        1f to Color.Transparent.copy(alpha = 0.2f)
+    )
+
+    // Backdrop box
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
+    ) {
+        if (hasBackdrop) {
+            AsyncImage(
+                model = backdropURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fadingEdge(bottomFadeBrush),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+
+    // Poster row
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(UIConstants.posterSize)
-            .offset(y = UIConstants.posterRowOffset)
+            .height(MaterialTheme.dimens.posterSize)
+            .offset(
+                y = if (hasBackdrop) MaterialTheme.dimens.posterRowOffset
+                else MaterialTheme.dimens.posterRowOffsetAlt
+            )
             .padding(
-                start = Spacing.medium,
-                end = Spacing.small
+                start = MaterialTheme.dimens.medium3,
+                end = MaterialTheme.dimens.small3
             )
     ) {
-        if (movieDetails != null) {
-            MoviePoster(
-                title = movieDetails.title,
-                posterPath = movieDetails.posterPath,
-                onClick = {}
-            )
-        } else {
-            MoviePoster(
-                title = "",
-                posterPath = null,
-                onClick = {}
-            )
-        }
+        MoviePoster(
+            title = details.title,
+            posterPath = details.posterPath,
+            onClick = {}
+        )
 
-        Spacer(modifier = Modifier.width(Spacing.medium))
+        Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
 
-        LazyColumn(
+        // Column fades upwards into the backdrop
+        val topFadeBrush = Brush.verticalGradient(
+            colorStops = arrayOf(
+                0f to Color.Transparent.copy(alpha = 0.2f),
+                0.2f to Color.Black,
+            )
+        )
+
+        // Details column
+        Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(top = Spacing.extraLarge),
-            verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall)
+                .padding(top = MaterialTheme.dimens.large3)
+                .fadingEdge(topFadeBrush)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
         ) {
-            if (movieDetails != null) {
-                item {
-                    Text(
-                        text = movieDetails.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+            Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
-                    LazyRow(
-                        modifier = Modifier.padding(bottom = Spacing.extraSmall),
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
-                    ) {
-                        items(movieDetails.genres) { genre ->
-                            GenreChip(name = genre.name, onClick = {})
+            // Movie Title
+            Text(
+                text = details.title,
+                style = MaterialTheme.typography.displaySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            // Genre Chips
+            LazyRow(
+                modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+            ) {
+                items(details.genres) { genre ->
+                    GenreChip(name = genre.name, onClick = {})
+                }
+            }
+
+            Spacer(Modifier.height(MaterialTheme.dimens.small1))
+
+            // Release date, director
+            Text(
+                text = "${details.releaseDate} | DIRECTED BY",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+            )
+
+            Text(
+                text = directors,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            // Trailer button, runtime, MPAA rating
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val context = LocalContext.current
+
+                // Only shimmer if trailer available
+                val iconModifier = Modifier
+                    .size(MaterialTheme.dimens.iconTiny)
+                    .let { base -> if (trailerKey != null) base.shimmer() else base }
+
+                Button(
+                    onClick = {
+                        val url = "https://www.youtube.com/watch?v=$trailerKey"
+                        val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
-                    }
-
-                    Spacer(Modifier.height(Spacing.extraSmall))
-
-                    Text(
-                        text = "${movieDetails.releaseDate} | DIRECTED BY",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        context.startActivity(intent, null)
+                    },
+                    enabled = trailerKey != null,
+                    modifier = Modifier
+                        .size(
+                            width = MaterialTheme.dimens.buttonWidthSmall,
+                            height = MaterialTheme.dimens.buttonHeightSmall
+                        ),
+                    contentPadding = PaddingValues(
+                        start = MaterialTheme.dimens.small2,
+                        end = MaterialTheme.dimens.small3
+                    ),
+                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
-
-                    Spacer(Modifier.height(Spacing.extraSmall))
-
-                    Text(
-                        text = detailState.directors,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onBackground
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play",
+                        modifier = iconModifier
                     )
+                    Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
                 }
 
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val context = LocalContext.current
-                        Button(
-                            // TODO: Add Videos Endpoint
-                            onClick = {
-                                val intent =
-                                    Intent(Intent.ACTION_VIEW, "https://youtube.com".toUri())
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent, null)
-                            },
-                            modifier = Modifier
-                                .size(
-                                    width = UIConstants.trailerButtonWidth,
-                                    height = UIConstants.trailerButtonHeight
-                                ),
-                            contentPadding = PaddingValues(
-                                start = Spacing.extraSmall,
-                                end = Spacing.small
-                            ),
-                            shape = RoundedCornerShape(Spacing.small),
-                            colors = ButtonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "Play",
-                                modifier = Modifier.size(UIConstants.trailerIconSize)
-                            )
-                            Text("TRAILER", style = MaterialTheme.typography.labelMedium)
-                        }
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
-                        Spacer(modifier = Modifier.width(Spacing.small))
-
-                        Text(
-                            // TODO: Add MPAA Rating Endpoint
-                            text = "${movieDetails.runtime} min | R",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                        )
-                    }
-                }
+                Text(
+                    text = "${details.runtime} min | $certification",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                )
             }
         }
     }
@@ -367,6 +430,7 @@ fun MovieDescription() {
 
 }
 
+// TODO: Implement horizontal pager functionality?
 @Composable
 fun ReviewCarousel(
     reviews: List<String>,
@@ -384,7 +448,7 @@ fun ReviewCarousel(
         }
     }
 
-    Spacer(Modifier.height(Spacing.medium))
+    Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -394,7 +458,7 @@ fun ReviewCarousel(
             ReviewCard(text = reviewText)
         }
 
-        Spacer(modifier = Modifier.height(Spacing.small))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
 
         DotsIndicator(
             numDots = reviews.size,
@@ -507,3 +571,81 @@ fun MenuButton(
         }
     }
 }
+
+/*
+@Composable
+fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
+    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
+
+    val fadeBrush = Brush.verticalGradient(
+        0.75f to Color.Black,
+        1f to Color.Transparent.copy(alpha = 0.2f)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
+    ) {
+        if (backdropURL.isNotEmpty()) {
+            AsyncImage(
+                model = backdropURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fadingEdge(fadeBrush),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Movie,
+                        contentDescription = "No backdrop available",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
+                    )
+                    Spacer(modifier = Modifier.height(Spacing.small))
+                    if (movieDetails != null) {
+                        Text(
+                            text = movieDetails.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = Spacing.small),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Spacing.medium),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Back Button
+        IconButton(
+            onClick = onNavigateBack,
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+            )
+        }
+ */

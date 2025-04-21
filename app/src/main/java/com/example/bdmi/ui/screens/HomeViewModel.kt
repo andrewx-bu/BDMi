@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.api.CastMember
 import com.example.bdmi.data.api.CrewMember
+import com.example.bdmi.data.api.ImagesResponse
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.data.api.ReleaseDatesResponse
+import com.example.bdmi.data.api.Video
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.ui.screens.UIState
@@ -28,10 +31,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
 
     data class DetailUIState(
         override val isLoading: Boolean = false,
-        val movieDetails: MovieDetails? = null,
-        val cast: List<CastMember> = emptyList(),
-        val crew: List<CrewMember> = emptyList(),
-        val directors: String = "Unknown",
+        val details: MovieDetails? = null,
         override val error: APIError? = null
     ) : UIState
 
@@ -47,16 +47,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     }
 
     fun refreshDetails(movieId: Int) {
-        _detailUIState.update {
-            DetailUIState(
-                isLoading = true,
-                movieDetails = null,
-                cast = emptyList(),
-                crew = emptyList(),
-                directors = "Unknown",
-                error = null
-            )
-        }
+        _detailUIState.update { DetailUIState(isLoading = true, error = null) }
         loadMovieDetails(movieId)
     }
 
@@ -67,85 +58,34 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             delay(1000)
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
-                    _homeUIState.update {
-                        it.copy(
-                            movies = response.results,
-                            error = null,
-                            isLoading = false
-                        )
+                    // If no movies are fetched, we'll throw an empty response error
+                    if (response.results.isEmpty()) {
+                        _homeUIState.update {
+                            it.copy(error = APIError.EmptyResponseError(), isLoading = false)
+                        }
+                    } else {
+                        _homeUIState.update {
+                            it.copy(movies = response.results, isLoading = false)
+                        }
                     }
                 },
                 onFailure = { e ->
-                    _homeUIState.update {
-                        it.copy(
-                            error = e.toAPIError(),
-                            isLoading = false
-                        )
-                    }
-                    e.printStackTrace()
+                    _homeUIState.update { it.copy(error = e.toAPIError(), isLoading = false) }
                 }
             )
         }
     }
 
-    /* TODO: Parallel API calls */
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
-            _detailUIState.update {
-                it.copy(
-                    isLoading = true,
-                    movieDetails = null,
-                    cast = emptyList(),
-                    crew = emptyList(),
-                    directors = "Unknown",
-                    error = null
-                )
-            }
-            // Simulate Network Delay
+            _detailUIState.update { it.copy(isLoading = true, error = null) }
             delay(1000)
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->
-                    _detailUIState.update {
-                        it.copy(
-                            movieDetails = details,
-                            error = null,
-                        )
-                    }
+                    _detailUIState.update { it.copy(details = details, isLoading = false) }
                 },
                 onFailure = { e ->
-                    _detailUIState.update {
-                        it.copy(
-                            error = e.toAPIError(),
-                        )
-                    }
-                    e.printStackTrace()
-                }
-            )
-            movieRepo.getMovieCredits(movieId).fold(
-                onSuccess = { credits ->
-                    val directors = credits.crew
-                        .filter { it.job.equals("director", ignoreCase = true) }
-                        .takeIf { it.isNotEmpty() }
-                        ?.joinToString(", ") { it.name }
-                        ?: "Unknown"
-
-                    _detailUIState.update {
-                        it.copy(
-                            cast = credits.cast,
-                            crew = credits.crew,
-                            directors = directors,
-                            isLoading = false
-                        )
-                    }
-                },
-                onFailure = { e ->
-                    _detailUIState.update {
-                        it.copy(
-                            error = e.toAPIError(),
-                            isLoading = false
-                        )
-                    }
-                    e.printStackTrace()
+                    _detailUIState.update { it.copy(error = e.toAPIError(), isLoading = false) }
                 }
             )
         }
