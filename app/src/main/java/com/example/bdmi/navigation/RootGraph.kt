@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bdmi.MainScreen
 import com.example.bdmi.ui.theme.AppTheme
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 
 @Composable
 fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewModel: UserViewModel) {

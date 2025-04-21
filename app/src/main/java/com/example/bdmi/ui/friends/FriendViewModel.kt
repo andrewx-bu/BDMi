@@ -1,10 +1,11 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.friends
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.UserRepository
+import com.example.bdmi.UserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

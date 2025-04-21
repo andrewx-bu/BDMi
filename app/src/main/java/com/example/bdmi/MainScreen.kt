@@ -47,7 +47,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
-import com.example.bdmi.ui.viewmodels.UserViewModel
 import com.example.bdmi.ui.theme.dimens
 
 @Composable

@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

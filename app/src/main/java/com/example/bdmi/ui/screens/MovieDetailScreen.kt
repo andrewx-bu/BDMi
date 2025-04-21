@@ -31,6 +31,10 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,25 +55,43 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
+
+
+
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
-import com.example.bdmi.ui.viewmodels.HomeViewModel
+import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.data.repositories.MediaItem
+import com.example.bdmi.ui.DotsIndicator
+import com.example.bdmi.ui.ErrorMessage
+import com.example.bdmi.ui.GenreChip
+import com.example.bdmi.ui.ShimmeringDivider
+import com.example.bdmi.ui.theme.UIConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MovieDetailScreen(
+    userViewModel: UserViewModel? = null,
     movieId: Int,
     onNavigateBack: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
+    var userPrivileges by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshDetails(movieId)
+    LaunchedEffect(movieId) {
+        launch {viewModel.refreshDetails(movieId)}
+        if (userViewModel != null) {
+            if (userViewModel.userInfo.value != null) {
+                userPrivileges = true
+            }
+        }
     }
 
     val details = uiState.details
@@ -99,6 +121,19 @@ fun MovieDetailScreen(
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
+        /*
+            else -> {
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Box {
+                    MovieBackdrop(userPrivileges, userViewModel, detailUIState.movieDetails, onNavigateBack)
+                    PosterRow(detailState = detailUIState)
+                }
+
+         */
 
         details != null -> {
             // String mangling done by ChatGPT
@@ -223,6 +258,7 @@ fun TempTopBar(onNavigateBack: () -> Unit) {
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
+        MenuButton(userPrivileges, userViewModel, movieDetails)
     }
 }
 
@@ -434,3 +470,182 @@ fun ReviewCarousel(
         )
     }
 }
+
+@Composable
+fun ReviewCard(text: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.medium)
+            .height(UIConstants.reviewCardHeight),
+        shape = RoundedCornerShape(Spacing.medium),
+        elevation = CardDefaults.cardElevation(Spacing.small)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(Spacing.medium),
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = UIConstants.REVIEWMAXLINES,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun MenuButton(
+    userPrivileges: Boolean,
+    userViewModel: UserViewModel?,
+    movieDetails: MovieDetails?,
+) {
+    val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
+    var expanded by remember { mutableStateOf(false) }
+    var showWatchlists by remember { mutableStateOf(false) }
+    val watchlists = movieDetailViewModel.lists.collectAsState()
+    val userId = userViewModel?.userInfo?.collectAsState()?.value?.userId
+    LaunchedEffect(Unit) {
+        if (userId != null)
+            movieDetailViewModel.getLists(userId.toString())
+    }
+
+
+
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Menu",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                showWatchlists = false
+            }
+        ) {
+            if (userPrivileges) {
+                DropdownMenuItem(
+                    text = { Text("Add to Watchlist") },
+                    onClick = {
+                        showWatchlists = true
+                    }
+                )
+            }
+        }
+
+        if (showWatchlists && movieDetails != null) {
+            DropdownMenu(
+                expanded = showWatchlists,
+                onDismissRequest = { showWatchlists = false },
+            ) {
+                watchlists.value.forEach { list ->
+                    DropdownMenuItem(
+                        text = { Text(list.name) },
+                        onClick = {
+                            movieDetailViewModel.addToWatchlist(
+                                userId.toString(),
+                                list.listId,
+                                MediaItem(
+                                    id = movieDetails.id,
+                                    title = movieDetails.title,
+                                    posterPath = movieDetails.posterPath.toString(),
+                                    releaseDate = movieDetails.releaseDate.toString()
+                                )
+                            )
+                            showWatchlists = false
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/*
+@Composable
+fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
+    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
+
+    val fadeBrush = Brush.verticalGradient(
+        0.75f to Color.Black,
+        1f to Color.Transparent.copy(alpha = 0.2f)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
+    ) {
+        if (backdropURL.isNotEmpty()) {
+            AsyncImage(
+                model = backdropURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fadingEdge(fadeBrush),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Movie,
+                        contentDescription = "No backdrop available",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
+                    )
+                    Spacer(modifier = Modifier.height(Spacing.small))
+                    if (movieDetails != null) {
+                        Text(
+                            text = movieDetails.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(horizontal = Spacing.small),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Spacing.medium),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Back Button
+        IconButton(
+            onClick = onNavigateBack,
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(UIConstants.backdropButtonSize)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                modifier = Modifier.size(UIConstants.backdropIconSize),
+            )
+        }
+ */

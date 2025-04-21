@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.screens
 
 import com.example.bdmi.data.api.APIError
 

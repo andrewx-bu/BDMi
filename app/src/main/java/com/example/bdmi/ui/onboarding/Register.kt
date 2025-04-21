@@ -19,12 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.utils.hashPassword
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 
 private const val TAG = "RegisterScreen"
 

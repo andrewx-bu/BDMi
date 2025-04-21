@@ -1,40 +1,16 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.notifications
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.NotificationRepository
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class Notification(
-    val notificationId: String = "",
-    val type: String = "",
-    val data: NotificationType = NotificationType.FriendRequest(),
-    val read: Boolean = false,
-    val timestamp: Timestamp = Timestamp.now()
-)
-
-sealed class NotificationType {
-    data class FriendRequest(
-        val userId: String = "",
-        val displayName: String = "",
-        val profilePicture: String = "",
-        val friendCount: Long? = 0,
-        val listCount: Long? = 0,
-        val reviewCount: Long? = 0,
-        val isPublic: Boolean? = true,
-        val responded: Boolean = false
-    ) : NotificationType()
-    object Message : NotificationType()
-    object Review : NotificationType()
-}
 
 private const val TAG = "NotificationViewModel"
 

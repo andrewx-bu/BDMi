@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 
 @Composable
 fun RootNavigation(userId: String?) {

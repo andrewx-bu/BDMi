@@ -7,7 +7,7 @@ import androidx.navigation.navigation
 import com.example.bdmi.ui.onboarding.LoginScreen
 import com.example.bdmi.ui.onboarding.RegisterScreen
 import com.example.bdmi.ui.onboarding.StartScreen
-import com.example.bdmi.ui.viewmodels.UserViewModel
+import com.example.bdmi.UserViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable

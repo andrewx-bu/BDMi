@@ -20,9 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.api.Movie
+import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
-import com.example.bdmi.ui.viewmodels.HomeViewModel
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 
 @Composable
