@@ -2,7 +2,9 @@ package com.example.bdmi.ui.screens
 
 import android.content.Intent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,7 +52,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -71,9 +74,14 @@ import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
-fun MovieDetailScreen(navController: NavHostController, userViewModel: UserViewModel? = null, movieId: Int) {
+fun MovieDetailScreen(
+    navController: NavHostController,
+    userViewModel: UserViewModel? = null,
+    movieId: Int
+) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
     var userPrivileges by remember { mutableStateOf(false) }
@@ -162,8 +170,9 @@ fun MovieDetailScreen(navController: NavHostController, userViewModel: UserViewM
                 }
 
                 item {
-                    Spacer(Modifier.height(MaterialTheme.dimens.medium3))
-                    MovieDescription()
+                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
+                    MovieDescription(details = details)
+                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
                     ShimmeringDivider()
                 }
 
@@ -171,6 +180,8 @@ fun MovieDetailScreen(navController: NavHostController, userViewModel: UserViewM
                     // TODO: Add reviews
                     val reviews = listOf(
                         "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
                                 "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
                         "Flint and Steel",
                         "Ender Pearl",
@@ -238,7 +249,7 @@ fun TopSection(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (hasBackdrop) Modifier.height(420.dp) else Modifier)
+            .then(if (hasBackdrop) Modifier.height(MaterialTheme.dimens.topBoxHeight) else Modifier)
     ) {
         // Backdrop box
         if (hasBackdrop) {
@@ -280,7 +291,7 @@ fun TopSection(
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(top = MaterialTheme.dimens.large3, end = MaterialTheme.dimens.medium3)
+                    .padding(top = MaterialTheme.dimens.large2, end = MaterialTheme.dimens.medium3)
                     .fadingEdge(topFadeBrush)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
@@ -377,8 +388,52 @@ fun TopSection(
 
 // TODO: Implement
 @Composable
-fun MovieDescription() {
+fun MovieDescription(details: MovieDetails) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
+    val maxLines = if (isExpanded) Int.MAX_VALUE else MaterialTheme.uiConstants.descriptionMaxLines
+    Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium3)) {
+        if (details.tagline != null) {
+            Text(
+                text = details.tagline.uppercase(Locale.ROOT),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+            )
+        }
+        // Movie description
+        Box(
+            modifier = Modifier
+                .clickable { isExpanded = !isExpanded }
+                .padding(top = MaterialTheme.dimens.small3)
+        ) {
+            Text(
+                text = details.overview,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { textLayoutResultState.value = it },
+                modifier = Modifier.animateContentSize(),
+            )
 
+            // Fade out when collapsed
+            if (!isExpanded && textLayoutResultState.value?.hasVisualOverflow == true) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    MaterialTheme.colorScheme.background
+                                ),
+                                startY = 90f
+                            )
+                        )
+                )
+            }
+        }
+    }
 }
 
 // TODO: Implement horizontal pager functionality?

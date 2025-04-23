@@ -10,8 +10,9 @@ data class UIConstants(
     val posterAspectRatio: Float,
     val backdropAspectRatio: Float,
     // Movie Detail Screen
+    val descriptionMaxLines: Int,
     val reviewMaxLines: Int,
-    val reviewScrollDelay: Long
+    val reviewScrollDelay: Long,
 )
 
 // TODO: Add constants for Compact devices
@@ -21,7 +22,8 @@ val MediumUIConstants = UIConstants(
     moviesShown = 18,
     posterAspectRatio = 2f / 3f,
     backdropAspectRatio = 3f / 2f,
-    reviewMaxLines = 3,
+    descriptionMaxLines = 3,
+    reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
 )
 
@@ -31,6 +33,7 @@ val ExpandedUIConstants = UIConstants(
     moviesShown = 18,
     posterAspectRatio = 2f / 3f,
     backdropAspectRatio = 3f / 2f,
-    reviewMaxLines = 3,
+    descriptionMaxLines = 3,
+    reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
 )

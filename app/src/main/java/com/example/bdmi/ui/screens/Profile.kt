@@ -75,7 +75,7 @@ fun ProfileScreen(
             }
         }
 
-        Column (
+        Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -86,12 +86,12 @@ fun ProfileScreen(
             Text(
                 text = userInfo?.displayName.toString()
             )
-            Row (
+            Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = userInfo?.friendCount.toString()+" Friends",
+                    text = userInfo?.friendCount.toString() + " Friends",
                     modifier = Modifier.clickable(
                         enabled = true
                     ) {
@@ -163,7 +163,8 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
         )
     )
 
-    // Animation from https://rodrigomartind.medium.com/the-art-of-small-animations-in-android-with-jetpack-compose-566caa94deba
+    // Animation from
+    // https://rodrigomartind.medium.com/the-art-of-small-animations-in-android-with-jetpack-compose-566caa94deba
     // TODO: Modify Colors
     val colors = listOf(
         Color(0xFF405DE6),
@@ -188,6 +189,17 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
         Log.d("ProfilePicture", "Loading profileImageUrl: $profileImageUrl")
 
         // Profile Picture
+        Box(
+            modifier = Modifier
+                .drawBehind {
+                    rotate(value) {
+                        drawCircle(
+                            gradientBrush, style = Stroke(width = 12.dp.value)
+                        )
+                    }
+                }
+                .size(250.dp)
+        )
         AsyncImage(
             model = tempImageUri ?: profileImageUrl,
             contentDescription = "Profile Picture",
@@ -195,16 +207,6 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () 
             modifier = Modifier
                 .size(250.dp)
                 .clip(CircleShape)
-        )
-        Box(modifier = Modifier
-            .drawBehind {
-                rotate(value) {
-                    drawCircle(
-                        gradientBrush, style = Stroke(width = 12.dp.value)
-                    )
-                }
-            }
-            .size(250.dp)
         )
 
         // Edit Icon in Bottom-Right

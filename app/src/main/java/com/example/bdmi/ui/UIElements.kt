@@ -1,5 +1,6 @@
 package com.example.bdmi.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -111,15 +113,19 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
 // TODO: Increase size on selected dot
 @Composable
 fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
-    val color =
-        if (isSelected) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer
+    val baseSize = MaterialTheme.dimens.carouselDotSize
+    val width by animateDpAsState(targetValue = if (isSelected) baseSize * 3f else baseSize)
+    val height by animateDpAsState(targetValue = if (isSelected) baseSize * 0.8f else baseSize)
+
+    val color = if (isSelected) MaterialTheme.colorScheme.tertiaryContainer
+    else MaterialTheme.colorScheme.secondaryContainer
+
     Box(
         modifier = Modifier
-            .size(MaterialTheme.dimens.carouselDotSize)
+            .width(width)
+            .height(height)
             .background(color = color, shape = CircleShape)
-            .clickable {
-                onDotClick(index)
-            }
+            .clickable { onDotClick(index) }
     )
 }
 
@@ -167,13 +173,12 @@ fun ReviewCard(text: String) {
         Text(
             text = text,
             modifier = Modifier.padding(MaterialTheme.dimens.medium1),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.labelLarge,
             maxLines = MaterialTheme.uiConstants.reviewMaxLines,
             overflow = TextOverflow.Ellipsis
         )
     }
 }
-
 
 // Fading edge gradient
 fun Modifier.fadingEdge(brush: Brush) = this

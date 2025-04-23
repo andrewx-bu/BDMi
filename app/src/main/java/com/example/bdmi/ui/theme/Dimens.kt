@@ -44,6 +44,7 @@ data class Dimens(
     val topBarIconSize: Dp,
     val notificationBadgeSize: Dp,
     // Movie Detail
+    val topBoxHeight: Dp,
     val reviewCardHeight: Dp,
     val carouselDotSize: Dp,
     val chipBorderWidth: Dp,
@@ -95,7 +96,8 @@ val MediumDimens = Dimens(
     topBarIconSize = 30.dp,
     notificationBadgeSize = 18.dp,
     // Movie Detail
-    reviewCardHeight = 95.dp,
+    topBoxHeight = 420.dp,
+    reviewCardHeight = 100.dp,
     carouselDotSize = 10.dp,
     chipBorderWidth = 2.dp,
 
@@ -135,6 +137,7 @@ val ExpandedDimens = Dimens(
     bottomBarHeight = 0.dp,
     topBarIconSize = 0.dp,
     notificationBadgeSize = 0.dp,
+    topBoxHeight = 0.dp,
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
     chipBorderWidth = 0.dp,
