@@ -1,7 +1,6 @@
 package com.example.bdmi.ui.screens
 
 import android.content.Intent
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,10 +43,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -195,7 +197,7 @@ fun MovieDetailScreen(
                     )
                 }
 
-                item{
+                item {
                     Text("AAAAA")
                 }
 
@@ -451,13 +453,22 @@ fun ReviewCarousel(
     onIndexChanged: (Int) -> Unit = {},
     autoScrollDelay: Long
 ) {
-    var selectedIndex by remember { mutableIntStateOf(currentIndex) }
+    val pagerState = rememberPagerState(
+        initialPage = currentIndex,
+        pageCount = { reviews.size },
+    )
 
-    LaunchedEffect(selectedIndex) {
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { onIndexChanged(it) }
+    }
+
+    // Auto scroll after specified duration
+    LaunchedEffect(pagerState) {
         while (true) {
             delay(autoScrollDelay)
-            selectedIndex = (selectedIndex + 1) % reviews.size
-            onIndexChanged(selectedIndex)
+            val next = (pagerState.currentPage + 1) % reviews.size
+            pagerState.animateScrollToPage(next)
         }
     }
 
@@ -493,23 +504,27 @@ fun ReviewCarousel(
             }
         }
 
-        Crossfade(targetState = reviews[selectedIndex]) { reviewText ->
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
             ReviewCard(
+                text = reviews[page],
                 rating = 2.5f,
-                text = reviewText,
                 liked = true,
                 username = "Steve"
             )
         }
 
-        Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))
+        Spacer(Modifier.height(MaterialTheme.dimens.small3))
 
         DotsIndicator(
             numDots = reviews.size,
-            currentIndex = selectedIndex,
+            currentIndex = pagerState.currentPage,
             onDotClick = { index ->
-                selectedIndex = index
-                onIndexChanged(index)
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(index)
+                }
             }
         )
     }
