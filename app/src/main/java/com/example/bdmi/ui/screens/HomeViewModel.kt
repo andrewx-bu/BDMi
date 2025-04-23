@@ -48,8 +48,6 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private fun loadMovies() {
         viewModelScope.launch {
             _homeUIState.update { it.copy(isLoading = true, error = null) }
-            // Simulate Network Delay
-            delay(1000)
             movieRepo.discoverMovies().fold(
                 onSuccess = { response ->
                     // If no movies are fetched, we'll throw an empty response error
@@ -73,6 +71,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }
+            // Simulate Network Delay
             delay(1000)
             movieRepo.getMovieDetails(movieId).fold(
                 onSuccess = { details ->

@@ -96,4 +96,5 @@ dependencies {
     //UI Libraries
     implementation(libs.compose.shimmer)
     implementation(libs.jetpack.loading)
+    implementation(libs.orbital)
 }

@@ -409,19 +409,16 @@ fun MovieDescription(details: MovieDetails) {
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     val maxLines = if (isExpanded) Int.MAX_VALUE else MaterialTheme.uiConstants.descriptionMaxLines
     Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium2)) {
-        if (details.tagline != null) {
+        if (!details.tagline.isNullOrEmpty()) {
             Text(
                 text = details.tagline.uppercase(Locale.ROOT),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
             )
+            Spacer(Modifier.height(MaterialTheme.dimens.small3))
         }
         // Movie description
-        Box(
-            modifier = Modifier
-                .clickable { isExpanded = !isExpanded }
-                .padding(top = MaterialTheme.dimens.small3)
-        ) {
+        Box(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
                 text = details.overview,
                 style = MaterialTheme.typography.labelLarge,
@@ -454,7 +451,6 @@ fun MovieDescription(details: MovieDetails) {
 
 // Review Carousel
 // TODO: Randomize Reviews pulled
-// TODO: HORIZONTAL PAGER
 @Composable
 fun ReviewCarousel(
     reviews: List<String>,
@@ -462,9 +458,15 @@ fun ReviewCarousel(
     onIndexChanged: (Int) -> Unit = {},
     autoScrollDelay: Long
 ) {
+    // Temporary workaround to fix live edit crashes
+    val reviewsPageCount: (List<String>) -> Int = List<String>::size
+    val pageCountLambda = remember(reviews) { { reviewsPageCount(reviews) } }
+
     val pagerState = rememberPagerState(
         initialPage = currentIndex,
-        pageCount = { reviews.size },
+        pageCount = pageCountLambda,
+        // Replace with this for deployment
+        // pageCount = { reviews.size }
     )
 
     val coroutineScope = rememberCoroutineScope()
@@ -582,7 +584,6 @@ fun BottomSection(details: MovieDetails) {
 
         Spacer(Modifier.height(MaterialTheme.dimens.medium2))
 
-        // 4) Content for each segment
         when (selectedTab) {
             0 -> CastSection(details.credits.cast)
             1 -> CrewSection(details.credits.crew)

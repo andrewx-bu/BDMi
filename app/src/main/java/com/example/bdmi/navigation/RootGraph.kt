@@ -22,8 +22,9 @@ fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewMo
     }
     // TODO: Implement dark theme into preferences
     val systemDark = isSystemInDarkTheme()
-    //var darkTheme by remember { mutableStateOf(systemDark) }
-    var darkTheme by remember { mutableStateOf(true) }
+    var darkTheme by remember { mutableStateOf(systemDark) }
+    //Force dark theme:
+    //var darkTheme by remember { mutableStateOf(true) }
 
     NavHost(
         navController = navController,

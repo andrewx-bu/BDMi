@@ -161,7 +161,7 @@ fun AppTheme(
         }
     }
 
-    ProvideAppUtils(dimens = appDimens, constants = MediumUIConstants) {
+    ProvideAppUtils(dimens = appDimens, constants = uiConstants) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = typography,
