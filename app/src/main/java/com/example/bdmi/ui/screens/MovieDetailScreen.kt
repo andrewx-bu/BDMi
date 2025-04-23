@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -55,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.ImageURLHelper
@@ -74,17 +73,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun MovieDetailScreen(
-    userViewModel: UserViewModel? = null,
-    movieId: Int,
-    onNavigateBack: () -> Unit
-) {
+fun MovieDetailScreen(navController: NavHostController, userViewModel: UserViewModel? = null, movieId: Int) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
     var userPrivileges by remember { mutableStateOf(false) }
 
     LaunchedEffect(movieId) {
-        launch {viewModel.refreshDetails(movieId)}
+        launch { viewModel.refreshDetails(movieId) }
         if (userViewModel != null) {
             if (userViewModel.userInfo.value != null) {
                 userPrivileges = true
@@ -121,6 +116,15 @@ fun MovieDetailScreen(
         }
 
         details != null -> {
+            LaunchedEffect(details) {
+                details.title.let { title ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        "movie_title",
+                        title
+                    )
+                }
+            }
+
             // String mangling done by ChatGPT
             val hasBackdrop = details.backdropPath?.isNotEmpty() == true
             // Handle multiple directors
@@ -154,7 +158,6 @@ fun MovieDetailScreen(
                             trailerKey = trailerKey,
                             certification = certification
                         )
-                        TempTopBar(userPrivileges, userViewModel, details, onNavigateBack)
                     }
                 }
 
@@ -213,37 +216,6 @@ fun MovieDetailScreen(
                 )
             }
         }
-    }
-}
-
-// TODO: Integrate with scaffold
-@Composable
-fun TempTopBar(userPrivileges: Boolean, userViewModel: UserViewModel?, movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(MaterialTheme.dimens.medium3),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Back Button
-        IconButton(
-            onClick = onNavigateBack,
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
-                )
-                .size(MaterialTheme.dimens.iconLarge)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
-            )
-        }
-
-        // Menu Button
-        MenuButton(userPrivileges, userViewModel, movieDetails)
     }
 }
 
@@ -450,6 +422,7 @@ fun ReviewCarousel(
     }
 }
 
+// TODO: Integrate with outer scaffold
 // TODO: Issue with dropdown menu overlapping
 @Composable
 fun MenuButton(
@@ -514,7 +487,7 @@ fun MenuButton(
                                 id = movieDetails.id,
                                 title = movieDetails.title,
                                 posterPath = movieDetails.posterPath.toString(),
-                                releaseDate = movieDetails.releaseDate.toString()
+                                releaseDate = movieDetails.releaseDate
                             )
                         )
                         showWatchlists = false
@@ -524,83 +497,4 @@ fun MenuButton(
             }
         }
     }
-
 }
-
-/*
-@Composable
-fun MovieBackdrop(movieDetails: MovieDetails?, onNavigateBack: () -> Unit) {
-    val backdropURL = ImageURLHelper.getBackdropURL(movieDetails?.backdropPath)
-
-    val fadeBrush = Brush.verticalGradient(
-        0.75f to Color.Black,
-        1f to Color.Transparent.copy(alpha = 0.2f)
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(UIConstants.BACKDROPASPECTRATIO)
-    ) {
-        if (backdropURL.isNotEmpty()) {
-            AsyncImage(
-                model = backdropURL,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .fadingEdge(fadeBrush),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Movie,
-                        contentDescription = "No backdrop available",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(UIConstants.noBackdropIconSize)
-                    )
-                    Spacer(modifier = Modifier.height(Spacing.small))
-                    if (movieDetails != null) {
-                        Text(
-                            text = movieDetails.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                            modifier = Modifier.padding(horizontal = Spacing.small),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.medium),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Back Button
-        IconButton(
-            onClick = onNavigateBack,
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
-                )
-                .size(UIConstants.backdropButtonSize)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.size(UIConstants.backdropIconSize),
-            )
-        }
- */

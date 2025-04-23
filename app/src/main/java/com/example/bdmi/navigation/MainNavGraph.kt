@@ -111,7 +111,7 @@ fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavH
         // Movie detail route
         composable("movie_detail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
-            MovieDetailScreen(userViewModel, movieId) { navController.popBackStack() }
+            MovieDetailScreen(navController, userViewModel, movieId)
         }
 
 
