@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextLayoutResult
@@ -173,7 +174,6 @@ fun MovieDetailScreen(
                     Spacer(Modifier.height(MaterialTheme.dimens.small3))
                     MovieDescription(details = details)
                     Spacer(Modifier.height(MaterialTheme.dimens.small3))
-                    ShimmeringDivider()
                 }
 
                 item {
@@ -269,7 +269,7 @@ fun TopSection(
             modifier = Modifier
                 .height(MaterialTheme.dimens.posterSize)
                 .align(Alignment.BottomStart)
-                .padding(start = MaterialTheme.dimens.medium3)
+                .padding(start = MaterialTheme.dimens.medium2)
         ) {
             MoviePoster(
                 title = details.title,
@@ -277,7 +277,7 @@ fun TopSection(
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
             // Column fades upwards into the backdrop
             val topFadeBrush = Brush.verticalGradient(
@@ -291,7 +291,7 @@ fun TopSection(
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(top = MaterialTheme.dimens.large2, end = MaterialTheme.dimens.medium3)
+                    .padding(top = MaterialTheme.dimens.large2, end = MaterialTheme.dimens.medium2)
                     .fadingEdge(topFadeBrush)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
@@ -308,7 +308,7 @@ fun TopSection(
                 // Genre Chips
                 LazyRow(
                     modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
                 ) {
                     items(details.genres) { genre ->
                         GenreChip(name = genre.name, onClick = {})
@@ -392,7 +392,7 @@ fun MovieDescription(details: MovieDetails) {
     var isExpanded by remember { mutableStateOf(false) }
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     val maxLines = if (isExpanded) Int.MAX_VALUE else MaterialTheme.uiConstants.descriptionMaxLines
-    Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium3)) {
+    Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium2)) {
         if (details.tagline != null) {
             Text(
                 text = details.tagline.uppercase(Locale.ROOT),
@@ -454,14 +454,45 @@ fun ReviewCarousel(
         }
     }
 
-    Spacer(Modifier.height(MaterialTheme.dimens.medium3))
-
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.dimens.medium2),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MaterialTheme.dimens.small3)
+                    .graphicsLayer { scaleX = -1f }
+            ) {
+                ShimmeringDivider()
+            }
+            Text(
+                text = "REVIEWS",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = MaterialTheme.dimens.small3)
+            ) {
+                ShimmeringDivider()
+            }
+        }
+
         Crossfade(targetState = reviews[selectedIndex]) { reviewText ->
-            ReviewCard(text = reviewText)
+            ReviewCard(
+                rating = 2.5f,
+                text = reviewText,
+                liked = true,
+                username = "Steve"
+            )
         }
 
         Spacer(modifier = Modifier.height(MaterialTheme.dimens.small3))

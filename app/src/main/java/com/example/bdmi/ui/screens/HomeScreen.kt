@@ -37,7 +37,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(MaterialTheme.dimens.medium3)
+            .padding(MaterialTheme.dimens.medium2)
     ) {
         // TODO: Make this a row, add a menu button top right
         Text(

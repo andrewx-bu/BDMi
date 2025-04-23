@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.StarHalf
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -59,7 +62,7 @@ fun ShimmeringDivider() {
     CompositionLocalProvider(LocalShimmerTheme provides shimmerTheme) {
         HorizontalDivider(
             modifier = Modifier
-                .height(MaterialTheme.dimens.small1)
+                .height(MaterialTheme.dimens.small2)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
                 .shimmer()
@@ -110,7 +113,6 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
 }
 
 // Individual dots in DotIndicator
-// TODO: Increase size on selected dot
 @Composable
 fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
     val baseSize = MaterialTheme.dimens.carouselDotSize
@@ -159,24 +161,76 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
     }
 }
 
-// TODO: Add Profile, Stars, Heart?
+// TODO: Add functionality
 @Composable
-fun ReviewCard(text: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.medium3)
-            .height(MaterialTheme.dimens.reviewCardHeight),
-        shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
-        elevation = CardDefaults.cardElevation(MaterialTheme.dimens.small3)
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(MaterialTheme.dimens.medium1),
-            style = MaterialTheme.typography.labelLarge,
-            maxLines = MaterialTheme.uiConstants.reviewMaxLines,
-            overflow = TextOverflow.Ellipsis
-        )
+fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
+    Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium2)) {
+        Row(
+            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small2),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val fullStars = rating.toInt()
+            val hasHalf = (rating - fullStars) >= 0.5f
+            val starCount = fullStars + if (hasHalf) 1 else 0
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Stars
+                repeat(starCount) { index ->
+                    val icon = when {
+                        index < fullStars -> Icons.Default.Star
+                        else -> Icons.AutoMirrored.Filled.StarHalf
+                    }
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.tertiaryContainer,
+                        modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                    )
+                    Spacer(Modifier.width(MaterialTheme.dimens.small1))
+                }
+            }
+            // Heart
+            if (liked) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Liked",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .size(MaterialTheme.dimens.iconMedium)
+                        .padding(start = MaterialTheme.dimens.small2)
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            // Username and Profile Photo
+            Text(
+                text = username,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(Modifier.width(MaterialTheme.dimens.small3))
+            Box(
+                modifier = Modifier
+                    .size(MaterialTheme.dimens.iconLarge)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onBackground)
+                    .clickable { /* TODO: Implement */ }
+            )
+        }
+        Spacer(Modifier.height(MaterialTheme.dimens.small3))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MaterialTheme.dimens.reviewCardHeight),
+            shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
+            elevation = CardDefaults.cardElevation(MaterialTheme.dimens.medium2)
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.padding(MaterialTheme.dimens.medium1),
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = MaterialTheme.uiConstants.reviewMaxLines,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
