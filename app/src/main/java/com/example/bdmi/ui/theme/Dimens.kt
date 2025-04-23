@@ -49,12 +49,7 @@ data class Dimens(
     val chipBorderWidth: Dp,
 
     // Offsets / Alignment
-    val loadingOffset: Dp,
-    val posterRowOffset: Dp,
-    // Alt: No Backdrop
-    val posterRowOffsetAlt: Dp,
-    val posterRowSpacer: Dp,
-    val posterRowSpacerAlt: Dp
+    val loadingOffset: Dp
 )
 
 // TODO: Add dimens for Compact devices
@@ -105,12 +100,7 @@ val MediumDimens = Dimens(
     chipBorderWidth = 2.dp,
 
     // Offsets / Alignment
-    loadingOffset = 50.dp,
-    posterRowOffset = 210.dp,
-    // Alt: No Backdrop
-    posterRowOffsetAlt = 65.dp,
-    posterRowSpacer = 165.dp,
-    posterRowSpacerAlt = 20.dp
+    loadingOffset = 50.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -148,9 +138,5 @@ val ExpandedDimens = Dimens(
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
     chipBorderWidth = 0.dp,
-    loadingOffset = 0.dp,
-    posterRowOffset = 0.dp,
-    posterRowOffsetAlt = 0.dp,
-    posterRowSpacer = 0.dp,
-    posterRowSpacerAlt = 0.dp,
+    loadingOffset = 0.dp
 )

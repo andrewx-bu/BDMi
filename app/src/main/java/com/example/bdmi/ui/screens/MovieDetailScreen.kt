@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -139,17 +141,13 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    Spacer(
-                        modifier = Modifier.height(
-                            if (hasBackdrop) MaterialTheme.dimens.posterRowSpacer
-                            else MaterialTheme.dimens.posterRowSpacerAlt
-                        )
-                    )
+                    Spacer(Modifier.height(MaterialTheme.dimens.medium3))
                     MovieDescription()
                     ShimmeringDivider()
                 }
 
                 item {
+                    // TODO: Add reviews
                     val reviews = listOf(
                         "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
                                 "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
@@ -163,6 +161,25 @@ fun MovieDetailScreen(
                         reviews = reviews,
                         autoScrollDelay = MaterialTheme.uiConstants.reviewScrollDelay
                     )
+                }
+
+                item {
+                    repeat(7) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(MaterialTheme.dimens.topBarHeight)
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                    repeat(7) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(MaterialTheme.dimens.topBarHeight)
+                                .background(Color.Yellow)
+                        )
+                    }
                 }
             }
         }
@@ -242,147 +259,141 @@ fun TopSection(
         1f to Color.Transparent.copy(alpha = 0.2f)
     )
 
-    // Backdrop box
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
+            .then(if (hasBackdrop) Modifier.height(420.dp) else Modifier)
     ) {
+        // Backdrop box
         if (hasBackdrop) {
             AsyncImage(
                 model = backdropURL,
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
                     .fadingEdge(bottomFadeBrush),
                 contentScale = ContentScale.Crop
             )
         }
-    }
 
-    // Poster row
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(MaterialTheme.dimens.posterSize)
-            .offset(
-                y = if (hasBackdrop) MaterialTheme.dimens.posterRowOffset
-                else MaterialTheme.dimens.posterRowOffsetAlt
-            )
-            .padding(
-                start = MaterialTheme.dimens.medium3,
-                end = MaterialTheme.dimens.small3
-            )
-    ) {
-        MoviePoster(
-            title = details.title,
-            posterPath = details.posterPath,
-            onClick = {}
-        )
-
-        Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
-
-        // Column fades upwards into the backdrop
-        val topFadeBrush = Brush.verticalGradient(
-            colorStops = arrayOf(
-                0f to Color.Transparent.copy(alpha = 0.2f),
-                0.2f to Color.Black,
-            )
-        )
-
-        // Details column
-        Column(
+        // Poster row
+        Row(
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = MaterialTheme.dimens.large3)
-                .fadingEdge(topFadeBrush)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
+                .height(MaterialTheme.dimens.posterSize)
+                .align(Alignment.BottomStart)
+                .padding(start = MaterialTheme.dimens.medium3)
         ) {
-            Spacer(Modifier.height(MaterialTheme.dimens.medium3))
-
-            // Movie Title
-            Text(
-                text = details.title,
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onBackground
+            MoviePoster(
+                title = details.title,
+                posterPath = details.posterPath,
+                onClick = {}
             )
 
-            // Genre Chips
-            LazyRow(
-                modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+            Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
+
+            // Column fades upwards into the backdrop
+            val topFadeBrush = Brush.verticalGradient(
+                colorStops = arrayOf(
+                    0f to Color.Transparent.copy(alpha = 0.2f),
+                    0.2f to Color.Black,
+                )
+            )
+
+            // Details column
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(top = MaterialTheme.dimens.large3, end = MaterialTheme.dimens.medium3)
+                    .fadingEdge(topFadeBrush)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
             ) {
-                items(details.genres) { genre ->
-                    GenreChip(name = genre.name, onClick = {})
-                }
-            }
+                Spacer(Modifier.height(MaterialTheme.dimens.medium3))
 
-            Spacer(Modifier.height(MaterialTheme.dimens.small1))
-
-            // Release date, director
-            Text(
-                text = "${details.releaseDate} | DIRECTED BY",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-            )
-
-            Text(
-                text = directors,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            // Trailer button, runtime, MPAA rating
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val context = LocalContext.current
-
-                // Only shimmer if trailer available
-                val iconModifier = Modifier
-                    .size(MaterialTheme.dimens.iconTiny)
-                    .let { base -> if (trailerKey != null) base.shimmer() else base }
-
-                Button(
-                    onClick = {
-                        val url = "https://www.youtube.com/watch?v=$trailerKey"
-                        val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent, null)
-                    },
-                    enabled = trailerKey != null,
-                    modifier = Modifier
-                        .size(
-                            width = MaterialTheme.dimens.buttonWidthSmall,
-                            height = MaterialTheme.dimens.buttonHeightSmall
-                        ),
-                    contentPadding = PaddingValues(
-                        start = MaterialTheme.dimens.small2,
-                        end = MaterialTheme.dimens.small3
-                    ),
-                    shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                        disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        modifier = iconModifier
-                    )
-                    Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
-                }
-
-                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
-
+                // Movie Title
                 Text(
-                    text = "${details.runtime} min | $certification",
+                    text = details.title,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                // Genre Chips
+                LazyRow(
+                    modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+                ) {
+                    items(details.genres) { genre ->
+                        GenreChip(name = genre.name, onClick = {})
+                    }
+                }
+
+                Spacer(Modifier.height(MaterialTheme.dimens.small1))
+
+                // Release date, director
+                Text(
+                    text = "${details.releaseDate} | DIRECTED BY",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 )
+
+                Text(
+                    text = directors,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                // Trailer button, runtime, MPAA rating
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val context = LocalContext.current
+
+                    // Only shimmer if trailer available
+                    val iconModifier = Modifier
+                        .size(MaterialTheme.dimens.iconTiny)
+                        .let { base -> if (trailerKey != null) base.shimmer() else base }
+
+                    Button(
+                        onClick = {
+                            val url = "https://www.youtube.com/watch?v=$trailerKey"
+                            val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            context.startActivity(intent, null)
+                        },
+                        enabled = trailerKey != null,
+                        modifier = Modifier
+                            .size(
+                                width = MaterialTheme.dimens.buttonWidthSmall,
+                                height = MaterialTheme.dimens.buttonHeightSmall
+                            ),
+                        contentPadding = PaddingValues(
+                            start = MaterialTheme.dimens.small2,
+                            end = MaterialTheme.dimens.small3
+                        ),
+                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                            disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Play",
+                            modifier = iconModifier
+                        )
+                        Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
+                    }
+
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+
+                    Text(
+                        text = "${details.runtime} min | $certification",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                    )
+                }
             }
         }
     }
