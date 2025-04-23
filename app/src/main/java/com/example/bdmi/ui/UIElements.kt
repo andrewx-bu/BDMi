@@ -161,7 +161,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
     }
 }
 
-// TODO: Add functionality
+// TODO: Add functionality, profile parameter?
 @Composable
 fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
     Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium2)) {

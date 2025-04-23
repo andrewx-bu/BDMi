@@ -195,6 +195,10 @@ fun MovieDetailScreen(
                     )
                 }
 
+                item{
+                    Text("AAAAA")
+                }
+
                 item {
                     repeat(7) {
                         Box(
@@ -230,6 +234,7 @@ fun MovieDetailScreen(
     }
 }
 
+// Backdrop and Poster Row
 @Composable
 fun TopSection(
     details: MovieDetails,
@@ -386,7 +391,7 @@ fun TopSection(
     }
 }
 
-// TODO: Implement
+// Tagline and Overview
 @Composable
 fun MovieDescription(details: MovieDetails) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -436,7 +441,9 @@ fun MovieDescription(details: MovieDetails) {
     }
 }
 
-// TODO: Implement horizontal pager functionality?
+// Review Carousel
+// TODO: Randomize Reviews pulled
+// TODO: HORIZONTAL PAGER
 @Composable
 fun ReviewCarousel(
     reviews: List<String>,
@@ -506,6 +513,12 @@ fun ReviewCarousel(
             }
         )
     }
+}
+
+// TODO: Cast, Crew, Details, Gallery?, Watch Providers?
+@Composable
+fun BottomSection() {
+
 }
 
 // TODO: Integrate with outer scaffold
