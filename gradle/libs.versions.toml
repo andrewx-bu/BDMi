@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.1"
+animationCore = "1.7.8"
 cloudinaryAndroidVersion = "3.0.2"
 coilCompose = "3.1.0"
 coilComposeVersion = "2.6.0"
@@ -31,6 +32,7 @@ hilt-navigation = "1.2.0"
 material3WindowSizeClassAndroid = "1.3.2"
 
 [libraries]
+androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "animationCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

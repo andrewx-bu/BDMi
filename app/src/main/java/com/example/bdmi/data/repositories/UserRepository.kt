@@ -5,8 +5,7 @@ import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import com.example.bdmi.ui.viewmodels.UserInfo
-import com.google.firebase.firestore.FieldValue
+import com.example.bdmi.UserInfo
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class UserRepository @Inject constructor(
 ) {
     // Adds a user to the users collection. Information should already be validated and password hashed
     // Checks for unique email before adding
-    suspend fun createUser(
+    fun createUser(
         userInformation: HashMap<String, Any>,
         onComplete: (UserInfo?) -> Unit
     ) {
@@ -116,7 +115,7 @@ class UserRepository @Inject constructor(
     }
 
     // Loads a user's profile from the publicProfiles collection
-    suspend fun loadUser(
+    fun loadUser(
         userId: String,
         onComplete: (UserInfo?) -> Unit
     ) {
@@ -141,7 +140,7 @@ class UserRepository @Inject constructor(
 
     // Authenticates a user during the login process
     // Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
-    suspend fun authenticateUser(
+    fun authenticateUser(
         loginInformation: HashMap<String, String>,
         onComplete: (String?) -> Unit
     ) {
@@ -170,7 +169,7 @@ class UserRepository @Inject constructor(
 
     // Updates a user's information in the users collection
     // Returns true if the update was successful, false otherwise
-    suspend fun updateUserInfo(
+    fun updateUserInfo(
         userInfo: HashMap<String, Any>,
         onComplete: (Boolean) -> Unit
     ) {
@@ -191,7 +190,7 @@ class UserRepository @Inject constructor(
 
     // Deletes a user from the users collection
     // Returns true if the deletion was successful, false otherwise
-    suspend fun deleteUser(
+    fun deleteUser(
         userId: String,
         onComplete: (Boolean) -> Unit
     ) {
@@ -213,7 +212,7 @@ class UserRepository @Inject constructor(
     * Call function to upload image to Cloudinary then updates
     * database on the callback function
     * */
-    suspend fun changeProfilePicture(
+    fun changeProfilePicture(
         userId: String,
         profilePicture: Uri,
         onComplete: (String?) -> Unit
@@ -268,22 +267,3 @@ class UserRepository @Inject constructor(
         }).dispatch()
     }
 }
-
-
-/*
-* Database Operations:
-* add(): Adds a new document to the collection and creates a collection if one doesn't exist
-* - Returns DocumentReference type, takes data usually in the form of a HashMap
-* set(): Sets the document data.
-* Overwrites a document if it already exists or creates a new document if it doesn't
-* update(): Updates the document data.
-* - Can specify which fields to update usually by using a HashMap
-* get(): Retrieves a document(s) from the collection
-* - There are many where clauses to filter the data (all are functions)
-* - orderBy() can sort the data and limit() can limit the amount of data retrieved
-* Aggregate functions supported:
-* - count(), sum(), average()
-* - Aggregate functions cannot be used offline or real-time listeners
-* startAt(), startAfter(), endAt(), endBefore() functions allow you to specify a range of values
-* - Helpful for pagination
-* */

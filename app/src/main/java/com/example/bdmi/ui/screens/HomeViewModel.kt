@@ -1,15 +1,10 @@
-package com.example.bdmi.ui.viewmodels
+package com.example.bdmi.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
-import com.example.bdmi.data.api.CastMember
-import com.example.bdmi.data.api.CrewMember
-import com.example.bdmi.data.api.ImagesResponse
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.api.ReleaseDatesResponse
-import com.example.bdmi.data.api.Video
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

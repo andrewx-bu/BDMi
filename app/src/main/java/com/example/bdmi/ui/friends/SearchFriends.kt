@@ -41,8 +41,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.ui.notifications.UserStats
-import com.example.bdmi.ui.viewmodels.FriendViewModel
-import com.example.bdmi.ui.viewmodels.ProfileBanner
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
