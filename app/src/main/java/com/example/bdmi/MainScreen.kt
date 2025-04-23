@@ -1,7 +1,6 @@
 package com.example.bdmi
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -71,6 +72,7 @@ fun MainScreen(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     // TODO: More elegant route checking
     val showOuterBar = currentRoute != null && !currentRoute.startsWith("movie_detail/")
+    // TODO: Separate scroll state for top bars
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     // Extracts the title from MovieDetail for the Top Bar to display
@@ -101,9 +103,13 @@ fun MainScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            // Hide outer top bar if onboarding or moving to full screen
-            Crossfade(targetState = showOuterBar) { outer ->
-                if (outer) {
+            Box(Modifier.fillMaxWidth()) {
+                // Hide outer top bar if onboarding or moving to full screen
+                AnimatedVisibility(
+                    visible = showOuterBar,
+                    enter = fadeIn() + slideInVertically { -it },
+                    exit = fadeOut() + slideOutVertically { -it }
+                ) {
                     TopBar(
                         darkTheme = darkTheme,
                         onThemeClick = switchTheme,
@@ -117,51 +123,15 @@ fun MainScreen(
                             }
                         }
                     )
-                } else {
-                    TopAppBar(
-                        title = {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = titleState.value,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = MaterialTheme.colorScheme.secondary,
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(
-                                onClick = { /* TODO: More Options */ },
-                                modifier = Modifier
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = "Back",
-                                    tint = MaterialTheme.colorScheme.secondary,
-                                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            scrolledContainerColor = Color.Transparent
-                        ),
+                }
+                AnimatedVisibility(
+                    visible = !showOuterBar,
+                    enter = fadeIn() + slideInVertically { -it },
+                    exit = fadeOut() + slideOutVertically { -it }
+                ) {
+                    MovieDetailTopAppBar(
+                        title = titleState.value,
+                        onBackClick = { navController.popBackStack() },
                         scrollBehavior = scrollBehavior
                     )
                 }
@@ -271,6 +241,61 @@ fun TopBar(
             containerColor = Color.Transparent
         ),
         modifier = Modifier.height(MaterialTheme.dimens.topBarHeight)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MovieDetailTopAppBar(
+    title: String,
+    onBackClick: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    TopAppBar(
+        title = {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = { /* TODO: More Options */ },
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreHoriz,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
+        ),
+        scrollBehavior = scrollBehavior
     )
 }
 
