@@ -38,14 +38,20 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -62,7 +68,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.bdmi.UserViewModel
+import com.example.bdmi.data.api.CastMember
+import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.ImageURLHelper
+import com.example.bdmi.data.api.ImagesResponse
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
@@ -198,7 +207,7 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    Text("AAAAA")
+                    BottomSection(details = details)
                 }
 
                 item {
@@ -530,9 +539,76 @@ fun ReviewCarousel(
     }
 }
 
-// TODO: Cast, Crew, Details, Gallery?, Watch Providers?
 @Composable
-fun BottomSection() {
+fun BottomSection(details: MovieDetails) {
+    val tabs = listOf("CAST", "CREW", "DETAILS", "GALLERY")
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium2)
+    ) {
+        // Segmented Tabs
+        TabRow(
+            selectedTabIndex = selectedTab,
+            contentColor = MaterialTheme.colorScheme.primary,
+            indicator = { tabPositions ->
+                SecondaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                    height = MaterialTheme.dimens.small1,
+                    color = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            }
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = if (selectedTab == index) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        Spacer(Modifier.height(MaterialTheme.dimens.medium2))
+
+        // 4) Content for each segment
+        when (selectedTab) {
+            0 -> CastSection(details.credits.cast)
+            1 -> CrewSection(details.credits.crew)
+            2 -> DetailsSection(details)
+            3 -> GallerySection(details.images)
+        }
+    }
+}
+
+@Composable
+private fun CastSection(cast: List<CastMember>) {
+
+}
+
+@Composable
+private fun CrewSection(crew: List<CrewMember>) {
+
+}
+
+@Composable
+private fun DetailsSection(details: MovieDetails) {
+
+}
+
+@Composable
+private fun GallerySection(backdrops: ImagesResponse) {
 
 }
 

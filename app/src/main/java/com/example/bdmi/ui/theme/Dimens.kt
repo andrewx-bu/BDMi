@@ -102,7 +102,7 @@ val MediumDimens = Dimens(
     chipBorderWidth = 2.dp,
 
     // Offsets / Alignment
-    loadingOffset = 50.dp
+    loadingOffset = 35.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
