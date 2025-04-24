@@ -1,6 +1,7 @@
 package com.example.bdmi.ui.screens
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,12 +30,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +52,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,16 +60,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -84,7 +94,6 @@ import com.example.bdmi.ui.ShimmeringDivider
 import com.example.bdmi.ui.fadingEdge
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -199,34 +208,11 @@ fun MovieDetailScreen(
                         "Water Bucket Release",
                         "Diamond Armor, Full Set"
                     )
-
-                    ReviewCarousel(
-                        reviews = reviews,
-                        autoScrollDelay = MaterialTheme.uiConstants.reviewScrollDelay
-                    )
+                    ReviewCarousel(reviews = reviews)
                 }
 
                 item {
                     BottomSection(details = details)
-                }
-
-                item {
-                    repeat(7) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(MaterialTheme.dimens.topBarHeight)
-                                .background(MaterialTheme.colorScheme.primary)
-                        )
-                    }
-                    repeat(7) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(MaterialTheme.dimens.topBarHeight)
-                                .background(Color.Yellow)
-                        )
-                    }
                 }
             }
         }
@@ -450,32 +436,18 @@ fun MovieDescription(details: MovieDetails) {
 }
 
 // Review Carousel
-// TODO: Randomize Reviews pulled. 5 Reviews
+// TODO: Randomize Reviews pulled.
+// TODO: Make Reviews clickable.
 @Composable
-fun ReviewCarousel(
-    reviews: List<String>,
-    currentIndex: Int = 0,
-    onIndexChanged: (Int) -> Unit = {},
-    autoScrollDelay: Long
-) {
+fun ReviewCarousel(reviews: List<String>) {
+    val pageCount = 1000 * reviews.size
+    val startIndex = (pageCount / 2)
     val pagerState = rememberPagerState(
-        initialPage = currentIndex,
-        pageCount = { 5 }
+        initialPage = startIndex,
+        pageCount = { pageCount }
     )
-
+    val currentReviewIndex by remember { derivedStateOf { pagerState.currentPage % reviews.size } }
     val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { onIndexChanged(it) }
-    }
-
-    // Auto scroll after specified duration
-    LaunchedEffect(pagerState) {
-        while (true) {
-            delay(autoScrollDelay)
-            val next = (pagerState.currentPage + 1) % reviews.size
-            pagerState.animateScrollToPage(next)
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -509,12 +481,10 @@ fun ReviewCarousel(
             }
         }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth()
-        ) { page ->
+        HorizontalPager(state = pagerState) { page ->
+            val reviewIndex = page % reviews.size
             ReviewCard(
-                text = reviews[page],
+                text = reviews[reviewIndex],
                 rating = 2.5f,
                 liked = true,
                 username = "Steve"
@@ -525,7 +495,7 @@ fun ReviewCarousel(
 
         DotsIndicator(
             numDots = reviews.size,
-            currentIndex = pagerState.currentPage,
+            currentIndex = currentReviewIndex,
             onDotClick = { index ->
                 coroutineScope.launch {
                     pagerState.animateScrollToPage(index)
@@ -540,71 +510,173 @@ fun BottomSection(details: MovieDetails) {
     val tabs = listOf("CAST", "CREW", "DETAILS", "GALLERY")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
-    Column(
+    // Segmented Tabs
+    TabRow(
+        selectedTabIndex = selectedTab,
+        contentColor = MaterialTheme.colorScheme.primary,
+        indicator = { tabPositions ->
+            SecondaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                height = MaterialTheme.dimens.small1,
+                color = MaterialTheme.colorScheme.tertiaryContainer
+            )
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MaterialTheme.dimens.medium2)
     ) {
-        // Segmented Tabs
-        TabRow(
-            selectedTabIndex = selectedTab,
-            contentColor = MaterialTheme.colorScheme.primary,
-            indicator = { tabPositions ->
-                SecondaryIndicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                    height = MaterialTheme.dimens.small1,
-                    color = MaterialTheme.colorScheme.tertiaryContainer
-                )
-            }
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = if (selectedTab == index) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            }
-                        )
-                    }
-                )
-            }
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { selectedTab = index },
+                text = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = if (selectedTab == index) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        }
+                    )
+                }
+            )
         }
-
-        Spacer(Modifier.height(MaterialTheme.dimens.medium2))
-
-        when (selectedTab) {
-            0 -> CastSection(details.credits.cast)
-            1 -> CrewSection(details.credits.crew)
-            2 -> DetailsSection(details)
-            3 -> GallerySection(details.images)
-        }
+    }
+    Spacer(Modifier.height(MaterialTheme.dimens.medium2))
+    when (selectedTab) {
+        0 -> CastSection(details.credits.cast)
+        1 -> CrewSection(details.credits.crew)
+        2 -> DetailsSection(details)
+        3 -> GallerySection(details.images)
     }
 }
 
 @Composable
 private fun CastSection(cast: List<CastMember>) {
-
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium2)
+    ) {
+        cast.forEach { person ->
+            val portraitURL = ImageURLHelper.getPosterURL(person.profilePath)
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+            Row(
+                modifier = Modifier
+                    .height(75.dp)
+                    .clickable { /* TODO: Move to Actor Screen */ },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (portraitURL.isNotEmpty()) {
+                        AsyncImage(
+                            model = portraitURL,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "No portrait available",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+                Column {
+                    Text(text = person.name, style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.width(MaterialTheme.dimens.small3))
+                    Text(person.character, style = MaterialTheme.typography.titleMedium)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+        }
+    }
 }
 
 @Composable
 private fun CrewSection(crew: List<CrewMember>) {
-
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium2)
+    ) {
+        crew.forEach { person ->
+            val portraitURL = ImageURLHelper.getPosterURL(person.profilePath)
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+            Row(
+                modifier = Modifier
+                    .height(75.dp)
+                    .clickable { /* TODO: Move to Person Screen */ },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (portraitURL.isNotEmpty()) {
+                        AsyncImage(
+                            model = portraitURL,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "No portrait available",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+                Column {
+                    Text(text = person.name, style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.width(MaterialTheme.dimens.small3))
+                    Text(person.job, style = MaterialTheme.typography.titleMedium)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+        }
+    }
 }
 
 @Composable
 private fun DetailsSection(details: MovieDetails) {
-
+    Text("A")
 }
 
 @Composable
 private fun GallerySection(backdrops: ImagesResponse) {
-
+    Text("A")
 }
 
 // TODO: Integrate with outer scaffold

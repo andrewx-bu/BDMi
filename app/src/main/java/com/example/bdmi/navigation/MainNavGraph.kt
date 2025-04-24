@@ -1,6 +1,9 @@
 package com.example.bdmi.navigation
 
 import android.util.Log
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AccountCircle
@@ -35,12 +38,16 @@ sealed class MainRoutes(val route: String) {
     // Main routes in the bottom and top bars
     @Serializable
     data object Home : MainRoutes(route = "home")
+
     @Serializable
     data object Search : MainRoutes(route = "search")
+
     @Serializable
     data object Bookmarks : MainRoutes(route = "bookmarks")
+
     @Serializable
     data object Profile : MainRoutes(route = "profile")
+
     @Serializable
     data object Notifications : MainRoutes(route = "notifications")
 
@@ -59,114 +66,125 @@ sealed class MainRoutes(val route: String) {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MainNestedNavGraph(rootNavController: NavHostController, navController: NavHostController, userViewModel: UserViewModel) {
+fun MainNestedNavGraph(
+    rootNavController: NavHostController,
+    navController: NavHostController,
+    userViewModel: UserViewModel
+) {
     Log.d("MainNestedNavGraph", "Reached MainNestedNavGraph")
 
-    NavHost(
-        navController = navController,
-        startDestination = MainRoutes.Home.route,
-        route = MainRoutes.Root.route
-    ) {
-
-        // Main routes
-        composable(MainRoutes.Search.route) { SearchScreen() }
-        composable(MainRoutes.Profile.route) {
-            ProfileScreen(
-                userViewModel = userViewModel,
-                onLogoutClick = {
-                    rootNavController.navigate(OnboardingRoutes.Root.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
-                navigateToUserSearch = {
-                    navController.navigate("friend_search")
-                },
-                navigateToFriends = {
-                    navController.navigate("friends")
-                }
-            )
-        }
-        composable(MainRoutes.Notifications.route) {
-            NotificationsScreen(
-                userViewModel = userViewModel,
-                onNavigateBack = { navController.navigateUp() }
-            )
-        }
-
-        composable(MainRoutes.Home.route) {
-            HomeScreen(
-                onMovieClick = { movieId ->
-                    navController.navigate("movie_detail/$movieId") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = MainRoutes.Home.route,
+            route = MainRoutes.Root.route
+        ) {
+            // Main routes
+            composable(MainRoutes.Search.route) { SearchScreen() }
+            composable(MainRoutes.Profile.route) {
+                ProfileScreen(
+                    userViewModel = userViewModel,
+                    onLogoutClick = {
+                        rootNavController.navigate(OnboardingRoutes.Root.route) {
+                            popUpTo(0) { inclusive = true }
                         }
-                        launchSingleTop = true
-                        restoreState = true
+                    },
+                    navigateToUserSearch = {
+                        navController.navigate("friend_search")
+                    },
+                    navigateToFriends = {
+                        navController.navigate("friends")
                     }
-                }
-            )
-        }
-
-        // Movie detail route
-        composable("movie_detail/{movieId}") { backStackEntry ->
-            val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
-            MovieDetailScreen(navController, userViewModel, movieId)
-        }
-
-
-        // Friend Journey
-        composable("friends") {
-            FriendListScreen(
-                userViewModel = userViewModel,
-                onNavigateBack = { navController.navigateUp() },
-                onProfileClick = { userId ->
-                    navController.navigate("user_profile/$userId") {
-                        restoreState = true
-                    }
-                }
-            )
-        }
-
-        composable("friend_search") {
-            FriendSearch(
-                onNavigateBack = { navController.navigateUp() },
-                onProfileClick = { userId ->
-                    navController.navigate("user_profile/$userId") {
-                        restoreState = true
-                    }
-                }
-            )
-        }
-
-        composable("user_profile/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            UserProfile(userId, userViewModel)
-        }
-
-        // Watchlist journey
-        composable(MainRoutes.Bookmarks.route) {
-            WatchlistsScreen(userViewModel) { (userId, listId)->
-                Log.d("WatchlistScreen", "Clicked on watchlist with userId: $userId, listId: $listId")
-                navController.navigate("watchlist/$userId/$listId")
+                )
             }
-        }
+            composable(MainRoutes.Notifications.route) {
+                NotificationsScreen(
+                    userViewModel = userViewModel,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
 
-        composable("watchlist/{userId}/{listId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            val listId = backStackEntry.arguments?.getString("listId") ?: ""
-            Log.d("WatchlistScreen", "Loading CustomListScreen with userId: $userId, listId: $listId")
-            CustomListScreen(
-                userViewModel = userViewModel,
-                listId = listId,
-                userId = userId,
-                onMovieClick = { movieId ->
-                    navController.navigate("movie_detail/$movieId") {
-                        launchSingleTop = true
+            composable(MainRoutes.Home.route) {
+                HomeScreen(
+                    onMovieClick = { movieId ->
+                        navController.navigate("movie_detail/$movieId") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                },
-                onNavigateBack = { navController.navigateUp() }
-            )
+                )
+            }
+
+            // Movie detail route
+            composable("movie_detail/{movieId}") { backStackEntry ->
+                val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
+                MovieDetailScreen(navController, userViewModel, movieId)
+            }
+
+            // Friend Journey
+            composable("friends") {
+                FriendListScreen(
+                    userViewModel = userViewModel,
+                    onNavigateBack = { navController.navigateUp() },
+                    onProfileClick = { userId ->
+                        navController.navigate("user_profile/$userId") {
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+
+            composable("friend_search") {
+                FriendSearch(
+                    onNavigateBack = { navController.navigateUp() },
+                    onProfileClick = { userId ->
+                        navController.navigate("user_profile/$userId") {
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+
+            composable("user_profile/{userId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                UserProfile(userId, userViewModel)
+            }
+
+            // Watchlist journey
+            composable(MainRoutes.Bookmarks.route) {
+                WatchlistsScreen(userViewModel) { (userId, listId) ->
+                    Log.d(
+                        "WatchlistScreen",
+                        "Clicked on watchlist with userId: $userId, listId: $listId"
+                    )
+                    navController.navigate("watchlist/$userId/$listId")
+                }
+            }
+
+            composable("watchlist/{userId}/{listId}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                val listId = backStackEntry.arguments?.getString("listId") ?: ""
+                Log.d(
+                    "WatchlistScreen",
+                    "Loading CustomListScreen with userId: $userId, listId: $listId"
+                )
+                CustomListScreen(
+                    userViewModel = userViewModel,
+                    listId = listId,
+                    userId = userId,
+                    onMovieClick = { movieId ->
+                        navController.navigate("movie_detail/$movieId") {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
         }
     }
 }
