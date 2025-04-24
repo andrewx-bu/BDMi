@@ -753,17 +753,38 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
                     bottom = MaterialTheme.dimens.large3
                 )
             )
-            Text(text = "COUNTRIES", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.dimens.medium1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDivider(
+                    Modifier
+                        .weight(0.25f)
+                        .padding(end = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = "COUNTRIES",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                HorizontalDivider(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
 
         items(details.productionCountries) { country ->
             HorizontalDivider()
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(25.dp)
+                    .height(MaterialTheme.dimens.countryColumnHeight)
                     .clickable { /* TODO: Move to Country Screen */ },
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -778,13 +799,34 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
                     modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
                 )
             }
-
             Spacer(Modifier.height(MaterialTheme.dimens.small2))
         }
 
         item {
             HorizontalDivider(Modifier.padding(bottom = MaterialTheme.dimens.large3))
-            Text(text = "STUDIOS", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.dimens.medium1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDivider(
+                    Modifier
+                        .weight(0.25f)
+                        .padding(end = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = "STUDIOS",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                HorizontalDivider(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
 
         items(details.productionCompanies) { studio ->
@@ -835,21 +877,105 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
         }
 
-        if (providers == null) return@LazyColumn;
+        if (providers == null) return@LazyColumn
         item {
-            HorizontalDivider()
-            val usProviders = providers.results.us
-            usProviders?.let { p ->
-                Text(
-                    "Rent: " + (p.rent.takeIf { it.isNotEmpty() }
-                        ?.joinToString(", ") { it.providerName }
-                        ?: "None")
+            HorizontalDivider(
+                modifier = Modifier.padding(
+                    top = MaterialTheme.dimens.small2,
+                    bottom = MaterialTheme.dimens.large3
+                )
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.dimens.medium1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalDivider(
+                    Modifier
+                        .weight(0.25f)
+                        .padding(end = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
-                    "Buy: " + (p.buy.takeIf { it.isNotEmpty() }
-                        ?.joinToString(", ") { it.providerName }
-                        ?: "None")
+                    text = "WATCH PROVIDERS",
+                    style = MaterialTheme.typography.titleMedium,
                 )
+                HorizontalDivider(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = MaterialTheme.dimens.small3),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+
+        val usProviders = providers.results.us
+        usProviders?.let { p ->
+            item {
+                Text(
+                    text = "RENT",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                HorizontalDivider(Modifier.padding(vertical = MaterialTheme.dimens.small2))
+            }
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2),
+                ) {
+                    items(p.rent) { prov ->
+                        val logoURL = ImageURLHelper.getURL(prov.logoPath, width = 200)
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(logoURL)
+                                .crossfade(true)
+                                .build(),
+                            placeholder = painterResource(R.drawable.broken_icon),
+                            error = painterResource(R.drawable.broken_icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(75.dp)
+                                .padding(MaterialTheme.dimens.medium1)
+                                .clip(
+                                    CircleShape
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = "BUY",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                HorizontalDivider(Modifier.padding(vertical = MaterialTheme.dimens.small2))
+            }
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2),
+                ) {
+                    items(p.rent) { prov ->
+                        val logoURL = ImageURLHelper.getURL(prov.logoPath, width = 200)
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(logoURL)
+                                .crossfade(true)
+                                .build(),
+                            placeholder = painterResource(R.drawable.broken_icon),
+                            error = painterResource(R.drawable.broken_icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(75.dp)
+                                .padding(MaterialTheme.dimens.medium1)
+                                .clip(
+                                    CircleShape
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
             }
         }
     }
