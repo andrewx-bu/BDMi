@@ -172,3 +172,30 @@ data class Image(
     @Json(name = "vote_count") val voteCount: Int,
     @Json(name = "width") val width: Int
 )
+
+// Watch providers endpoint
+@JsonClass(generateAdapter = true)
+data class WatchProvidersResponse(
+    @Json(name = "id") val id: Int,
+    @Json(name = "results") val results: WatchProvidersResults
+)
+
+@JsonClass(generateAdapter = true)
+data class WatchProvidersResults(
+    @Json(name = "US") val us: WatchProviderCountry? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class WatchProviderCountry(
+    @Json(name = "link") val link: String,
+    @Json(name = "rent") val rent: List<Provider> = emptyList(),
+    @Json(name = "buy") val buy: List<Provider> = emptyList(),
+)
+
+@JsonClass(generateAdapter = true)
+data class Provider(
+    @Json(name = "provider_id") val providerId: Int,
+    @Json(name = "provider_name") val providerName: String,
+    @Json(name = "logo_path") val logoPath: String,
+    @Json(name = "display_priority") val displayPriority: Int
+)

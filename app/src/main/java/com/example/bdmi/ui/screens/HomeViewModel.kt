@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.api.Movie
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.data.api.WatchProvidersResponse
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +28,7 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
     data class DetailUIState(
         override val isLoading: Boolean = false,
         val details: MovieDetails? = null,
+        val providers: WatchProvidersResponse? = null,
         override val error: APIError? = null
     ) : UIState
 
@@ -73,14 +76,33 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             _detailUIState.update { it.copy(isLoading = true, error = null) }
             // Simulate Network Delay
             delay(1000)
-            movieRepo.getMovieDetails(movieId).fold(
+
+            // Start API calls in parallel
+            val detailsDeferred = async { movieRepo.getMovieDetails(movieId) }
+            val providersDeferred = async { movieRepo.getWatchProviders(movieId) }
+
+            val detailsResult = detailsDeferred.await()
+            val providersResult = providersDeferred.await()
+
+            detailsResult.fold(
                 onSuccess = { details ->
-                    _detailUIState.update { it.copy(details = details, isLoading = false) }
+                    _detailUIState.update { it.copy(details = details) }
                 },
                 onFailure = { e ->
-                    _detailUIState.update { it.copy(error = e.toAPIError(), isLoading = false) }
+                    _detailUIState.update { it.copy(error = e.toAPIError()) }
                 }
             )
+
+            providersResult.fold(
+                onSuccess = { providers ->
+                    _detailUIState.update { it.copy(providers = providers) }
+                },
+                onFailure = { e ->
+                    _detailUIState.update { it.copy(error = e.toAPIError()) }
+                }
+            )
+
+            _detailUIState.update { it.copy(isLoading = false) }
         }
     }
 }
