@@ -50,12 +50,7 @@ data class Dimens(
     val chipBorderWidth: Dp,
     val personRowHeight: Dp,
     val personColumnHeight: Dp,
-
-    // Offsets / Alignment
-    val loadingOffset: Dp
 )
-
-// TODO: Add dimens for Compact devices
 
 val MediumDimens = Dimens(
     // Spacing
@@ -104,9 +99,6 @@ val MediumDimens = Dimens(
     chipBorderWidth = 2.dp,
     personRowHeight = 75.dp,
     personColumnHeight = 550.dp,
-
-    // Offsets / Alignment
-    loadingOffset = 35.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -147,5 +139,4 @@ val ExpandedDimens = Dimens(
     chipBorderWidth = 0.dp,
     personRowHeight = 0.dp,
     personColumnHeight = 0.dp,
-    loadingOffset = 0.dp
 )

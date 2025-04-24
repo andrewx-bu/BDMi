@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -75,8 +74,8 @@ import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.CastMember
 import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.ImageURLHelper
-import com.example.bdmi.data.api.ImagesResponse
 import com.example.bdmi.data.api.MovieDetails
+import com.example.bdmi.data.api.MoviesResponse
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.MediaItem
@@ -117,7 +116,9 @@ fun MovieDetailScreen(
     when {
         error != null -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = MaterialTheme.dimens.medium2),
                 contentAlignment = Alignment.Center
             ) {
                 ErrorMessage(
@@ -129,9 +130,7 @@ fun MovieDetailScreen(
 
         isLoading -> {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset(y = MaterialTheme.dimens.loadingOffset),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -430,7 +429,7 @@ fun MovieDescription(details: MovieDetails) {
 }
 
 // Review Carousel
-// TODO: Randomize Reviews pulled.
+// TODO: Prioritize Friend Reviews.
 // TODO: Make Reviews clickable.
 @Composable
 fun ReviewCarousel(reviews: List<String>) {
@@ -479,7 +478,7 @@ fun ReviewCarousel(reviews: List<String>) {
             val reviewIndex = page % reviews.size
             ReviewCard(
                 text = reviews[reviewIndex],
-                rating = 2.5f,
+                rating = 5f,
                 liked = true,
                 username = "Steve"
             )
@@ -501,7 +500,7 @@ fun ReviewCarousel(reviews: List<String>) {
 
 @Composable
 fun BottomSection(details: MovieDetails) {
-    val tabs = listOf("CAST", "CREW", "DETAILS", "GALLERY")
+    val tabs = listOf("CAST", "CREW", "DETAILS", "EXPLORE")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     // Segmented Tabs
@@ -542,7 +541,7 @@ fun BottomSection(details: MovieDetails) {
         0 -> CastSection(details.credits.cast)
         1 -> CrewSection(details.credits.crew)
         2 -> DetailsSection(details)
-        3 -> GallerySection(details.images)
+        3 -> ExploreSection(details.similar, details.recommendations)
     }
 }
 
@@ -719,11 +718,24 @@ private fun CrewSection(crew: List<CrewMember>) {
 
 @Composable
 private fun DetailsSection(details: MovieDetails) {
-    Text("A")
+    Text("Budget: \$${details.budget}")
+    Text("Revenue: \$${details.revenue}")
+    Text(
+        "Countries: " +
+                details.productionCountries.joinToString(separator = ", ") { it.name }
+    )
+    Text(
+        "Languages: " +
+                details.spokenLanguages.joinToString(separator = ", ") { it.englishName }
+    )
+    Text(
+        "Studios: " +
+                details.productionCompanies.joinToString(separator = ", ") { it.name }
+    )
 }
 
 @Composable
-private fun GallerySection(backdrops: ImagesResponse) {
+private fun ExploreSection(similar: MoviesResponse, recommended: MoviesResponse) {
     Text("A")
 }
 

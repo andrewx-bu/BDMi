@@ -1,7 +1,5 @@
 package com.example.bdmi.ui.theme
 
-import android.widget.Scroller
-
 data class UIConstants(
     // Home Screen
     val movieColumns: Int,
@@ -14,8 +12,6 @@ data class UIConstants(
     val reviewMaxLines: Int,
     val reviewScrollDelay: Long,
 )
-
-// TODO: Add constants for Compact devices
 
 val MediumUIConstants = UIConstants(
     movieColumns = 3,

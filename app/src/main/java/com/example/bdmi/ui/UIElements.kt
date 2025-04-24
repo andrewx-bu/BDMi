@@ -7,8 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,9 +20,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.StarHalf
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -41,6 +47,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.valentinilk.shimmer.LocalShimmerTheme
@@ -98,16 +105,40 @@ fun GenreChip(name: String, onClick: () -> Unit) {
 // Dots for ReviewCarousel in MovieDetail screen
 @Composable
 fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(MaterialTheme.dimens.small2),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(end = MaterialTheme.dimens.medium2)
     ) {
-        for (i in 0 until numDots) {
-            Dot(index = i, isSelected = i == currentIndex, onDotClick)
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 0 until numDots) {
+                Dot(index = i, isSelected = i == currentIndex, onDotClick)
+                if (i != numDots - 1) {
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
+                }
+            }
+        }
+
+        Button(
+            onClick = { /* TODO: Move to Reviews Screen */ },
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .width(MaterialTheme.dimens.buttonWidthSmall)
+                .height(MaterialTheme.dimens.buttonHeightSmall),
+            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.small1),
+            shape = RoundedCornerShape(MaterialTheme.dimens.medium2),
+            colors = ButtonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
+            )
+        ) {
+            Text(text = "See More")
         }
     }
 }
@@ -200,18 +231,31 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
-            // Username and Profile Photo
-            Text(
-                text = username,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Box(
+                modifier = Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = username,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    // Show Icon if is Friend
+                    Icon(
+                        imageVector = Icons.Default.Group,
+                        contentDescription = "Friend",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(MaterialTheme.dimens.iconSmall)
+                    )
+                }
+            }
             Spacer(Modifier.width(MaterialTheme.dimens.small3))
             Box(
                 modifier = Modifier
                     .size(MaterialTheme.dimens.iconLarge)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onBackground)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
                     .clickable { /* TODO: Implement */ }
             )
         }

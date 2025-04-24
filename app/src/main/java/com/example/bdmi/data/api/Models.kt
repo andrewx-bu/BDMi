@@ -37,6 +37,7 @@ data class MovieDetails(
     @Json(name = "genres") val genres: List<Genre>,
     @Json(name = "homepage") val homepage: String?,
     @Json(name = "id") val id: Int,
+    @Json(name = "imdb_id") val imdbid: String?,
     @Json(name = "original_language") val originalLanguage: String,
     @Json(name = "original_title") val originalTitle: String,
     @Json(name = "overview") val overview: String,
@@ -128,14 +129,11 @@ data class VideosResponse(
 
 @JsonClass(generateAdapter = true)
 data class Video(
-    @Json(name = "name") val name: String,
     @Json(name = "key") val key: String,
     @Json(name = "site") val site: String,
-    @Json(name = "size") val size: Int,
     @Json(name = "type") val type: String,
     @Json(name = "official") val official: Boolean,
     @Json(name = "published_at") val publishedAt: String,
-    @Json(name = "id") val id: String
 )
 
 // Release Dates endpoint
