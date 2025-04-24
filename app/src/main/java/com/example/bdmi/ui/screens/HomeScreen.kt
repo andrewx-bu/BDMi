@@ -19,8 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.data.api.Movie
+import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.ui.ErrorMessage
+import com.example.bdmi.ui.composables.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
@@ -49,7 +50,9 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
         when {
             uiState.error != null -> {
-                ErrorMessage(message = uiState.error.toString(), onRetry = { viewModel.refreshHome() })
+                ErrorMessage(
+                    message = uiState.error.toString(),
+                    onRetry = { viewModel.refreshHome() })
             }
 
             uiState.isLoading -> {

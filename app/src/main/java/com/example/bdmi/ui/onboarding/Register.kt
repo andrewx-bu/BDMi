@@ -38,7 +38,9 @@ fun RegisterScreen(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().padding(10.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
     ) {
         TextField(
             value = email,
@@ -69,12 +71,13 @@ fun RegisterScreen(
                     "displayName" to displayName,
                     "password" to hashPassword(password),
                 )
-                userViewModel.register(userInfo) { userInfo ->
-                    if (userInfo != null) {
+                userViewModel.register(userInfo) { uInfo ->
+                    if (uInfo != null) {
                         Log.d(TAG, "Register successful")
                         // Saves user ID to shared preferences
-                        val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-                        sharedPreferences.edit { putString("userId", userInfo.userId) }
+                        val sharedPreferences =
+                            context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+                        sharedPreferences.edit { putString("userId", uInfo.userId) }
                         onRegisterClick()
                     } else {
                         Log.d(TAG, "Register failed")

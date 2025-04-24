@@ -127,7 +127,7 @@ class UserRepository @Inject constructor(
                     val profileInfo = profileDoc.toObject(UserInfo::class.java)
                     Log.d("$TAG$dbFunction", "Profile found")
                     onComplete(profileInfo)
-                    } else {
+                } else {
                     Log.d("$TAG$dbFunction", "No profile found")
                     onComplete(null)
                 }
@@ -246,22 +246,26 @@ class UserRepository @Inject constructor(
     * Documentation is really bad so following this repository from 5 years ago:
     * https://github.com/riyhs/Android-Kotlin-Cloudinary-Example */
     private fun uploadImage(imageUri: Uri, onComplete: (String?) -> Unit) {
-        var imageUrl: String? = null
+        var imageUrl: String?
         mediaManager.upload(imageUri).callback(object : UploadCallback {
             override fun onStart(requestId: String) {
                 Log.d("Cloudinary", "Upload started")
             }
+
             override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
             }
+
             override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
                 Log.d("Cloudinary", "Upload successful")
                 imageUrl = resultData?.get("secure_url") as String?
                 Log.d("Cloudinary", "URL: $imageUrl")
                 onComplete(imageUrl)
             }
+
             override fun onError(requestId: String, error: ErrorInfo) {
                 Log.e("Cloudinary", "Upload error: ${error.description}")
             }
+
             override fun onReschedule(requestId: String, error: ErrorInfo) {
             }
         }).dispatch()

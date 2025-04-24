@@ -37,7 +37,9 @@ fun LoginScreen(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().padding(10.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
     ) {
         TextField(
             value = email,
@@ -64,7 +66,8 @@ fun LoginScreen(
                 userViewModel.login(loginInfo) { userInfo ->
                     if (userInfo != null) {
                         // Saves user ID to shared preferences
-                        val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+                        val sharedPreferences =
+                            context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
                         sharedPreferences.edit { putString("userId", userInfo.userId) }
 
                         onLoginClick()

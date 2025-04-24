@@ -44,12 +44,12 @@ class FriendRepository @Inject constructor(
     }
 
     // Returns a list of friendInfo objects for users with a specified displayName
-    fun searchUsers (
+    fun searchUsers(
         displayName: String,
         onComplete: (List<ProfileBanner>) -> Unit
     ) {
         val dbFunction = "sendFriendInvite"
-        var userList = mutableListOf<ProfileBanner>()
+        val userList = mutableListOf<ProfileBanner>()
         db.collection(PUBLIC_PROFILES_COLLECTION)
             .whereEqualTo("displayName", displayName)
             .get()
@@ -86,15 +86,20 @@ class FriendRepository @Inject constructor(
                 isPublic = sender.isPublic
             )
         )
-        val recipientRef = db.collection(USERS_COLLECTION).document(recipientId).collection(NOTIFICATIONS_SUBCOLLECTION)
+        val recipientRef = db.collection(USERS_COLLECTION).document(recipientId)
+            .collection(NOTIFICATIONS_SUBCOLLECTION)
         recipientRef
             .add(newNotification)
             .addOnSuccessListener { documentReference ->
                 Log.d("$TAG$dbFunction", "Friend invite sent successfully")
-                documentReference.update("notificationId", documentReference.id) // Set the notificationId
+                documentReference.update(
+                    "notificationId",
+                    documentReference.id
+                ) // Set the notificationId
 
                 // Adds the recipients id to the senders outgoing request subcollection
-                val senderRef = db.collection(USERS_COLLECTION).document(sender.userId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+                val senderRef = db.collection(USERS_COLLECTION).document(sender.userId)
+                    .collection(OUTGOING_REQUESTS_SUBCOLLECTION)
                 val outgoingRequest = mapOf(
                     "userId" to recipientId,
                     "timestamp" to Timestamp.now(),
@@ -122,10 +127,12 @@ class FriendRepository @Inject constructor(
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
         val friendRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(friendId)
         val userFriendsRef =
-            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION).document(friendId)
+            db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
+                .document(friendId)
         val friendFriendsRef =
-            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION).document(userId)
-        var userInfo: ProfileBanner? = null
+            db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
+                .document(userId)
+        var userInfo: ProfileBanner?
         var friendInfo: ProfileBanner? = null
 
         db.runTransaction { transaction ->
@@ -163,13 +170,15 @@ class FriendRepository @Inject constructor(
             transaction.set(friendFriendsRef, userInfo)
 
             // Increment friend counts for both profiles
-            transaction.update(userRef, "friendCount", FieldValue.increment(1)
+            transaction.update(
+                userRef, "friendCount", FieldValue.increment(1)
             ) // Copilot assisted with these 2 lines
             transaction.update(friendRef, "friendCount", FieldValue.increment(1))
 
             // Remove outgoing requests from friends outgoing request subcollection
             val outgoingRequestsRef =
-                db.collection(USERS_COLLECTION).document(friendId).collection(OUTGOING_REQUESTS_SUBCOLLECTION).document(userId)
+                db.collection(USERS_COLLECTION).document(friendId)
+                    .collection(OUTGOING_REQUESTS_SUBCOLLECTION).document(userId)
             transaction.delete(outgoingRequestsRef)
 
         }.addOnSuccessListener {
@@ -203,7 +212,8 @@ class FriendRepository @Inject constructor(
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "declineInvite"
-        db.collection(USERS_COLLECTION).document(friendId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+        db.collection(USERS_COLLECTION).document(friendId)
+            .collection(OUTGOING_REQUESTS_SUBCOLLECTION)
             .document(userId)
             .delete()
             .addOnSuccessListener {
@@ -267,7 +277,11 @@ class FriendRepository @Inject constructor(
      * First checks if the two users are friends
      * Then checks if the currentUser has already sent a friend request to the userId of the visiting profile
      */
-    fun getFriendStatus(currentUserId: String, friendId: String, onComplete: (FriendStatus) -> Unit) {
+    fun getFriendStatus(
+        currentUserId: String,
+        friendId: String,
+        onComplete: (FriendStatus) -> Unit
+    ) {
         val dbFunction = "getFriendStatus"
         // First check if the currentUser and userId of the visiting profile are friends
         db.collection(USERS_COLLECTION).document(currentUserId).collection(FRIENDS_SUBCOLLECTION)
@@ -275,28 +289,32 @@ class FriendRepository @Inject constructor(
             .limit(1)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                    if (!querySnapshot.isEmpty) {
-                        onComplete(FriendStatus.FRIEND)
-                    } else {
-                        // Check if the currentUser has sent a friend request to the userId of the visiting profile
-                        db.collection(USERS_COLLECTION).document(currentUserId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
-                            .whereEqualTo("userId", friendId)
-                            .limit(1)
-                            .get()
-                            .addOnSuccessListener { querySnapshot ->
-                                    Log.d("$TAG$dbFunction", "Friend status query snapshot: ${querySnapshot.documents}")
-                                    if (!querySnapshot.documents.isEmpty()) {
-                                        onComplete(FriendStatus.PENDING)
-                                    } else {
-                                        onComplete(FriendStatus.NOT_FRIENDS)
-                                    }
-                                }
-                            .addOnFailureListener { e ->
-                                Log.e("$TAG$dbFunction", "Error getting friend status", e)
+                if (!querySnapshot.isEmpty) {
+                    onComplete(FriendStatus.FRIEND)
+                } else {
+                    // Check if the currentUser has sent a friend request to the userId of the visiting profile
+                    db.collection(USERS_COLLECTION).document(currentUserId)
+                        .collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+                        .whereEqualTo("userId", friendId)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { qS ->
+                            Log.d(
+                                "$TAG$dbFunction",
+                                "Friend status query snapshot: ${qS.documents}"
+                            )
+                            if (qS.documents.isNotEmpty()) {
+                                onComplete(FriendStatus.PENDING)
+                            } else {
                                 onComplete(FriendStatus.NOT_FRIENDS)
                             }
-                    }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("$TAG$dbFunction", "Error getting friend status", e)
+                            onComplete(FriendStatus.NOT_FRIENDS)
+                        }
                 }
+            }
             .addOnFailureListener { e ->
                 Log.e("$TAG$dbFunction", "Error getting friend status", e)
                 onComplete(FriendStatus.NOT_FRIENDS)
@@ -315,7 +333,8 @@ class FriendRepository @Inject constructor(
     ) {
         val dbFunction = "cancelFriendRequest"
 
-        db.collection(USERS_COLLECTION).document(currentUserId).collection(OUTGOING_REQUESTS_SUBCOLLECTION)
+        db.collection(USERS_COLLECTION).document(currentUserId)
+            .collection(OUTGOING_REQUESTS_SUBCOLLECTION)
             .whereEqualTo("userId", friendId)
             .limit(1)
             .get()
@@ -328,8 +347,8 @@ class FriendRepository @Inject constructor(
                     .whereEqualTo("type", "friend_request")
                     .whereEqualTo("data.userId", currentUserId)
                     .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        for (document in querySnapshot.documents) {
+                    .addOnSuccessListener { qS ->
+                        for (document in qS.documents) {
                             document.reference.delete()
                         }
                         Log.d("$TAG$dbFunction", "Friend request cancelled successfully")
@@ -339,10 +358,10 @@ class FriendRepository @Inject constructor(
                         Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
                         onComplete(false)
                     }
-        }.addOnFailureListener { e ->
-            Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
-            onComplete(false)
-        }
+            }.addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
+                onComplete(false)
+            }
     }
 
     private fun userToProfileBanner(userInfo: UserInfo): ProfileBanner {

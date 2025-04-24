@@ -154,8 +154,7 @@ class UserViewModel @Inject constructor(
                     _tempImageURI.value = null
                     Log.d("UserViewModel", "Updated user info: ${_userInfo.value}")
                     onComplete(true)
-                }
-                else {
+                } else {
                     Log.e("UserViewModel", "Failed to update profile picture")
                     onComplete(false)
                 }

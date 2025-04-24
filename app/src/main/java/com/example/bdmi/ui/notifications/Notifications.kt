@@ -134,10 +134,11 @@ fun NotificationList(modifier: Modifier = Modifier, userId: String?) {
 @Composable
 fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
-    val sharedPreferences = LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
+    val sharedPreferences =
+        LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getString("userId", null)
-    var isRead by remember { mutableStateOf(notification.read) }
-    var cardVisibility = if (isRead) 0.6f else 1f
+    val isRead by remember { mutableStateOf(notification.read) }
+    val cardVisibility = if (isRead) 0.6f else 1f
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = RoundedCornerShape(5.dp),
@@ -146,7 +147,10 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             .fillMaxWidth()
             .padding(10.dp)
             .clickable(enabled = !isRead) {
-                notificationViewModel.readNotification(userId.toString(), notification.notificationId)
+                notificationViewModel.readNotification(
+                    userId.toString(),
+                    notification.notificationId
+                )
             }
             .graphicsLayer(alpha = cardVisibility)
     ) {
@@ -154,7 +158,7 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             "friend_request" -> "Friend Request"
             else -> "Unknown"
         }
-        Row (
+        Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier.fillMaxWidth()
@@ -168,7 +172,10 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
             // Delete a notification
             IconButton(
                 onClick = {
-                    notificationViewModel.deleteNotification(userId.toString(), notification.notificationId)
+                    notificationViewModel.deleteNotification(
+                        userId.toString(),
+                        notification.notificationId
+                    )
                 }
             ) {
                 Icon(
@@ -186,7 +193,11 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 
         Column {
             when (notification.type) {
-                "friend_request" -> FriendRequestNotification(notification.notificationId, notification.data as NotificationType.FriendRequest, userId)
+                "friend_request" -> FriendRequestNotification(
+                    notification.notificationId,
+                    notification.data as NotificationType.FriendRequest,
+                    userId
+                )
                 // Add more notification types here
             }
         }
@@ -195,14 +206,20 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 }
 
 @Composable
-fun FriendRequestNotification(notificationId: String, data: NotificationType.FriendRequest, userId: String?) {
+fun FriendRequestNotification(
+    notificationId: String,
+    data: NotificationType.FriendRequest,
+    userId: String?
+) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     Row(
-        modifier = Modifier.fillMaxWidth().padding(5.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -239,7 +256,7 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
             }
         }
         if (!data.responded) {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.End,
                 modifier = Modifier.padding()
@@ -253,13 +270,18 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
                                 Log.d("NotificationItem", "Error accepting invite")
                             }
                         }
-                        notificationViewModel.friendRequestResponse(userId.toString(), notificationId)
+                        notificationViewModel.friendRequestResponse(
+                            userId.toString(),
+                            notificationId
+                        )
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = Color.Green,
                         contentColor = Color.Black
                     ),
-                    modifier = Modifier.clip(CircleShape).size(30.dp)
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(30.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
@@ -271,13 +293,18 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
                 IconButton(
                     onClick = {
                         notificationViewModel.deleteNotification(userId.toString(), notificationId)
-                        notificationViewModel.friendRequestResponse(userId.toString(), notificationId)
+                        notificationViewModel.friendRequestResponse(
+                            userId.toString(),
+                            notificationId
+                        )
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = Color.Red,
                         contentColor = Color.Black
                     ),
-                    modifier = Modifier.clip(CircleShape).size(30.dp)
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(30.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -291,7 +318,7 @@ fun FriendRequestNotification(notificationId: String, data: NotificationType.Fri
 
 @Composable
 fun UserStats(text: String, stat: String) {
-    Column (
+    Column(
         modifier = Modifier.padding(end = 10.dp),
         horizontalAlignment = Alignment.Start
     ) {

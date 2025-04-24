@@ -78,12 +78,12 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.bdmi.R
 import com.example.bdmi.UserViewModel
-import com.example.bdmi.data.api.CastMember
-import com.example.bdmi.data.api.CrewMember
-import com.example.bdmi.data.api.ImageURLHelper
-import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.api.MoviesResponse
-import com.example.bdmi.data.api.WatchProvidersResponse
+import com.example.bdmi.data.api.models.CastMember
+import com.example.bdmi.data.api.models.CrewMember
+import com.example.bdmi.data.utils.ImageURLHelper
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.api.models.MoviesResponse
+import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.MediaItem
@@ -94,6 +94,7 @@ import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.GenreChip
 import com.example.bdmi.ui.ReviewCard
 import com.example.bdmi.ui.ShimmeringDivider
+import com.example.bdmi.ui.composables.MoviePoster
 import com.example.bdmi.ui.fadingEdge
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer

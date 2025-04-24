@@ -21,6 +21,7 @@ sealed class NotificationType {
         val isPublic: Boolean? = true,
         val responded: Boolean = false
     ) : NotificationType()
-    object Message : NotificationType()
-    object Review : NotificationType()
+
+    data object Message : NotificationType()
+    data object Review : NotificationType()
 }

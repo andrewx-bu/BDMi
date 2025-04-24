@@ -14,7 +14,11 @@ import com.example.bdmi.ui.theme.AppTheme
 import com.example.bdmi.UserViewModel
 
 @Composable
-fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewModel: UserViewModel) {
+fun RootNavGraph(
+    navController: NavHostController,
+    loggedIn: Boolean,
+    userViewModel: UserViewModel
+) {
     val startDestination = if (loggedIn) {
         MainRoutes.Root.route
     } else {

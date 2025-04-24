@@ -6,7 +6,7 @@ import java.io.IOException
 sealed class APIError {
     abstract val message: String
 
-    data class EmptyResponseError(override val message: String = "No items found"): APIError() {
+    data class EmptyResponseError(override val message: String = "No items found") : APIError() {
         override fun toString() = message
     }
 
@@ -34,6 +34,7 @@ fun Throwable.toAPIError(): APIError {
             }
             APIError.ServerError(this.code(), errorMessage)
         }
+
         else -> APIError.GenericError("An unexpected error occurred")
     }
 }

@@ -1,6 +1,9 @@
 package com.example.bdmi.data.api
 
 import com.example.bdmi.BuildConfig
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.api.models.MoviesResponse
+import com.example.bdmi.data.api.models.WatchProvidersResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

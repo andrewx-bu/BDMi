@@ -36,12 +36,11 @@ private const val TAG = "ProfileScreen"
 @Composable
 fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
     val friendViewModel: FriendViewModel = hiltViewModel()
-    var currentUser = userViewModel.userInfo.collectAsState()
-    var profileInfo = friendViewModel.friendProfile.collectAsState()
-    var friendButtonState = friendViewModel.friendState.collectAsState()
+    val currentUser = userViewModel.userInfo.collectAsState()
+    val profileInfo = friendViewModel.friendProfile.collectAsState()
+    val friendButtonState = friendViewModel.friendState.collectAsState()
     LaunchedEffect(profileUserId) {
-        friendViewModel.loadProfile(profileUserId) { userInfo ->
-        }
+        friendViewModel.loadProfile(profileUserId) {}
         friendViewModel.getFriendStatus(currentUser.value?.userId.toString(), profileUserId)
     }
 
@@ -71,14 +70,24 @@ fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
                 Text(
                     text = profileInfo.value?.friendCount.toString() + " Friends"
                 )
-                FriendButton(friendButtonState.value, profileUserId, currentUser.value, friendViewModel)
+                FriendButton(
+                    friendButtonState.value,
+                    profileUserId,
+                    currentUser.value,
+                    friendViewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser: UserInfo?, friendViewModel: FriendViewModel) {
+fun FriendButton(
+    friendStatus: FriendStatus?,
+    profileUserId: String,
+    currentUser: UserInfo?,
+    friendViewModel: FriendViewModel
+) {
     when (friendStatus) {
         FriendStatus.FRIEND -> {
             IconButton(
@@ -100,6 +109,7 @@ fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser
                 Icon(imageVector = Icons.Default.Close, contentDescription = "Remove Friend")
             }
         }
+
         FriendStatus.PENDING -> {
             IconButton(
                 onClick = {
@@ -117,6 +127,7 @@ fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser
                 Icon(imageVector = Icons.Default.AccessTime, contentDescription = "Remove Friend")
             }
         }
+
         FriendStatus.NOT_FRIENDS -> {
             IconButton(
                 onClick = {
@@ -129,11 +140,11 @@ fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser
                             listCount = currentUser?.listCount,
                             reviewCount = currentUser?.reviewCount,
                             isPublic = currentUser?.isPublic
-                                ),
-                            recipientId = profileUserId,
-                            onComplete = {
-                                Log.d(TAG, "Friend invite sent: $it")
-                            }
+                        ),
+                        recipientId = profileUserId,
+                        onComplete = {
+                            Log.d(TAG, "Friend invite sent: $it")
+                        }
                     )
                 },
                 colors = IconButtonDefaults.iconButtonColors(
@@ -145,6 +156,7 @@ fun FriendButton(friendStatus: FriendStatus?, profileUserId: String, currentUser
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add Friend")
             }
         }
+
         else -> {
             Text(text = "Loading...")
         }

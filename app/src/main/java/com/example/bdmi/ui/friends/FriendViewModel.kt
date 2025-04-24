@@ -35,7 +35,7 @@ private const val TAG = "FriendViewModel"
 class FriendViewModel @Inject constructor(
     private val friendRepository: FriendRepository,
     private val userRepository: UserRepository
-): ViewModel() {
+) : ViewModel() {
     // List of friends for the current user
     private val _friends = MutableStateFlow<MutableList<ProfileBanner>>(mutableListOf())
     val friends: StateFlow<MutableList<ProfileBanner>?> = _friends.asStateFlow()
@@ -75,7 +75,11 @@ class FriendViewModel @Inject constructor(
 
     // Step 2: Send friend invite
     // Takes in the userId of the person you want to send the invite to and the userInfo of the person who sent the invite
-    fun sendFriendInvite(senderInfo: ProfileBanner, recipientId: String, onComplete: (Boolean) -> Unit) {
+    fun sendFriendInvite(
+        senderInfo: ProfileBanner,
+        recipientId: String,
+        onComplete: (Boolean) -> Unit
+    ) {
         Log.d(TAG, "Sending friend invite to user with ID: $recipientId")
         viewModelScope.launch {
             friendRepository.sendFriendInvite(senderInfo, recipientId) {
@@ -92,7 +96,7 @@ class FriendViewModel @Inject constructor(
         Log.d(TAG, "Removing friend with ID: $friendId")
 
         viewModelScope.launch {
-            friendRepository.removeFriend(userId, friendId) {
+            friendRepository.removeFriend(userId, friendId) { it ->
                 if (it) {
                     // Remove friend from list
                     _friends.value = _friends.value.toMutableList().apply {

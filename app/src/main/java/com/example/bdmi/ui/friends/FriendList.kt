@@ -33,7 +33,7 @@ fun FriendListScreen(
         friendViewModel.loadFriends(userId!!)
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Friend List") },
@@ -46,7 +46,9 @@ fun FriendListScreen(
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.padding(padding).fillMaxSize()
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
             items(friendList) { friend ->
                 ProfileCard(friend, onProfileClick)

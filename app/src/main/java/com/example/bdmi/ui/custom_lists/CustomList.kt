@@ -1,5 +1,6 @@
 package com.example.bdmi.ui.custom_lists
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,7 +59,7 @@ import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.ErrorMessage
-import com.example.bdmi.ui.screens.MoviePoster
+import com.example.bdmi.ui.composables.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
@@ -131,7 +132,9 @@ fun CustomListScreen(
 
             when {
                 uiState.error != null -> {
-                    ErrorMessage(message = uiState.error.toString(), onRetry = { customListViewModel.loadList(userId, listId) })
+                    ErrorMessage(
+                        message = uiState.error.toString(),
+                        onRetry = { customListViewModel.loadList(userId, listId) })
                 }
 
                 uiState.isLoading -> {
@@ -185,7 +188,7 @@ fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        items(mediaItems) { movie : MediaItem ->
+        items(mediaItems) { movie: MediaItem ->
             MediaListItem(
                 media = movie,
                 onMovieClick = onMovieClick
@@ -196,7 +199,7 @@ fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
 
 @Composable
 fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
-    Row (
+    Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
@@ -205,11 +208,11 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
             .fillMaxWidth()
             .height(75.dp)
     ) {
-            MoviePoster(
-                title = media.title,
-                posterPath = media.posterPath,
-                onClick = { onMovieClick(media.id) }
-            )
+        MoviePoster(
+            title = media.title,
+            posterPath = media.posterPath,
+            onClick = { onMovieClick(media.id) }
+        )
         Text(
             text = media.title,
             style = MaterialTheme.typography.titleMedium,
@@ -267,7 +270,8 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
                         description = description,
                         numOfItems = currentInfo.numOfItems,
                         timestamp = currentInfo.timestamp,
-                        isPublic = isPublic)
+                        isPublic = isPublic
+                    )
                     onClick(newInfo)
                     showDialog = false
                 }) {
@@ -291,6 +295,7 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
 
 // Custom Switch button for switching between grid and list view
 // ChatGPT helped with the horizontal sliding
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
     val switchWidth = 80.dp
@@ -322,7 +327,10 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
             .clickable { onToggle() }
             .width(switchWidth)
             .height(switchHeight)
-            .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(roundedCorner))
+            .background(
+                MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(roundedCorner)
+            )
             .clip(RoundedCornerShape(roundedCorner))
     ) {
         Surface(
@@ -346,13 +354,17 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
                 imageVector = Icons.Default.GridView,
                 contentDescription = "Grid View",
                 tint = if (isGridView) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.weight(1f).size(switchHeight*.7f)
+                modifier = Modifier
+                    .weight(1f)
+                    .size(switchHeight * .7f)
             )
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ViewList,
                 contentDescription = "List View",
                 tint = if (isGridView) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f).size(switchHeight*.9f)
+                modifier = Modifier
+                    .weight(1f)
+                    .size(switchHeight * .9f)
             )
         }
     }

@@ -3,9 +3,9 @@ package com.example.bdmi.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
-import com.example.bdmi.data.api.Movie
-import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.api.WatchProvidersResponse
+import com.example.bdmi.data.api.models.Movie
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
