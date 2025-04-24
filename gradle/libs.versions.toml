@@ -6,7 +6,6 @@ coilCompose = "3.1.0"
 coilComposeVersion = "2.6.0"
 composeShimmer = "1.3.2"
 converterMoshi = "2.11.0"
-coreAnimation = "1.0.0"
 firebaseBom = "33.12.0"
 firebaseFirestore = "25.1.3"
 jetpackLoading = "1.1.0"
@@ -34,8 +33,6 @@ material3WindowSizeClassAndroid = "1.3.2"
 
 [libraries]
 androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "animationCore" }
-androidx-animation-core-android = { module = "androidx.compose.animation:animation-core-android", version.ref = "animationCore" }
-androidx-core-animation = { module = "androidx.core:core-animation", version.ref = "coreAnimation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }

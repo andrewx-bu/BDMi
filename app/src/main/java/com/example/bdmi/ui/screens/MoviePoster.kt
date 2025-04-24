@@ -27,7 +27,7 @@ import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
 fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
-    val imageUrl = ImageURLHelper.getPosterURL(posterPath)
+    val imageUrl = ImageURLHelper.getURL(posterPath)
 
     Box(
         modifier = Modifier

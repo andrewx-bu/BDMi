@@ -60,7 +60,6 @@ data class MovieDetails(
     @Json(name = "release_dates") val releaseDates: ReleaseDatesResponse,
     @Json(name = "recommendations") val recommendations: MoviesResponse,
     @Json(name = "similar") val similar: MoviesResponse,
-    @Json(name = "images") val images: ImagesResponse
 )
 
 @JsonClass(generateAdapter = true)
@@ -74,10 +73,12 @@ data class ProductionCompany(
     @Json(name = "id") val id: Int,
     @Json(name = "logo_path") val logoPath: String?,
     @Json(name = "name") val name: String,
+    @Json(name = "origin_country") val country: String?
 )
 
 @JsonClass(generateAdapter = true)
 data class ProductionCountry(
+    @Json(name = "iso_3166_1") val iso31661: String,
     @Json(name = "name") val name: String
 )
 
@@ -154,25 +155,6 @@ data class ReleaseDate(
     @Json(name = "type") val type: Int
 )
 
-// Images endpoint
-@JsonClass(generateAdapter = true)
-data class ImagesResponse(
-    @Json(name = "backdrops") val backdrops: List<Image>,
-    @Json(name = "logos") val logos: List<Image>,
-    @Json(name = "posters") val posters: List<Image>
-)
-
-@JsonClass(generateAdapter = true)
-data class Image(
-    @Json(name = "aspect_ratio") val aspectRatio: Double,
-    @Json(name = "height") val height: Int,
-    @Json(name = "iso_639_1") val iso6391: String?,
-    @Json(name = "file_path") val filePath: String,
-    @Json(name = "vote_average") val voteAverage: Double,
-    @Json(name = "vote_count") val voteCount: Int,
-    @Json(name = "width") val width: Int
-)
-
 // Watch providers endpoint
 @JsonClass(generateAdapter = true)
 data class WatchProvidersResponse(
@@ -187,7 +169,6 @@ data class WatchProvidersResults(
 
 @JsonClass(generateAdapter = true)
 data class WatchProviderCountry(
-    @Json(name = "link") val link: String,
     @Json(name = "rent") val rent: List<Provider> = emptyList(),
     @Json(name = "buy") val buy: List<Provider> = emptyList(),
 )
@@ -197,5 +178,4 @@ data class Provider(
     @Json(name = "provider_id") val providerId: Int,
     @Json(name = "provider_name") val providerName: String,
     @Json(name = "logo_path") val logoPath: String,
-    @Json(name = "display_priority") val displayPriority: Int
 )

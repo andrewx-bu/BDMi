@@ -64,21 +64,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.example.bdmi.R
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.api.CastMember
 import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.ImageURLHelper
 import com.example.bdmi.data.api.MovieDetails
 import com.example.bdmi.data.api.MoviesResponse
+import com.example.bdmi.data.api.WatchProvidersResponse
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.MediaItem
+import com.example.bdmi.data.utils.formatAmount
+import com.example.bdmi.data.utils.toFlagEmoji
 import com.example.bdmi.ui.DotsIndicator
 import com.example.bdmi.ui.ErrorMessage
 import com.example.bdmi.ui.GenreChip
@@ -110,6 +117,7 @@ fun MovieDetailScreen(
     }
 
     val details = uiState.details
+    val providers = uiState.providers
     val error = uiState.error
     val isLoading = uiState.isLoading
 
@@ -205,7 +213,7 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    BottomSection(details = details)
+                    BottomSection(details = details, providers = providers)
                 }
             }
         }
@@ -499,7 +507,7 @@ fun ReviewCarousel(reviews: List<String>) {
 }
 
 @Composable
-fun BottomSection(details: MovieDetails) {
+fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?) {
     val tabs = listOf("CAST", "CREW", "DETAILS", "EXPLORE")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
@@ -540,7 +548,7 @@ fun BottomSection(details: MovieDetails) {
     when (selectedTab) {
         0 -> CastSection(details.credits.cast)
         1 -> CrewSection(details.credits.crew)
-        2 -> DetailsSection(details)
+        2 -> DetailsSection(details, providers)
         3 -> ExploreSection(details.similar, details.recommendations)
     }
 }
@@ -570,7 +578,7 @@ private fun CastSection(cast: List<CastMember>) {
             .height(MaterialTheme.dimens.personColumnHeight),
     ) {
         items(cast) { person ->
-            val portraitURL = ImageURLHelper.getPosterURL(person.profilePath)
+            val portraitURL = ImageURLHelper.getURL(person.profilePath)
             HorizontalDivider()
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
             Row(
@@ -583,6 +591,7 @@ private fun CastSection(cast: List<CastMember>) {
                     modifier = Modifier
                         .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
                         .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -658,7 +667,7 @@ private fun CrewSection(crew: List<CrewMember>) {
             .height(MaterialTheme.dimens.personColumnHeight),
     ) {
         items(uniqueCrew) { (person, jobs) ->
-            val portraitURL = ImageURLHelper.getPosterURL(person.profilePath)
+            val portraitURL = ImageURLHelper.getURL(person.profilePath)
             HorizontalDivider()
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
             Row(
@@ -679,7 +688,6 @@ private fun CrewSection(crew: List<CrewMember>) {
                         AsyncImage(
                             model = portraitURL,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
                     } else {
@@ -717,26 +725,104 @@ private fun CrewSection(crew: List<CrewMember>) {
 }
 
 @Composable
-private fun DetailsSection(details: MovieDetails) {
-    Text("Budget: \$${details.budget}")
-    Text("Revenue: \$${details.revenue}")
-    Text(
-        "Countries: " +
-                details.productionCountries.joinToString(separator = ", ") { it.name }
-    )
-    Text(
-        "Languages: " +
-                details.spokenLanguages.joinToString(separator = ", ") { it.englishName }
-    )
-    Text(
-        "Studios: " +
-                details.productionCompanies.joinToString(separator = ", ") { it.name }
-    )
+private fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium2)
+            .height(MaterialTheme.dimens.personColumnHeight),
+    ) {
+        item {
+            Text("Budget: \$${formatAmount((details.budget).toLong())}")
+            Text("Revenue: \$${formatAmount(details.revenue)}")
+            Text(
+                "Countries: " + details.productionCountries
+                    .joinToString { "${it.name} ${it.iso31661.toFlagEmoji()}" }
+            )
+            Text(
+                "Languages: " +
+                        details.spokenLanguages.joinToString { it.englishName }
+            )
+        }
+
+        items(details.productionCompanies) { studio ->
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(MaterialTheme.dimens.personRowHeight)
+                    .clickable { /* TODO: Move to Studio Screen */ },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val logoURL = ImageURLHelper.getURL(studio.logoPath, width = 200)
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.medium2))
+                        .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(logoURL)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(R.drawable.broken_icon),
+                        error = painterResource(R.drawable.broken_icon),
+                        contentDescription = null,
+                        modifier = Modifier.padding(MaterialTheme.dimens.small1),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                Spacer(Modifier.width(MaterialTheme.dimens.small2))
+
+                Text(
+                    text = studio.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                )
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+        }
+
+        item {
+            HorizontalDivider()
+            val usProviders = providers?.results?.us
+            usProviders?.let { p ->
+                Text(
+                    "Rent: " + (p.rent.takeIf { it.isNotEmpty() }
+                        ?.joinToString(", ") { it.providerName }
+                        ?: "None")
+                )
+                Text(
+                    "Buy: " + (p.buy.takeIf { it.isNotEmpty() }
+                        ?.joinToString(", ") { it.providerName }
+                        ?: "None")
+                )
+            }
+        }
+    }
 }
 
 @Composable
 private fun ExploreSection(similar: MoviesResponse, recommended: MoviesResponse) {
-    Text("A")
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimens.medium2)
+            .height(MaterialTheme.dimens.personColumnHeight),
+    ) {
+
+    }
 }
 
 // TODO: Integrate with outer scaffold
