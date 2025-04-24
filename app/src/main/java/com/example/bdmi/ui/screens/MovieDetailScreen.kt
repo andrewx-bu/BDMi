@@ -450,7 +450,7 @@ fun MovieDescription(details: MovieDetails) {
 }
 
 // Review Carousel
-// TODO: Randomize Reviews pulled
+// TODO: Randomize Reviews pulled. 5 Reviews
 @Composable
 fun ReviewCarousel(
     reviews: List<String>,
@@ -458,15 +458,9 @@ fun ReviewCarousel(
     onIndexChanged: (Int) -> Unit = {},
     autoScrollDelay: Long
 ) {
-    // Temporary workaround to fix live edit crashes
-    val reviewsPageCount: (List<String>) -> Int = List<String>::size
-    val pageCountLambda = remember(reviews) { { reviewsPageCount(reviews) } }
-
     val pagerState = rememberPagerState(
         initialPage = currentIndex,
-        pageCount = pageCountLambda,
-        // Replace with this for deployment
-        // pageCount = { reviews.size }
+        pageCount = { 5 }
     )
 
     val coroutineScope = rememberCoroutineScope()
