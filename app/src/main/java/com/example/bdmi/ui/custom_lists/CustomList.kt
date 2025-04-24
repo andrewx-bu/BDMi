@@ -58,7 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
-import com.example.bdmi.ui.ErrorMessage
+import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants

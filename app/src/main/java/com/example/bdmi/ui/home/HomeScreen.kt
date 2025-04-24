@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.api.models.Movie
-import com.example.bdmi.ui.ErrorMessage
+import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants

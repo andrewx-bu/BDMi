@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.home
 
 import android.content.Intent
 import androidx.compose.animation.animateContentSize
@@ -89,13 +89,13 @@ import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.data.utils.formatAmount
 import com.example.bdmi.data.utils.toFlagEmoji
-import com.example.bdmi.ui.DotsIndicator
-import com.example.bdmi.ui.ErrorMessage
-import com.example.bdmi.ui.GenreChip
-import com.example.bdmi.ui.ReviewCard
-import com.example.bdmi.ui.ShimmeringDivider
+import com.example.bdmi.ui.composables.DotsIndicator
+import com.example.bdmi.ui.composables.ErrorMessage
+import com.example.bdmi.ui.composables.GenreChip
+import com.example.bdmi.ui.composables.ReviewCard
+import com.example.bdmi.ui.composables.ShimmeringDivider
 import com.example.bdmi.ui.composables.MoviePoster
-import com.example.bdmi.ui.fadingEdge
+import com.example.bdmi.ui.composables.fadingEdge
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch

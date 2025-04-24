@@ -1,4 +1,4 @@
-package com.example.bdmi.ui
+package com.example.bdmi.ui.composables
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background

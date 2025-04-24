@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
