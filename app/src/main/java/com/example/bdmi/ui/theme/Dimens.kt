@@ -48,6 +48,8 @@ data class Dimens(
     val reviewCardHeight: Dp,
     val carouselDotSize: Dp,
     val chipBorderWidth: Dp,
+    val personRowHeight: Dp,
+    val personColumnHeight: Dp,
 
     // Offsets / Alignment
     val loadingOffset: Dp
@@ -100,6 +102,8 @@ val MediumDimens = Dimens(
     reviewCardHeight = 100.dp,
     carouselDotSize = 10.dp,
     chipBorderWidth = 2.dp,
+    personRowHeight = 75.dp,
+    personColumnHeight = 550.dp,
 
     // Offsets / Alignment
     loadingOffset = 35.dp
@@ -141,5 +145,7 @@ val ExpandedDimens = Dimens(
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
     chipBorderWidth = 0.dp,
+    personRowHeight = 0.dp,
+    personColumnHeight = 0.dp,
     loadingOffset = 0.dp
 )
