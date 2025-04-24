@@ -62,11 +62,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -213,6 +216,7 @@ fun MovieDetailScreen(
                 }
 
                 item {
+                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
                     BottomSection(details = details, providers = providers)
                 }
             }
@@ -559,13 +563,16 @@ private fun CastSection(cast: List<CastMember>) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(MaterialTheme.dimens.personColumnHeight)
                 .padding(horizontal = MaterialTheme.dimens.medium2)
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "No cast data available",
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer),
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
         }
@@ -595,21 +602,16 @@ private fun CastSection(cast: List<CastMember>) {
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (portraitURL.isNotEmpty()) {
-                        AsyncImage(
-                            model = portraitURL,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "No portrait available",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
-                        )
-                    }
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(portraitURL)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = rememberVectorPainter(Icons.Default.Person),
+                        error = rememberVectorPainter(Icons.Default.Person),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
                 }
                 Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
                 Column {
@@ -635,13 +637,16 @@ private fun CrewSection(crew: List<CrewMember>) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(MaterialTheme.dimens.personColumnHeight)
                 .padding(horizontal = MaterialTheme.dimens.medium2)
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "No crew data available",
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer),
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
         }
@@ -684,20 +689,16 @@ private fun CrewSection(crew: List<CrewMember>) {
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (portraitURL.isNotEmpty()) {
-                        AsyncImage(
-                            model = portraitURL,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "No portrait available",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
-                        )
-                    }
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(portraitURL)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = rememberVectorPainter(Icons.Default.Person),
+                        error = rememberVectorPainter(Icons.Default.Person),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
                 }
                 Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
                 Column {
@@ -733,21 +734,61 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
             .height(MaterialTheme.dimens.personColumnHeight),
     ) {
         item {
-            Text("Budget: \$${formatAmount((details.budget).toLong())}")
-            Text("Revenue: \$${formatAmount(details.revenue)}")
+            HorizontalDivider(Modifier.padding(bottom = MaterialTheme.dimens.small2))
             Text(
-                "Countries: " + details.productionCountries
-                    .joinToString { "${it.name} ${it.iso31661.toFlagEmoji()}" }
+                text = "Budget: ${formatAmount(details.budget.toLong())}",
+                style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                "Languages: " +
-                        details.spokenLanguages.joinToString { it.englishName }
+                text = "Revenue: ${formatAmount(details.revenue)}",
+                style = MaterialTheme.typography.bodyLarge
             )
+            Text(
+                text = "Spoken Languages: " + details.spokenLanguages.joinToString { it.englishName },
+                style = MaterialTheme.typography.bodyLarge
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(
+                    top = MaterialTheme.dimens.small2,
+                    bottom = MaterialTheme.dimens.large3
+                )
+            )
+            Text(text = "COUNTRIES", style = MaterialTheme.typography.titleMedium)
+        }
+
+        items(details.productionCountries) { country ->
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(25.dp)
+                    .clickable { /* TODO: Move to Country Screen */ },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${country.iso31661.toFlagEmoji()} ${country.name}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                )
+            }
+
+            Spacer(Modifier.height(MaterialTheme.dimens.small2))
+        }
+
+        item {
+            HorizontalDivider(Modifier.padding(bottom = MaterialTheme.dimens.large3))
+            Text(text = "STUDIOS", style = MaterialTheme.typography.titleMedium)
         }
 
         items(details.productionCompanies) { studio ->
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
+            HorizontalDivider(Modifier.padding(bottom = MaterialTheme.dimens.small2))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -776,11 +817,11 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
                     )
                 }
 
-                Spacer(Modifier.width(MaterialTheme.dimens.small2))
+                Spacer(Modifier.width(MaterialTheme.dimens.small3))
 
                 Text(
                     text = studio.name,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
 
                 Spacer(Modifier.weight(1f))
@@ -794,9 +835,10 @@ private fun DetailsSection(details: MovieDetails, providers: WatchProvidersRespo
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.small2))
         }
 
+        if (providers == null) return@LazyColumn;
         item {
             HorizontalDivider()
-            val usProviders = providers?.results?.us
+            val usProviders = providers.results.us
             usProviders?.let { p ->
                 Text(
                     "Rent: " + (p.rent.takeIf { it.isNotEmpty() }

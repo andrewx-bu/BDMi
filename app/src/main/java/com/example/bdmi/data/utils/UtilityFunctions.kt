@@ -15,10 +15,11 @@ fun hashPassword(password: String): String {
 fun formatAmount(value: Long): String {
     val abs = kotlin.math.abs(value)
     return when {
-        abs >= 1_000_000_000 -> String.format("%.1fB", value / 1_000_000_000.0)
-        abs >= 1_000_000 -> String.format("%.1fM", value / 1_000_000.0)
-        abs >= 1_000 -> String.format("%.1fK", value / 1_000.0)
-        else -> value.toString()
+        abs >= 1_000_000_000 -> String.format("$%.1fB", value / 1_000_000_000.0)
+        abs >= 1_000_000 -> String.format("$%.1fM", value / 1_000_000.0)
+        abs >= 1_000 -> String.format("$%.1fK", value / 1_000.0)
+        abs == 0L -> "Unknown"
+        else -> "$$value"
     }
 }
 

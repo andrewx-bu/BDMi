@@ -50,6 +50,7 @@ data class Dimens(
     val chipBorderWidth: Dp,
     val personRowHeight: Dp,
     val personColumnHeight: Dp,
+    val countryColumnHeight: Dp,
 )
 
 val MediumDimens = Dimens(
@@ -99,6 +100,7 @@ val MediumDimens = Dimens(
     chipBorderWidth = 2.dp,
     personRowHeight = 75.dp,
     personColumnHeight = 550.dp,
+    countryColumnHeight = 25.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -139,4 +141,5 @@ val ExpandedDimens = Dimens(
     chipBorderWidth = 0.dp,
     personRowHeight = 0.dp,
     personColumnHeight = 0.dp,
+    countryColumnHeight = 0.dp
 )
