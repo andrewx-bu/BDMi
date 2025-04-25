@@ -1,7 +1,6 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -292,17 +291,6 @@ class ReviewRepository @Inject constructor(
         }
     }
 }
-
-// Uses userId as documentId
-data class Review(
-    val userName: String,
-    val userProfilePicture: String,
-    val reviewTitle: String,
-    val reviewText: String,
-    val rating: Float,
-    val spoiler: Boolean = false,
-    val timestamp: Timestamp = Timestamp.now()
-)
 
 // Example of using pagination in view model
 /*
