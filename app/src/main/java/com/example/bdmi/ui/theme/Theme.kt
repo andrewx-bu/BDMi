@@ -2,6 +2,7 @@ package com.example.bdmi.ui.theme
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +17,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -129,23 +131,33 @@ fun AppTheme(
 
     // Depending on screen size class, set typography, app dimensions, and UI constant vals
     val window = calculateWindowSizeClass(activity = activity)
+    val config = LocalConfiguration.current
+
+    SideEffect {
+        activity.requestedOrientation = when (window.widthSizeClass) {
+            WindowWidthSizeClass.Expanded ->
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
+            else ->
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
 
     val typography: Typography
     val appDimens: Dimens
     val uiConstants: UIConstants
 
     when (window.widthSizeClass) {
-        // TODO: Add support for Compact devices
-        WindowWidthSizeClass.Compact -> {
-            appDimens = MediumDimens
-            typography = MediumTypography
-            uiConstants = MediumUIConstants
-        }
-
         WindowWidthSizeClass.Medium -> {
-            appDimens = MediumDimens
-            typography = MediumTypography
-            uiConstants = MediumUIConstants
+            if (config.screenWidthDp <= 725) {
+                appDimens = MediumDimens
+                typography = MediumTypography
+                uiConstants = MediumUIConstants
+            } else {
+                appDimens = LargeDimens
+                typography = LargeTypography
+                uiConstants = LargeUIConstants
+            }
         }
 
         WindowWidthSizeClass.Expanded -> {
@@ -155,9 +167,9 @@ fun AppTheme(
         }
 
         else -> {
-            appDimens = ExpandedDimens
-            typography = ExpandedTypography
-            uiConstants = ExpandedUIConstants
+            appDimens = MediumDimens
+            typography = MediumTypography
+            uiConstants = MediumUIConstants
         }
     }
 

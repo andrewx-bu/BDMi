@@ -94,4 +94,7 @@ val MediumTypography = Typography(
 )
 
 // TODO: Add typography for Expanded devices (tablet)
+val LargeTypography = Typography()
+
+// TODO: Add typography for Expanded devices (tablet)
 val ExpandedTypography = Typography()

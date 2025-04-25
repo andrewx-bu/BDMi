@@ -24,6 +24,17 @@ val MediumUIConstants = UIConstants(
 )
 
 // TODO: Add constants for Expanded devices (tablet)
+val LargeUIConstants = UIConstants(
+    movieColumns = 3,
+    moviesShown = 18,
+    posterAspectRatio = 2f / 3f,
+    backdropAspectRatio = 3f / 2f,
+    descriptionMaxLines = 3,
+    reviewMaxLines = 4,
+    reviewScrollDelay = 8000L,
+)
+
+// TODO: Add constants for Expanded devices (tablet)
 val ExpandedUIConstants = UIConstants(
     movieColumns = 3,
     moviesShown = 18,
