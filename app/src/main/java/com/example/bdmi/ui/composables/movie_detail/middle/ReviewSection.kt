@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 // TODO: Prioritize Friend Reviews.
 // TODO: Make Reviews clickable.
 @Composable
-fun ReviewCarousel(reviews: List<String>) {
+fun ReviewSection(reviews: List<String>) {
     // Simulate infinite scroll
     val pageCount = 1000 * reviews.size
     val startIndex = (pageCount / 2)
@@ -47,6 +47,36 @@ fun ReviewCarousel(reviews: List<String>) {
             }
             Text(
                 text = "REVIEWS",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.padding(horizontal = dimens.small3)
+            )
+            Box(modifier = Modifier.weight(1f)) {
+                ShimmeringDivider()
+            }
+        }
+
+        // TODO: Implement
+        ReviewHistogram(
+            averageRating = 3.9f,
+            totalReviews = 12045,
+            ratingCounts = mapOf(
+                "5.0" to 2345, "4.5" to 1600, "4.0" to 2800, "3.5" to 3400,
+                "3.0" to 2300, "2.5" to 1200, "2.0" to 500, "1.5" to 300,
+                "1.0" to 150, "0.5" to 1600
+            )
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .graphicsLayer { scaleX = -1f }
+            ) {
+                ShimmeringDivider()
+            }
+            Text(
+                text = "FEATURED",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 modifier = Modifier.padding(horizontal = dimens.small3)

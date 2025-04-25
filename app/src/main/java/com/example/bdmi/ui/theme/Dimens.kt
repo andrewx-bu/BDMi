@@ -46,7 +46,7 @@ data class Dimens(
 
     // Movie Detail
     val topBoxHeight: Dp,
-    val reviewCardHeight: Dp,
+    val reviewHeight: Dp,
     val carouselDotSize: Dp,
     val personRowHeight: Dp,
     val bottomColumnHeight: Dp,
@@ -97,12 +97,12 @@ val MediumDimens = Dimens(
 
     // Movie Detail
     topBoxHeight = 420.dp,
-    reviewCardHeight = 100.dp,
+    reviewHeight = 100.dp,
     carouselDotSize = 10.dp,
     personRowHeight = 75.dp,
     bottomColumnHeight = 550.dp,
     countryRowHeight = 25.dp,
-    exploreRowHeight = 175.dp
+    exploreRowHeight = 200.dp
 )
 
 // TODO: Add dimens for Expanded devices in portrait
@@ -138,7 +138,7 @@ val LargeDimens = Dimens(
     topBarIconSize = 0.dp,
     notificationBadgeSize = 0.dp,
     topBoxHeight = 0.dp,
-    reviewCardHeight = 0.dp,
+    reviewHeight = 0.dp,
     carouselDotSize = 0.dp,
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,
@@ -179,7 +179,7 @@ val ExpandedDimens = Dimens(
     topBarIconSize = 0.dp,
     notificationBadgeSize = 0.dp,
     topBoxHeight = 0.dp,
-    reviewCardHeight = 0.dp,
+    reviewHeight = 0.dp,
     carouselDotSize = 0.dp,
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,

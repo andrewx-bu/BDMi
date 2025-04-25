@@ -97,7 +97,7 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = dimens.small2)
-                .height(dimens.reviewCardHeight),
+                .height(dimens.reviewHeight),
             shape = RoundedCornerShape(dimens.medium3),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {

@@ -46,7 +46,7 @@ import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.data.utils.fadingEdge
 import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.LoadingIndicator
-import com.example.bdmi.ui.composables.movie_detail.middle.ReviewCarousel
+import com.example.bdmi.ui.composables.movie_detail.middle.ReviewSection
 import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.composables.movie_detail.bottom.CastSection
 import com.example.bdmi.ui.composables.movie_detail.bottom.CrewSection
@@ -64,7 +64,7 @@ fun MovieDetailScreen(
     userViewModel: UserViewModel? = null,
     movieId: Int
 ) {
-    val viewModel: HomeViewModel = hiltViewModel()
+    val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
     var userPrivileges by remember { mutableStateOf(false) }
 
@@ -279,7 +279,7 @@ fun MiddleSection(details: MovieDetails, reviews: List<String>) {
             }
         }
         Spacer(Modifier.height(dimens.small2))
-        ReviewCarousel(reviews = reviews)
+        ReviewSection(reviews = reviews)
     }
 }
 
