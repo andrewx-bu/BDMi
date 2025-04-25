@@ -17,9 +17,7 @@ fun ProvideAppUtils(
     CompositionLocalProvider(
         LocalAppDimens provides appDimens,
         LocalUIConstants provides uiConstants
-    ) {
-        content()
-    }
+    ) { content() }
 }
 
 val LocalAppDimens = compositionLocalOf {

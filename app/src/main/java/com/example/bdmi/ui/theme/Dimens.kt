@@ -43,14 +43,14 @@ data class Dimens(
     val bottomBarHeight: Dp,
     val topBarIconSize: Dp,
     val notificationBadgeSize: Dp,
+
     // Movie Detail
     val topBoxHeight: Dp,
     val reviewCardHeight: Dp,
     val carouselDotSize: Dp,
-    val chipBorderWidth: Dp,
     val personRowHeight: Dp,
-    val personColumnHeight: Dp,
-    val countryColumnHeight: Dp,
+    val bottomColumnHeight: Dp,
+    val countryRowHeight: Dp,
 )
 
 val MediumDimens = Dimens(
@@ -93,14 +93,14 @@ val MediumDimens = Dimens(
     bottomBarHeight = 75.dp,
     topBarIconSize = 30.dp,
     notificationBadgeSize = 18.dp,
+
     // Movie Detail
     topBoxHeight = 420.dp,
     reviewCardHeight = 100.dp,
     carouselDotSize = 10.dp,
-    chipBorderWidth = 2.dp,
     personRowHeight = 75.dp,
-    personColumnHeight = 550.dp,
-    countryColumnHeight = 25.dp
+    bottomColumnHeight = 550.dp,
+    countryRowHeight = 25.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -138,10 +138,9 @@ val LargeDimens = Dimens(
     topBoxHeight = 0.dp,
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
-    chipBorderWidth = 0.dp,
     personRowHeight = 0.dp,
-    personColumnHeight = 0.dp,
-    countryColumnHeight = 0.dp
+    bottomColumnHeight = 0.dp,
+    countryRowHeight = 0.dp
 )
 
 // TODO: Add dimens for Expanded devices (tablet)
@@ -179,8 +178,7 @@ val ExpandedDimens = Dimens(
     topBoxHeight = 0.dp,
     reviewCardHeight = 0.dp,
     carouselDotSize = 0.dp,
-    chipBorderWidth = 0.dp,
     personRowHeight = 0.dp,
-    personColumnHeight = 0.dp,
-    countryColumnHeight = 0.dp
+    bottomColumnHeight = 0.dp,
+    countryRowHeight = 0.dp
 )

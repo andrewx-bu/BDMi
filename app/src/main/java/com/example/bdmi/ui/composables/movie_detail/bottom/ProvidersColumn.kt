@@ -33,8 +33,8 @@ fun ProvidersColumn(
     SectionHeader(title = title)
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
-        contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.small3)
+        horizontalArrangement = Arrangement.spacedBy(dimens.small3),
+        contentPadding = PaddingValues(horizontal = dimens.small3)
     ) {
         items(providers) { prov ->
             val logoUrl = ImageURLHelper.getURL(prov.logoPath, width = 200)
@@ -47,7 +47,7 @@ fun ProvidersColumn(
                 error = painterResource(R.drawable.broken_icon),
                 contentDescription = prov.providerName,
                 modifier = Modifier
-                    .size(MaterialTheme.dimens.personRowHeight)
+                    .size(dimens.personRowHeight)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f))
                     .clickable { onProviderClick(prov) },

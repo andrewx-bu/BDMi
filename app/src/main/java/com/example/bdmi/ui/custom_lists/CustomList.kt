@@ -128,7 +128,7 @@ fun CustomListScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(Modifier.height(MaterialTheme.dimens.small3))
+            Spacer(Modifier.height(dimens.small3))
 
             when {
                 uiState.error != null -> {
@@ -167,9 +167,9 @@ fun CustomListScreen(
 @Composable
 fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(MaterialTheme.uiConstants.movieColumns),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
+        columns = GridCells.Fixed(uiConstants.movieColumns),
+        verticalArrangement = Arrangement.spacedBy(dimens.small3),
+        horizontalArrangement = Arrangement.spacedBy(dimens.small3)
     ) {
         items(mediaItems) { movie ->
             MoviePoster(
@@ -184,7 +184,7 @@ fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
 @Composable
 fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
+        verticalArrangement = Arrangement.spacedBy(dimens.small3),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
@@ -203,7 +203,7 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
-            .padding(MaterialTheme.dimens.small3)
+            .padding(dimens.small3)
             .clickable { onMovieClick(media.id) }
             .fillMaxWidth()
             .height(75.dp)

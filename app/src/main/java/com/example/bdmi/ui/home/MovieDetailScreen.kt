@@ -12,16 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -51,9 +43,6 @@ import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
-import com.example.bdmi.ui.theme.dimens
-import com.example.bdmi.ui.theme.uiConstants
-import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.data.utils.fadingEdge
 import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.LoadingIndicator
@@ -64,6 +53,8 @@ import com.example.bdmi.ui.composables.movie_detail.bottom.CrewSection
 import com.example.bdmi.ui.composables.movie_detail.top.DetailColumn
 import com.example.bdmi.ui.composables.movie_detail.bottom.DetailsSection
 import com.example.bdmi.ui.composables.movie_detail.bottom.ExploreSection
+import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.uiConstants
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -96,7 +87,7 @@ fun MovieDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = MaterialTheme.dimens.medium2),
+                    .padding(horizontal = dimens.medium2),
                 contentAlignment = Alignment.Center
             ) {
                 ErrorMessage(
@@ -204,7 +195,7 @@ fun TopSection(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (hasBackdrop) Modifier.height(MaterialTheme.dimens.topBoxHeight) else Modifier)
+            .then(if (hasBackdrop) Modifier.height(dimens.topBoxHeight) else Modifier)
     ) {
         // Backdrop box
         if (hasBackdrop) {
@@ -212,7 +203,7 @@ fun TopSection(
                 model = backdropURL,
                 contentDescription = null,
                 modifier = Modifier
-                    .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
+                    .aspectRatio(uiConstants.backdropAspectRatio)
                     .fadingEdge(bottomFadeBrush),
                 contentScale = ContentScale.Crop
             )
@@ -221,9 +212,9 @@ fun TopSection(
         // Poster row
         Row(
             modifier = Modifier
-                .height(MaterialTheme.dimens.posterSize)
+                .height(dimens.posterSize)
                 .align(Alignment.BottomStart)
-                .padding(start = MaterialTheme.dimens.medium2)
+                .padding(start = dimens.medium2)
         ) {
             MoviePoster(
                 title = details.title,
@@ -231,7 +222,7 @@ fun TopSection(
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+            Spacer(modifier = Modifier.width(dimens.small3))
 
             DetailColumn(details, directors, trailerKey, certification)
         }
@@ -243,11 +234,11 @@ fun TopSection(
 fun MiddleSection(details: MovieDetails, reviews: List<String>) {
     var isExpanded by remember { mutableStateOf(false) }
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val maxLines = if (isExpanded) Int.MAX_VALUE else MaterialTheme.uiConstants.descriptionMaxLines
+    val maxLines = if (isExpanded) Int.MAX_VALUE else uiConstants.descriptionMaxLines
     Column(
         modifier = Modifier.padding(
-            horizontal = MaterialTheme.dimens.medium2,
-            vertical = MaterialTheme.dimens.small3
+            horizontal = dimens.medium2,
+            vertical = dimens.small3
         )
     ) {
         if (!details.tagline.isNullOrEmpty()) {
@@ -256,7 +247,7 @@ fun MiddleSection(details: MovieDetails, reviews: List<String>) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.inverseSurface,
             )
-            Spacer(Modifier.height(MaterialTheme.dimens.small3))
+            Spacer(Modifier.height(dimens.small3))
         }
         // Movie description
         Box(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
@@ -287,7 +278,7 @@ fun MiddleSection(details: MovieDetails, reviews: List<String>) {
                 )
             }
         }
-        Spacer(Modifier.height(MaterialTheme.dimens.small2))
+        Spacer(Modifier.height(dimens.small2))
         ReviewCarousel(reviews = reviews)
     }
 }
@@ -304,13 +295,13 @@ fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?) {
         indicator = { tabPositions ->
             SecondaryIndicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                height = MaterialTheme.dimens.small1,
+                height = dimens.small1,
                 color = MaterialTheme.colorScheme.tertiaryContainer
             )
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.medium2)
+            .padding(horizontal = dimens.medium2)
     ) {
         tabs.forEachIndexed { index, title ->
             Tab(

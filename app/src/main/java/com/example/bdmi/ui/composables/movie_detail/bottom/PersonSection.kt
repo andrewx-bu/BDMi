@@ -96,7 +96,7 @@ fun PersonSection(
     title: String,
     people: List<Person>,
     emptyMsg: String,
-    height: Dp = MaterialTheme.dimens.personColumnHeight
+    height: Dp = dimens.bottomColumnHeight
 ) {
     // No data available
     if (people.isEmpty()) {
@@ -104,7 +104,7 @@ fun PersonSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height)
-                .padding(horizontal = MaterialTheme.dimens.medium2)
+                .padding(horizontal = dimens.medium2)
         ) {
             Text(
                 text = emptyMsg,
@@ -122,7 +122,7 @@ fun PersonSection(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.medium2)
+            .padding(horizontal = dimens.medium2)
             .height(height)
     ) {
         if (title.isNotBlank()) {
@@ -132,7 +132,7 @@ fun PersonSection(
         }
         items(people) { person ->
             HorizontalDivider(
-                Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.secondary
             )
             ListItemRow(
@@ -140,8 +140,8 @@ fun PersonSection(
                 leading = {
                     Box(
                         modifier = Modifier
-                            .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
-                            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+                            .aspectRatio(uiConstants.posterAspectRatio)
+                            .clip(RoundedCornerShape(dimens.small2))
                             .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
@@ -159,7 +159,7 @@ fun PersonSection(
                 },
                 title = person.name,
                 subtitle = person.character,
-                height = MaterialTheme.dimens.personRowHeight,
+                height = dimens.personRowHeight,
             )
         }
     }

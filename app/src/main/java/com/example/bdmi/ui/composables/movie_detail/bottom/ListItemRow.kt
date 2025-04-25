@@ -34,12 +34,12 @@ fun ListItemRow(
     ) {
         leading()
 
-        Spacer(Modifier.width(MaterialTheme.dimens.small3))
+        Spacer(Modifier.width(dimens.small3))
 
         Column {
             Text(text = title, style = MaterialTheme.typography.titleLarge)
             subtitle?.let {
-                Spacer(Modifier.height(MaterialTheme.dimens.small1))
+                Spacer(Modifier.height(dimens.small1))
                 Text(text = it, style = MaterialTheme.typography.titleMedium)
             }
         }
@@ -49,7 +49,7 @@ fun ListItemRow(
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+            modifier = Modifier.size(dimens.iconMedium)
         )
     }
 }

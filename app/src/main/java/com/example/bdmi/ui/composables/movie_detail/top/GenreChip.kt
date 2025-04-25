@@ -17,17 +17,17 @@ import com.example.bdmi.ui.theme.dimens
 fun GenreChip(name: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+            .clip(RoundedCornerShape(dimens.small2))
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .border(
-                width = MaterialTheme.dimens.small1,
+                width = dimens.small1,
                 color = MaterialTheme.colorScheme.tertiaryContainer,
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3)
+                shape = RoundedCornerShape(dimens.small3)
             )
             .clickable(onClick = onClick)
             .padding(
-                horizontal = MaterialTheme.dimens.medium3,
-                vertical = MaterialTheme.dimens.small2
+                horizontal = dimens.medium3,
+                vertical = dimens.small2
             )
     ) {
         Text(

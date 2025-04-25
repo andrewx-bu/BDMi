@@ -49,7 +49,7 @@ fun ReviewCarousel(reviews: List<String>) {
                 text = "REVIEWS",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small3)
+                modifier = Modifier.padding(horizontal = dimens.small3)
             )
             Box(modifier = Modifier.weight(1f)) {
                 ShimmeringDivider()
@@ -67,7 +67,7 @@ fun ReviewCarousel(reviews: List<String>) {
             )
         }
 
-        Spacer(Modifier.height(MaterialTheme.dimens.small3))
+        Spacer(Modifier.height(dimens.small3))
 
         DotsIndicator(
             numDots = reviews.size,

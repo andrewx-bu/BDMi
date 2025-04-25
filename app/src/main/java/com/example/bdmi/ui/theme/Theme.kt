@@ -182,10 +182,10 @@ fun AppTheme(
     }
 }
 
-val MaterialTheme.dimens
+val dimens
     @Composable
     get() = LocalAppDimens.current
 
-val MaterialTheme.uiConstants
+val uiConstants
     @Composable
     get() = LocalUIConstants.current

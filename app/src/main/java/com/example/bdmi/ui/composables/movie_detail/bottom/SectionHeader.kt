@@ -13,7 +13,7 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun SectionHeader(title: String) {
     Row(
-        modifier = Modifier.padding(vertical = MaterialTheme.dimens.small3),
+        modifier = Modifier.padding(vertical = dimens.small3),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalDivider(
@@ -23,7 +23,7 @@ fun SectionHeader(title: String) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(MaterialTheme.dimens.small3)
+            modifier = Modifier.padding(dimens.small3)
         )
         HorizontalDivider(
             Modifier.weight(1f),

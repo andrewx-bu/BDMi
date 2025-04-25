@@ -53,12 +53,12 @@ fun DetailColumn(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(top = MaterialTheme.dimens.large2, end = MaterialTheme.dimens.medium2)
+            .padding(top = dimens.large2, end = dimens.medium2)
             .fadingEdge(topFadeBrush)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
+        verticalArrangement = Arrangement.spacedBy(dimens.small2)
     ) {
-        Spacer(Modifier.height(MaterialTheme.dimens.medium3))
+        Spacer(Modifier.height(dimens.medium3))
 
         // Movie Title
         Text(
@@ -69,15 +69,15 @@ fun DetailColumn(
 
         // Genre Chips
         LazyRow(
-            modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
+            modifier = Modifier.padding(bottom = dimens.small2),
+            horizontalArrangement = Arrangement.spacedBy(dimens.small2)
         ) {
             items(details.genres) { genre ->
                 GenreChip(name = genre.name, onClick = { /* TODO: Implement */ })
             }
         }
 
-        Spacer(Modifier.height(MaterialTheme.dimens.small1))
+        Spacer(Modifier.height(dimens.small1))
 
         // Release date, director
         Text(
@@ -98,7 +98,7 @@ fun DetailColumn(
 
             // Only shimmer if trailer available
             val iconModifier = Modifier
-                .size(MaterialTheme.dimens.iconTiny)
+                .size(dimens.iconTiny)
                 .let { base -> if (trailerKey != null) base.shimmer() else base }
 
             Button(
@@ -112,14 +112,14 @@ fun DetailColumn(
                 enabled = trailerKey != null,
                 modifier = Modifier
                     .size(
-                        width = MaterialTheme.dimens.buttonWidthSmall,
-                        height = MaterialTheme.dimens.buttonHeightSmall
+                        width = dimens.buttonWidthSmall,
+                        height = dimens.buttonHeightSmall
                     ),
                 contentPadding = PaddingValues(
-                    start = MaterialTheme.dimens.small2,
-                    end = MaterialTheme.dimens.small3
+                    start = dimens.small2,
+                    end = dimens.small3
                 ),
-                shape = RoundedCornerShape(MaterialTheme.dimens.small3),
+                shape = RoundedCornerShape(dimens.small3),
                 colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -135,7 +135,7 @@ fun DetailColumn(
                 Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
             }
 
-            Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
+            Spacer(modifier = Modifier.width(dimens.small3))
 
             Text(
                 text = "${details.runtime} min | $certification",

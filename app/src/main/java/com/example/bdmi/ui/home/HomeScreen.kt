@@ -24,14 +24,12 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.homeUIState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshHome()
-    }
+    LaunchedEffect(Unit) { viewModel.refreshHome() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(MaterialTheme.dimens.medium2)
+            .padding(dimens.medium2)
     ) {
         // TODO: Make this a row, add a menu button top right
         Text(
@@ -39,7 +37,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
             style = MaterialTheme.typography.displaySmall
         )
 
-        Spacer(Modifier.height(MaterialTheme.dimens.small3))
+        Spacer(Modifier.height(dimens.small3))
 
         when {
             uiState.error != null -> {
@@ -55,7 +53,7 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
 
             else -> {
                 MovieGrid(
-                    movies = uiState.movies.take(MaterialTheme.uiConstants.moviesShown),
+                    movies = uiState.movies.take(uiConstants.moviesShown),
                     onMovieClick = onMovieClick,
                 )
             }

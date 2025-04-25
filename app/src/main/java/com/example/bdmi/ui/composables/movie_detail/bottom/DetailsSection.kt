@@ -35,14 +35,14 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.medium2)
-            .height(MaterialTheme.dimens.personColumnHeight),
+            .padding(horizontal = dimens.medium2)
+            .height(dimens.bottomColumnHeight),
     ) {
         // General Information
         item {
             SectionHeader(title = "GENERAL")
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             Text(
@@ -58,7 +58,7 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
                 style = MaterialTheme.typography.bodyLarge
             )
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             SectionHeader(title = "COUNTRIES")
@@ -67,7 +67,7 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
         // Production Countries
         items(details.productionCountries) { country ->
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             ListItemRow(
@@ -79,14 +79,14 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
                     )
                 },
                 title = country.name,
-                height = MaterialTheme.dimens.countryColumnHeight
+                height = dimens.countryRowHeight
             )
         }
 
         // Studios Header
         item {
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             SectionHeader(title = "STUDIOS")
@@ -95,7 +95,7 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
         // Production Companies
         items(details.productionCompanies) { studio ->
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             ListItemRow(
@@ -105,7 +105,7 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
                     Box(
                         modifier = Modifier
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(MaterialTheme.dimens.medium2))
+                            .clip(RoundedCornerShape(dimens.medium2))
                             .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -117,21 +117,21 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
                             placeholder = painterResource(R.drawable.broken_icon),
                             error = painterResource(R.drawable.broken_icon),
                             contentDescription = null,
-                            modifier = Modifier.padding(MaterialTheme.dimens.small1),
+                            modifier = Modifier.padding(dimens.small1),
                             contentScale = ContentScale.Fit
                         )
                     }
                 },
                 title = studio.name,
                 subtitle = studio.country?.toFlagEmoji() + " " + studio.country,
-                height = MaterialTheme.dimens.personRowHeight,
+                height = dimens.personRowHeight,
             )
         }
 
 
         item {
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = MaterialTheme.dimens.small2),
+                modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
         }

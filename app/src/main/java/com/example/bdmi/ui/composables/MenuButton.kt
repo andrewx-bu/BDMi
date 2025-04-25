@@ -49,12 +49,12 @@ fun MenuButton(
             .background(
                 MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
             )
-            .size(MaterialTheme.dimens.iconLarge)
+            .size(dimens.iconLarge)
     ) {
         Icon(
             imageVector = Icons.Default.MoreHoriz,
             contentDescription = "Menu",
-            modifier = Modifier.size(MaterialTheme.dimens.iconSmall),
+            modifier = Modifier.size(dimens.iconSmall),
             tint = MaterialTheme.colorScheme.onSurface
         )
     }

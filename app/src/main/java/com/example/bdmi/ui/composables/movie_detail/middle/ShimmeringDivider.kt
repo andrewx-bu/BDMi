@@ -19,7 +19,7 @@ import com.valentinilk.shimmer.shimmer
 fun ShimmeringDivider(
     colorA: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     colorB: Color = MaterialTheme.colorScheme.tertiaryContainer,
-    height: Dp = MaterialTheme.dimens.small2,
+    height: Dp = dimens.small2,
 ) {
     val shimmerTheme = defaultShimmerTheme.copy(
         shaderColors = listOf(colorA, colorB, colorA),

@@ -36,7 +36,7 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
             for (i in 0 until numDots) {
                 Dot(index = i, isSelected = i == currentIndex, onDotClick)
                 if (i != numDots - 1) {
-                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.medium3))
+                    Spacer(modifier = Modifier.width(dimens.medium3))
                 }
             }
         }
@@ -45,10 +45,10 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
             onClick = { /* TODO: Move to Reviews Screen */ },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .width(MaterialTheme.dimens.buttonWidthSmall)
-                .height(MaterialTheme.dimens.buttonHeightSmall),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.small1),
-            shape = RoundedCornerShape(MaterialTheme.dimens.medium2),
+                .width(dimens.buttonWidthSmall)
+                .height(dimens.buttonHeightSmall),
+            contentPadding = PaddingValues(horizontal = dimens.small1),
+            shape = RoundedCornerShape(dimens.medium2),
             colors = ButtonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -64,7 +64,7 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
 @Composable
 fun Dot(index: Int, isSelected: Boolean, onDotClick: (Int) -> Unit) {
     // Transform selected dot
-    val baseSize = MaterialTheme.dimens.carouselDotSize
+    val baseSize = dimens.carouselDotSize
     val width by animateDpAsState(targetValue = if (isSelected) baseSize * 3f else baseSize)
     val height by animateDpAsState(targetValue = if (isSelected) baseSize * 0.8f else baseSize)
 

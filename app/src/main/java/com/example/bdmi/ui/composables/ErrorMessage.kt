@@ -23,7 +23,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.errorContainer)
-            .padding(MaterialTheme.dimens.medium1),
+            .padding(dimens.medium1),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -40,7 +40,7 @@ fun ErrorMessage(message: String, onRetry: () -> Unit) {
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "Retry",
                 tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(MaterialTheme.dimens.iconLarge)
+                modifier = Modifier.size(dimens.iconLarge)
             )
         }
     }

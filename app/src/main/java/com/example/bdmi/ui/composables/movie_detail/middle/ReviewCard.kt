@@ -36,7 +36,7 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
     Column {
         // Review info row
         Row(
-            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.small2),
+            modifier = Modifier.padding(horizontal = dimens.small2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val fullStars = rating.toInt()
@@ -52,9 +52,9 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
                     imageVector = icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.tertiaryContainer,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                    modifier = Modifier.size(dimens.iconMedium)
                 )
-                Spacer(Modifier.width(MaterialTheme.dimens.small1))
+                Spacer(Modifier.width(dimens.small1))
             }
             // Heart
             if (liked) {
@@ -62,7 +62,7 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Liked",
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                    modifier = Modifier.size(dimens.iconMedium)
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -78,34 +78,34 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
                     imageVector = Icons.Default.Group,
                     contentDescription = "Friend",
                     tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconSmall)
+                    modifier = Modifier.size(dimens.iconSmall)
                 )
             }
-            Spacer(Modifier.width(MaterialTheme.dimens.small3))
+            Spacer(Modifier.width(dimens.small3))
             // Profile photo
             Box(
                 modifier = Modifier
-                    .size(MaterialTheme.dimens.iconLarge)
+                    .size(dimens.iconLarge)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.secondaryContainer)
                     .clickable { /* TODO: Implement */ }
             )
         }
-        Spacer(Modifier.height(MaterialTheme.dimens.small3))
+        Spacer(Modifier.height(dimens.small3))
         // Review text
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.dimens.small2)
-                .height(MaterialTheme.dimens.reviewCardHeight),
-            shape = RoundedCornerShape(MaterialTheme.dimens.medium3),
-            elevation = CardDefaults.cardElevation(MaterialTheme.dimens.medium2)
+                .padding(horizontal = dimens.small2)
+                .height(dimens.reviewCardHeight),
+            shape = RoundedCornerShape(dimens.medium3),
+            elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
             Text(
                 text = text,
-                modifier = Modifier.padding(MaterialTheme.dimens.medium1),
+                modifier = Modifier.padding(dimens.medium1),
                 style = MaterialTheme.typography.labelLarge,
-                maxLines = MaterialTheme.uiConstants.reviewMaxLines,
+                maxLines = uiConstants.reviewMaxLines,
                 overflow = TextOverflow.Ellipsis
             )
         }

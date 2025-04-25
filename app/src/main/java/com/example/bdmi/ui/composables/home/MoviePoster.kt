@@ -31,8 +31,8 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
-            .clip(RoundedCornerShape(MaterialTheme.dimens.medium3))
+            .aspectRatio(uiConstants.posterAspectRatio)
+            .clip(RoundedCornerShape(dimens.medium3))
     ) {
         if (imageUrl.isNotEmpty()) {
             Box(
@@ -59,12 +59,12 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
                         imageVector = Icons.Default.Movie,
                         contentDescription = "No poster available",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconHuge)
+                        modifier = Modifier.size(dimens.iconHuge)
                     )
                     Text(
                         text = title,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(MaterialTheme.dimens.small2),
+                        modifier = Modifier.padding(dimens.small2),
                         textAlign = TextAlign.Center
                     )
                 }
