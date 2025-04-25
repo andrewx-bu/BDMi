@@ -1,17 +1,14 @@
 package com.example.bdmi.ui.home
 
-import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,19 +18,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -48,12 +38,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -70,7 +57,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
@@ -87,17 +73,14 @@ import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.example.bdmi.data.repositories.MediaItem
+import com.example.bdmi.data.utils.fadingEdge
 import com.example.bdmi.data.utils.formatAmount
 import com.example.bdmi.data.utils.toFlagEmoji
-import com.example.bdmi.ui.composables.DotsIndicator
 import com.example.bdmi.ui.composables.ErrorMessage
-import com.example.bdmi.ui.composables.GenreChip
-import com.example.bdmi.ui.composables.ReviewCard
-import com.example.bdmi.ui.composables.ShimmeringDivider
+import com.example.bdmi.ui.composables.LoadingIndicator
+import com.example.bdmi.ui.composables.movie_detail.ReviewCarousel
 import com.example.bdmi.ui.composables.MoviePoster
-import com.example.bdmi.ui.composables.fadingEdge
-import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
-import com.valentinilk.shimmer.shimmer
+import com.example.bdmi.ui.composables.movie_detail.DetailColumn
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -141,20 +124,14 @@ fun MovieDetailScreen(
         }
 
         isLoading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
-            }
+            LoadingIndicator()
         }
 
         details != null -> {
             LaunchedEffect(details) {
                 details.title.let { title ->
                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                        "movie_title",
-                        title
+                        "movie_title", title
                     )
                 }
             }
@@ -180,29 +157,17 @@ fun MovieDetailScreen(
 
             LazyColumn {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                    ) {
-                        TopSection(
-                            details = details,
-                            hasBackdrop = hasBackdrop,
-                            directors = directors,
-                            trailerKey = trailerKey,
-                            certification = certification
-                        )
-                    }
+                    TopSection(
+                        details = details,
+                        hasBackdrop = hasBackdrop,
+                        directors = directors,
+                        trailerKey = trailerKey,
+                        certification = certification
+                    )
                 }
 
                 item {
-                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
-                    MovieDescription(details = details)
-                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
-                }
-
-                item {
-                    // TODO: Add reviews
+                    // TODO: Add actual reviews
                     val reviews = listOf(
                         "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
                                 "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
@@ -213,11 +178,10 @@ fun MovieDetailScreen(
                         "Water Bucket Release",
                         "Diamond Armor, Full Set"
                     )
-                    ReviewCarousel(reviews = reviews)
+                    MiddleSection(details, reviews)
                 }
 
                 item {
-                    Spacer(Modifier.height(MaterialTheme.dimens.small3))
                     BottomSection(details = details, providers = providers)
                 }
             }
@@ -265,7 +229,6 @@ fun TopSection(
                 model = backdropURL,
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .aspectRatio(MaterialTheme.uiConstants.backdropAspectRatio)
                     .fadingEdge(bottomFadeBrush),
                 contentScale = ContentScale.Crop
@@ -287,125 +250,28 @@ fun TopSection(
 
             Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
 
-            // Column fades upwards into the backdrop
-            val topFadeBrush = Brush.verticalGradient(
-                colorStops = arrayOf(
-                    0f to Color.Transparent.copy(alpha = 0.2f),
-                    0.2f to Color.Black,
-                )
-            )
-
-            // Details column
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(top = MaterialTheme.dimens.large2, end = MaterialTheme.dimens.medium2)
-                    .fadingEdge(topFadeBrush)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
-            ) {
-                Spacer(Modifier.height(MaterialTheme.dimens.medium3))
-
-                // Movie Title
-                Text(
-                    text = details.title,
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                // Genre Chips
-                LazyRow(
-                    modifier = Modifier.padding(bottom = MaterialTheme.dimens.small2),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small2)
-                ) {
-                    items(details.genres) { genre ->
-                        GenreChip(name = genre.name, onClick = {})
-                    }
-                }
-
-                Spacer(Modifier.height(MaterialTheme.dimens.small1))
-
-                // Release date, director
-                Text(
-                    text = "${details.releaseDate} | DIRECTED BY",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                )
-
-                Text(
-                    text = directors,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                // Trailer button, runtime, MPAA rating
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val context = LocalContext.current
-
-                    // Only shimmer if trailer available
-                    val iconModifier = Modifier
-                        .size(MaterialTheme.dimens.iconTiny)
-                        .let { base -> if (trailerKey != null) base.shimmer() else base }
-
-                    Button(
-                        onClick = {
-                            val url = "https://www.youtube.com/watch?v=$trailerKey"
-                            val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent, null)
-                        },
-                        enabled = trailerKey != null,
-                        modifier = Modifier
-                            .size(
-                                width = MaterialTheme.dimens.buttonWidthSmall,
-                                height = MaterialTheme.dimens.buttonHeightSmall
-                            ),
-                        contentPadding = PaddingValues(
-                            start = MaterialTheme.dimens.small2,
-                            end = MaterialTheme.dimens.small3
-                        ),
-                        shape = RoundedCornerShape(MaterialTheme.dimens.small3),
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                            disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Play",
-                            modifier = iconModifier
-                        )
-                        Text("TRAILER", style = MaterialTheme.typography.bodyLarge)
-                    }
-
-                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.small3))
-
-                    Text(
-                        text = "${details.runtime} min | $certification",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    )
-                }
-            }
+            DetailColumn(details, directors, trailerKey, certification)
         }
     }
 }
 
-// Tagline and Overview
+// Description and Reviews
 @Composable
-fun MovieDescription(details: MovieDetails) {
+fun MiddleSection(details: MovieDetails, reviews: List<String>) {
     var isExpanded by remember { mutableStateOf(false) }
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     val maxLines = if (isExpanded) Int.MAX_VALUE else MaterialTheme.uiConstants.descriptionMaxLines
-    Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimens.medium2)) {
+    Column(
+        modifier = Modifier.padding(
+            horizontal = MaterialTheme.dimens.medium2,
+            vertical = MaterialTheme.dimens.small3
+        )
+    ) {
         if (!details.tagline.isNullOrEmpty()) {
             Text(
                 text = details.tagline.uppercase(Locale.ROOT),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.inverseSurface,
             )
             Spacer(Modifier.height(MaterialTheme.dimens.small3))
         }
@@ -438,76 +304,8 @@ fun MovieDescription(details: MovieDetails) {
                 )
             }
         }
-    }
-}
-
-// Review Carousel
-// TODO: Prioritize Friend Reviews.
-// TODO: Make Reviews clickable.
-@Composable
-fun ReviewCarousel(reviews: List<String>) {
-    val pageCount = 1000 * reviews.size
-    val startIndex = (pageCount / 2)
-    val pagerState = rememberPagerState(
-        initialPage = startIndex,
-        pageCount = { pageCount }
-    )
-    val currentReviewIndex by remember { derivedStateOf { pagerState.currentPage % reviews.size } }
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.dimens.medium2),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = MaterialTheme.dimens.small3)
-                    .graphicsLayer { scaleX = -1f }
-            ) {
-                ShimmeringDivider()
-            }
-            Text(
-                text = "REVIEWS",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = MaterialTheme.dimens.small3)
-            ) {
-                ShimmeringDivider()
-            }
-        }
-
-        HorizontalPager(state = pagerState) { page ->
-            val reviewIndex = page % reviews.size
-            ReviewCard(
-                text = reviews[reviewIndex],
-                rating = 5f,
-                liked = true,
-                username = "Steve"
-            )
-        }
-
-        Spacer(Modifier.height(MaterialTheme.dimens.small3))
-
-        DotsIndicator(
-            numDots = reviews.size,
-            currentIndex = currentReviewIndex,
-            onDotClick = { index ->
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(index)
-                }
-            }
-        )
+        Spacer(Modifier.height(MaterialTheme.dimens.small2))
+        ReviewCarousel(reviews = reviews)
     }
 }
 

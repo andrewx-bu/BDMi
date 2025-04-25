@@ -1,30 +1,23 @@
 package com.example.bdmi.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.ui.composables.ErrorMessage
-import com.example.bdmi.ui.composables.MoviePoster
+import com.example.bdmi.ui.composables.LoadingIndicator
+import com.example.bdmi.ui.composables.MovieGrid
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
-import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator
 
 @Composable
 fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
@@ -52,16 +45,12 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
             uiState.error != null -> {
                 ErrorMessage(
                     message = uiState.error.toString(),
-                    onRetry = { viewModel.refreshHome() })
+                    onRetry = { viewModel.refreshHome() }
+                )
             }
 
             uiState.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
-                }
+                LoadingIndicator()
             }
 
             else -> {
@@ -70,23 +59,6 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
                     onMovieClick = onMovieClick,
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun MovieGrid(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(MaterialTheme.uiConstants.movieColumns),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.small3)
-    ) {
-        items(movies) { movie ->
-            MoviePoster(
-                title = movie.title,
-                posterPath = movie.posterPath,
-                onClick = { onMovieClick(movie.id) }
-            )
         }
     }
 }

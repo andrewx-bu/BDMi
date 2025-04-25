@@ -1,6 +1,12 @@
 package com.example.bdmi.data.utils
 
 import android.annotation.SuppressLint
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import java.security.MessageDigest
 
 // Returns the password hash in SHA-256
@@ -32,3 +38,11 @@ fun String.toFlagEmoji(): String {
             0x1F1E6 + (char.code - 'A'.code)
         }.joinToString("") { codePoint -> String(Character.toChars(codePoint)) }
 }
+
+// Fading edge gradient
+fun Modifier.fadingEdge(brush: Brush) = this
+    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+    .drawWithContent {
+        drawContent()
+        drawRect(brush = brush, blendMode = BlendMode.DstIn)
+    }
