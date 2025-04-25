@@ -325,6 +325,7 @@ fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?) {
         0 -> CastSection(details.credits.cast)
         1 -> CrewSection(details.credits.crew)
         2 -> DetailsSection(details, providers)
-        3 -> ExploreSection(details.similar, details.recommendations)
+        // TODO: implement onclick
+        3 -> ExploreSection(details.similar, details.recommendations) {}
     }
 }

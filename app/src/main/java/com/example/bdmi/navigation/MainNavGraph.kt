@@ -22,7 +22,7 @@ import com.example.bdmi.ui.notifications.NotificationsScreen
 import com.example.bdmi.ui.home.HomeScreen
 import com.example.bdmi.ui.home.MovieDetailScreen
 import com.example.bdmi.ui.screens.ProfileScreen
-import com.example.bdmi.ui.screens.SearchScreen
+import com.example.bdmi.ui.home.SearchScreen
 import com.example.bdmi.UserViewModel
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen

@@ -11,6 +11,7 @@ data class UIConstants(
     val descriptionMaxLines: Int,
     val reviewMaxLines: Int,
     val reviewScrollDelay: Long,
+    val movieRows: Int,
 )
 
 val MediumUIConstants = UIConstants(
@@ -21,9 +22,10 @@ val MediumUIConstants = UIConstants(
     descriptionMaxLines = 3,
     reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
+    movieRows = 1
 )
 
-// TODO: Add constants for Expanded devices (tablet)
+// TODO: Add constants for Expanded devices in portrait
 val LargeUIConstants = UIConstants(
     movieColumns = 3,
     moviesShown = 18,
@@ -32,9 +34,10 @@ val LargeUIConstants = UIConstants(
     descriptionMaxLines = 3,
     reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
+    movieRows = 1
 )
 
-// TODO: Add constants for Expanded devices (tablet)
+// TODO: Add constants for Expanded devices in landscape
 val ExpandedUIConstants = UIConstants(
     movieColumns = 3,
     moviesShown = 18,
@@ -43,4 +46,5 @@ val ExpandedUIConstants = UIConstants(
     descriptionMaxLines = 3,
     reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
+    movieRows = 1
 )

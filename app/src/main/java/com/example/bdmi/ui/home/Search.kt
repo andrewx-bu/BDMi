@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.home
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState

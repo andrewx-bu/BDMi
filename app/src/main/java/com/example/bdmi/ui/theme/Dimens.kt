@@ -51,6 +51,7 @@ data class Dimens(
     val personRowHeight: Dp,
     val bottomColumnHeight: Dp,
     val countryRowHeight: Dp,
+    val exploreRowHeight: Dp
 )
 
 val MediumDimens = Dimens(
@@ -100,10 +101,11 @@ val MediumDimens = Dimens(
     carouselDotSize = 10.dp,
     personRowHeight = 75.dp,
     bottomColumnHeight = 550.dp,
-    countryRowHeight = 25.dp
+    countryRowHeight = 25.dp,
+    exploreRowHeight = 175.dp
 )
 
-// TODO: Add dimens for Expanded devices (tablet)
+// TODO: Add dimens for Expanded devices in portrait
 val LargeDimens = Dimens(
     small1 = 0.dp,
     small2 = 0.dp,
@@ -140,10 +142,11 @@ val LargeDimens = Dimens(
     carouselDotSize = 0.dp,
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,
-    countryRowHeight = 0.dp
+    countryRowHeight = 0.dp,
+    exploreRowHeight = 0.dp
 )
 
-// TODO: Add dimens for Expanded devices (tablet)
+// TODO: Add dimens for Expanded devices in landscape
 val ExpandedDimens = Dimens(
     small1 = 0.dp,
     small2 = 0.dp,
@@ -180,5 +183,6 @@ val ExpandedDimens = Dimens(
     carouselDotSize = 0.dp,
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,
-    countryRowHeight = 0.dp
+    countryRowHeight = 0.dp,
+    exploreRowHeight = 0.dp
 )
