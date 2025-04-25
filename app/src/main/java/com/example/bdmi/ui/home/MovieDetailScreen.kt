@@ -62,7 +62,8 @@ import java.util.Locale
 fun MovieDetailScreen(
     navController: NavHostController,
     userViewModel: UserViewModel? = null,
-    movieId: Int
+    movieId: Int,
+    onMovieClick: (Int) -> Unit
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
@@ -156,7 +157,7 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    BottomSection(details = details, providers = providers)
+                    BottomSection(details = details, providers = providers, onMovieClick = onMovieClick)
                 }
             }
         }
@@ -284,7 +285,7 @@ fun MiddleSection(details: MovieDetails, reviews: List<String>) {
 }
 
 @Composable
-fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?) {
+fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?, onMovieClick: (Int) -> Unit) {
     val tabs = listOf("CAST", "CREW", "DETAILS", "EXPLORE")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
@@ -326,6 +327,6 @@ fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?) {
         1 -> CrewSection(details.credits.crew)
         2 -> DetailsSection(details, providers)
         // TODO: implement onclick
-        3 -> ExploreSection(details.similar, details.recommendations) {}
+        3 -> ExploreSection(details.similar, details.recommendations, onMovieClick)
     }
 }

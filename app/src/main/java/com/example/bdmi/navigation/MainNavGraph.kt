@@ -122,7 +122,15 @@ fun MainNestedNavGraph(
             // Movie detail route
             composable("movie_detail/{movieId}") { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
-                MovieDetailScreen(navController, userViewModel, movieId)
+                MovieDetailScreen(
+                    navController,
+                    userViewModel,
+                    movieId,
+                    onMovieClick = { movieId ->
+                        navController.navigate("movie_detail/$movieId") {
+                            restoreState = true
+                        }
+                    })
             }
 
             // Friend Journey

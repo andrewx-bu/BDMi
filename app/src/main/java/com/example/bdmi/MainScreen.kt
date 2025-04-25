@@ -148,7 +148,7 @@ fun MainScreen(
                     onItemClicked = { route: String ->
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                                //saveState = true
                             }
                             launchSingleTop = true
                             restoreState = true
