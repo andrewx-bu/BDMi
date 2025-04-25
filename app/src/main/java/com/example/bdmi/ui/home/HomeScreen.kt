@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.LoadingIndicator
-import com.example.bdmi.ui.composables.MovieGrid
+import com.example.bdmi.ui.composables.home.MovieGrid
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 

@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.composables
+package com.example.bdmi.ui.composables.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells

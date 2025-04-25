@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.composables.movie_detail
+package com.example.bdmi.ui.composables.movie_detail.top
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement

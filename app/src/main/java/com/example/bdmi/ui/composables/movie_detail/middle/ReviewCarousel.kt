@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.composables.movie_detail
+package com.example.bdmi.ui.composables.movie_detail.middle
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

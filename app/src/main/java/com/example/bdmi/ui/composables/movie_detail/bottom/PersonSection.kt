@@ -1,25 +1,17 @@
-package com.example.bdmi.ui.composables.movie_detail
+package com.example.bdmi.ui.composables.movie_detail.bottom
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,7 +54,8 @@ fun CastSection(cast: List<CastMember>) {
         )
     }
 
-    PersonColumn(
+    PersonSection(
+        title = "CAST",
         people = items,
         emptyMsg = "No cast data available"
     )
@@ -91,14 +84,16 @@ fun CrewSection(crew: List<CrewMember>) {
         )
     }
 
-    PersonColumn(
+    PersonSection(
+        title = "CREW",
         people = items,
         emptyMsg = "No crew data available"
     )
 }
 
 @Composable
-fun PersonColumn(
+fun PersonSection(
+    title: String,
     people: List<Person>,
     emptyMsg: String,
     height: Dp = MaterialTheme.dimens.personColumnHeight
@@ -130,70 +125,41 @@ fun PersonColumn(
             .padding(horizontal = MaterialTheme.dimens.medium2)
             .height(height)
     ) {
+        if (title.isNotBlank()) {
+            item {
+                SectionHeader(title)
+            }
+        }
         items(people) { person ->
             HorizontalDivider(
                 Modifier.padding(vertical = MaterialTheme.dimens.small2),
                 color = MaterialTheme.colorScheme.secondary
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(MaterialTheme.dimens.personRowHeight)
-                    .clickable(onClick = person.onClick),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Portrait photo
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
-                        .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(person.imageUrl)
-                            .crossfade(true)
-                            .build(),
-                        placeholder = rememberVectorPainter(Icons.Default.Person),
-                        error = rememberVectorPainter(Icons.Default.Person),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Spacer(Modifier.width(MaterialTheme.dimens.small3))
-
-                // Name and character
-                Column {
-                    Text(
-                        person.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.inverseSurface
-                    )
-                    Spacer(Modifier.height(MaterialTheme.dimens.small1))
-                    person.character?.let {
-                        Text(
-                            it,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.inverseSurface
+            ListItemRow(
+                onClick = person.onClick,
+                leading = {
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
+                            .clip(RoundedCornerShape(MaterialTheme.dimens.small2))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(person.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            placeholder = rememberVectorPainter(Icons.Default.Person),
+                            error = rememberVectorPainter(Icons.Default.Person),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop
                         )
                     }
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
-                )
-            }
-        }
-        item {
-            HorizontalDivider(
-                Modifier.padding(vertical = MaterialTheme.dimens.small2),
-                color = MaterialTheme.colorScheme.secondary
+                },
+                title = person.name,
+                subtitle = person.character,
+                height = MaterialTheme.dimens.personRowHeight,
             )
         }
     }

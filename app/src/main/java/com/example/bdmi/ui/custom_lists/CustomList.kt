@@ -59,7 +59,7 @@ import com.example.bdmi.UserViewModel
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.composables.ErrorMessage
-import com.example.bdmi.ui.composables.MoviePoster
+import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 import com.spr.jetpack_loading.components.indicators.BallPulseSyncIndicator

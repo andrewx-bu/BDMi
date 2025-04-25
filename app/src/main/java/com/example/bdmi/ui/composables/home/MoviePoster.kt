@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.composables
+package com.example.bdmi.ui.composables.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

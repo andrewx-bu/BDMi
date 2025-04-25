@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.composables.movie_detail
+package com.example.bdmi.ui.composables.movie_detail.middle
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.HorizontalDivider
