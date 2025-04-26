@@ -27,7 +27,7 @@ sealed class OnboardingRoutes(val route: String) {
 
 fun NavGraphBuilder.onboardingNavGraph(
     navController: NavHostController,
-    sessionViewModel: SessionViewModel) {
+    sessionViewModel: SessionViewModel
 ) {
     navigation(
         startDestination = OnboardingRoutes.Start.route,

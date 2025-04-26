@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import com.example.bdmi.UserViewModel
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
@@ -61,7 +61,7 @@ import java.util.Locale
 @Composable
 fun MovieDetailScreen(
     navController: NavHostController,
-    userViewModel: UserViewModel? = null,
+    sessionViewModel: SessionViewModel? = null,
     movieId: Int,
     onMovieClick: (Int) -> Unit
 ) {
@@ -71,8 +71,8 @@ fun MovieDetailScreen(
 
     LaunchedEffect(movieId) {
         launch { viewModel.refreshDetails(movieId) }
-        if (userViewModel != null) {
-            if (userViewModel.userInfo.value != null) {
+        if (sessionViewModel != null) {
+            if (sessionViewModel.userInfo.value != null) {
                 userPrivileges = true
             }
         }
