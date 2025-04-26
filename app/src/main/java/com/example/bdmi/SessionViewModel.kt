@@ -9,12 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
+import com.example.bdmi.data.api.models.Movie
 import kotlinx.coroutines.launch
 import com.example.bdmi.data.repositories.CustomList
-import com.example.bdmi.data.repositories.Movie
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.repositories.WatchlistRepository
 import com.example.bdmi.data.utils.SessionManager
+
+private const val TAG = "SessionViewModel"
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
@@ -60,28 +62,22 @@ class SessionViewModel @Inject constructor(
                     }
                 }
             }
-        } else
-            _isInitialized.value = true
+        } else _isInitialized.value = true
     }
 
     fun loadUser(userId: String?, onComplete: (UserInfo?) -> Unit) {
-        Log.d("UserViewModel", "Loading user with ID: $userId")
+        Log.d(TAG, "Loading (listening to) user with ID: $userId")
         if (userId == null) {
             _isInitialized.value = true
             return
         }
 
-        viewModelScope.launch {
-            userRepository.loadUser(userId) { loadedUserInfo ->
-                _userInfo.value = loadedUserInfo
-                _isLoggedIn.value = loadedUserInfo != null
-                _isInitialized.value = true
-                if (loadedUserInfo != null) {
-                    loadCachedInfo()
-                }
-                Log.d("UserViewModel", "User loaded: ${_userInfo.value}")
-                onComplete(_userInfo.value)
-            }
+        userRepository.listenToUser(userId) { loadedUserInfo ->
+            _userInfo.value = loadedUserInfo
+            _isLoggedIn.value = loadedUserInfo != null
+            _isInitialized.value = true
+            Log.d(TAG, "User updated: ${_userInfo.value}")
+            onComplete(loadedUserInfo)
         }
     }
 
@@ -107,16 +103,19 @@ class SessionViewModel @Inject constructor(
         loginInformation: HashMap<String, String>,
         onComplete: (UserInfo?) -> Unit
     ) {
-        Log.d("UserViewModel", "Logging in with email: ${loginInformation["email"]}")
+        Log.d(TAG, "Logging in with email: ${loginInformation["email"]}")
 
         viewModelScope.launch {
             userRepository.authenticateUser(loginInformation) { userId ->
                 if (userId != null) {
                     loadUser(userId) { loadedUserInfo ->
-                        _userInfo.value = loadedUserInfo
-                        _isLoggedIn.value = loadedUserInfo != null
-                        sessionManager.saveUserId(userId)
-                        loadCachedInfo()
+                        if (loadedUserInfo != null) {
+                            _userInfo.value = loadedUserInfo
+                            _isLoggedIn.value = true
+                            sessionManager.saveUserId(userId)
+                            loadCachedInfo()
+                        }
+
                         Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
                         onComplete(loadedUserInfo)
                     }
@@ -126,6 +125,7 @@ class SessionViewModel @Inject constructor(
     }
 
     fun logout() {
+        userRepository.removeUserListener()
         _isLoggedIn.value = false
         _userInfo.value = null
         _watchlists.value = emptyList()
@@ -135,24 +135,27 @@ class SessionViewModel @Inject constructor(
 
     fun register(
         userInformation: HashMap<String, Any>,
-        onComplete: (UserInfo?) -> Unit
+        onComplete: (Boolean) -> Unit
     ) {
-        Log.d("UserViewModel", "Registering user with email: ${userInformation["email"]}")
+        Log.d(TAG, "Registering user with email: ${userInformation["email"]}")
 
         viewModelScope.launch {
             userRepository.createUser(userInformation) { loadedUserInfo ->
-                _userInfo.value = loadedUserInfo
-                _isLoggedIn.value = loadedUserInfo != null
-                sessionManager.saveUserId(loadedUserInfo?.userId.toString())
-                Log.d("UserViewModel", "User registered: ${_userInfo.value}")
-                onComplete(loadedUserInfo)
+                if (loadedUserInfo != null) {
+                    _userInfo.value = loadedUserInfo
+                    _isLoggedIn.value = true
+                    loadCachedInfo()
+                    sessionManager.saveUserId(loadedUserInfo.userId.toString())
+                    Log.d(TAG, "User registered: ${_userInfo.value}")
+                    onComplete(true)
+                } else onComplete(false)
             }
         }
     }
 
     // Needs testing still
     fun updateUserInfo(userInfo: HashMap<String, Any>, onComplete: (Boolean) -> Unit) {
-        Log.d("UserViewModel", "Updating user info: $userInfo")
+        Log.d(TAG, "Updating user info: $userInfo")
 
         viewModelScope.launch {
             userRepository.updateUserInfo(userInfo, onComplete)

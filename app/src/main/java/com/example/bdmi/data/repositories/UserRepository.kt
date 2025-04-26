@@ -4,6 +4,7 @@ import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.example.bdmi.UserInfo
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
 
@@ -15,8 +16,34 @@ private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 // Repository class for user database operations
 class UserRepository @Inject constructor(
     private val db: FirebaseFirestore,
-    private val mediaManager: MediaManager
 ) {
+    private var userListener: ListenerRegistration? = null
+
+    // Adds a listener to the users collection for real-time updates
+    // Written by ChatGPT
+    fun listenToUser(userId: String, onUserChanged: (UserInfo?) -> Unit) {
+        val userDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+        userListener?.remove() // Clear old listener if any
+        userListener = userDoc.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.w("UserRepository", "Listen failed.", error)
+                onUserChanged(null)
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val userInfo = snapshot.toObject(UserInfo::class.java)
+                onUserChanged(userInfo)
+            } else {
+                onUserChanged(null)
+            }
+        }
+    }
+
+    fun removeUserListener() {
+        userListener?.remove()
+        userListener = null
+    }
+
     // Adds a user to the users collection. Information should already be validated and password hashed
     // Checks for unique email before adding
     fun createUser(

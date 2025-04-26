@@ -105,25 +105,4 @@ class ProfileRepository @Inject constructor(
             onComplete(reviews, newLastVisible)
         }
     }
-
-    fun deleteReview(userId: String, movieId: Int) {
-        val dbFunction = "DeleteReview"
-        Log.d("$TAG$dbFunction", "Deleting review")
-
-        val profileDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-        val reviewDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-            .collection(REVIEWS_COLLECTION).document(movieId.toString())
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(profileDoc)
-
-            val reviewCount = snapshot.getLong("reviewCount")?: 0
-            val newReviewCount = reviewCount - 1
-            transaction.update(profileDoc, "reviewCount", newReviewCount)
-            transaction.delete(reviewDoc)
-        }.addOnSuccessListener {
-            Log.d("$TAG$dbFunction", "Review deleted successfully")
-        }.addOnFailureListener { e ->
-            Log.w("$TAG$dbFunction", "Error deleting review", e)
-        }
-    }
 }
