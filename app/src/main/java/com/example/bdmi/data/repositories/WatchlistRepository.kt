@@ -219,21 +219,3 @@ class WatchlistRepository @Inject constructor(
             }
     }
 }
-
-data class CustomList(
-    val listId: String = "",
-    val name: String = "",
-    val description: String = "",
-    val numOfItems: Int = 0,
-    val timestamp: Timestamp = Timestamp.now(),
-    val isPublic: Boolean = true
-)
-
-data class MediaItem(
-    val id: Int = 0,
-    val title: String = "",
-    val posterPath: String = "",
-    val releaseDate: String = "",
-    val timestamp: Timestamp = Timestamp.now(),
-    val isWatched: Boolean = false
-)

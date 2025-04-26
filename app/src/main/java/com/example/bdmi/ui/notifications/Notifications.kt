@@ -53,13 +53,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.bdmi.UserViewModel
+import com.example.bdmi.SessionViewModel
+import com.example.bdmi.data.repositories.Notification
+import com.example.bdmi.data.repositories.NotificationType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsScreen(userViewModel: UserViewModel, onNavigateBack: () -> Unit) {
+fun NotificationsScreen(sessionViewModel: SessionViewModel, onNavigateBack: () -> Unit) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
-    val userId = userViewModel.userInfo.collectAsState().value?.userId
+    val userId = sessionViewModel.userInfo.collectAsState().value?.userId
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

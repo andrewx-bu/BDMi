@@ -65,7 +65,7 @@ import com.example.bdmi.ui.theme.dimens
 fun MainScreen(
     rootNavController: NavHostController,
     navController: NavHostController = rememberNavController(),
-    userViewModel: UserViewModel,
+    sessionViewModel: SessionViewModel,
     darkTheme: Boolean,
     switchTheme: () -> Unit,
 ) {
@@ -166,7 +166,7 @@ fun MainScreen(
             MainNestedNavGraph(
                 rootNavController = rootNavController,
                 navController = navController,
-                userViewModel = userViewModel
+                sessionViewModel = sessionViewModel
             )
         }
     }

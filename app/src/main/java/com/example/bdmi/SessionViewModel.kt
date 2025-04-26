@@ -1,7 +1,5 @@
 package com.example.bdmi
 
-import android.content.SharedPreferences
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.bdmi.data.repositories.UserRepository
@@ -12,9 +10,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
 import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.data.repositories.Movie
+import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.repositories.WatchlistRepository
+import com.example.bdmi.data.utils.SessionManager
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
@@ -28,16 +28,14 @@ data class UserInfo(
 )
 
 @HiltViewModel
-class UserViewModel @Inject constructor(
-    private val userRepo: UserRepository,
+class SessionViewModel @Inject constructor(
+    private val sessionManager: SessionManager,
+    private val userRepository: UserRepository,
     private val watchlistRepository: WatchlistRepository,
-    private val sharedPreferences: SharedPreferences
+    private val movieRepository: MovieRepository
 ) : ViewModel() {
     private val _userInfo = MutableStateFlow<UserInfo?>(null)
     val userInfo: StateFlow<UserInfo?> = _userInfo.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
@@ -45,17 +43,26 @@ class UserViewModel @Inject constructor(
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized
 
-    private val _tempImageURI = MutableStateFlow<Uri?>(null)
-    val tempImageURI: StateFlow<Uri?> = _tempImageURI.asStateFlow()
-
     private val _watchlists = MutableStateFlow<List<CustomList>>(emptyList())
     val watchlists: StateFlow<List<CustomList>> = _watchlists.asStateFlow()
 
-    // Collection of functions from the UserRepository
-    fun loadUser(
-        userId: String?,
-        onComplete: (UserInfo?) -> Unit
-    ) {
+    private val _cachedMovies = MutableStateFlow<List<Movie>>(emptyList())
+    val cachedMovies: StateFlow<List<Movie>> = _cachedMovies.asStateFlow()
+
+    init {
+        val userId = sessionManager.getUserId()
+        if (userId != null) {
+            viewModelScope.launch {
+                loadUser(userId) { loadedUserInfo ->
+                    if (loadedUserInfo != null) {
+                        loadCachedInfo()
+                    }
+                }
+            }
+        }
+    }
+
+    fun loadUser(userId: String?, onComplete: (UserInfo?) -> Unit) {
         Log.d("UserViewModel", "Loading user with ID: $userId")
         if (userId == null) {
             _isInitialized.value = true
@@ -63,35 +70,15 @@ class UserViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            userRepo.loadUser(userId) { loadedUserInfo ->
+            userRepository.loadUser(userId) { loadedUserInfo ->
                 _userInfo.value = loadedUserInfo
                 _isLoggedIn.value = loadedUserInfo != null
                 _isInitialized.value = true
-                loadCachedInfo()
+                if (loadedUserInfo != null) {
+                    loadCachedInfo()
+                }
                 Log.d("UserViewModel", "User loaded: ${_userInfo.value}")
                 onComplete(_userInfo.value)
-            }
-        }
-    }
-
-    fun login(
-        loginInformation: HashMap<String, String>,
-        onComplete: (UserInfo?) -> Unit
-    ) {
-        Log.d("UserViewModel", "Logging in with email: ${loginInformation["email"]}")
-
-        viewModelScope.launch {
-            userRepo.authenticateUser(loginInformation) { userId ->
-                if (userId != null) {
-                    loadUser(userId) { loadedUserInfo ->
-                        _userInfo.value = loadedUserInfo
-                        _isLoggedIn.value = loadedUserInfo != null
-                        sharedPreferences.edit { putString("userId", userId) }
-                        loadCachedInfo()
-                        Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
-                        onComplete(loadedUserInfo)
-                    }
-                }
             }
         }
     }
@@ -109,10 +96,39 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    // TODO: Job for Andrew
+    private fun loadDiscoverMovies() {
+
+    }
+
+    fun login(
+        loginInformation: HashMap<String, String>,
+        onComplete: (UserInfo?) -> Unit
+    ) {
+        Log.d("UserViewModel", "Logging in with email: ${loginInformation["email"]}")
+
+        viewModelScope.launch {
+            userRepository.authenticateUser(loginInformation) { userId ->
+                if (userId != null) {
+                    loadUser(userId) { loadedUserInfo ->
+                        _userInfo.value = loadedUserInfo
+                        _isLoggedIn.value = loadedUserInfo != null
+                        sessionManager.saveUserId(userId)
+                        loadCachedInfo()
+                        Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
+                        onComplete(loadedUserInfo)
+                    }
+                }
+            }
+        }
+    }
+
     fun logout() {
         _isLoggedIn.value = false
-        _userInfo.value = null // Clear user info on logout
-        sharedPreferences.edit { remove("userId") }
+        _userInfo.value = null
+        _watchlists.value = emptyList()
+        _cachedMovies.value = emptyList() // Clear user info on logout
+        sessionManager.clearUserId()
     }
 
     fun register(
@@ -122,10 +138,10 @@ class UserViewModel @Inject constructor(
         Log.d("UserViewModel", "Registering user with email: ${userInformation["email"]}")
 
         viewModelScope.launch {
-            userRepo.createUser(userInformation) { loadedUserInfo ->
+            userRepository.createUser(userInformation) { loadedUserInfo ->
                 _userInfo.value = loadedUserInfo
                 _isLoggedIn.value = loadedUserInfo != null
-                sharedPreferences.edit { putString("userId", loadedUserInfo?.userId) }
+                sessionManager.saveUserId(loadedUserInfo?.userId.toString())
                 Log.d("UserViewModel", "User registered: ${_userInfo.value}")
                 onComplete(loadedUserInfo)
             }
@@ -137,34 +153,14 @@ class UserViewModel @Inject constructor(
         Log.d("UserViewModel", "Updating user info: $userInfo")
 
         viewModelScope.launch {
-            userRepo.updateUserInfo(userInfo, onComplete)
+            userRepository.updateUserInfo(userInfo, onComplete)
         }
     }
 
-    fun changeProfilePicture(userId: String, profilePicture: Uri, onComplete: (Boolean) -> Unit) {
-        _tempImageURI.value = profilePicture
-
-        Log.d("UserViewModel", "Changing profile picture for user with ID: $userId")
-        _userInfo.value = _userInfo.value?.copy(profilePicture = profilePicture.toString())
-        viewModelScope.launch {
-            userRepo.changeProfilePicture(userId, profilePicture) { newProfilePicture ->
-                if (newProfilePicture != null) {
-                    val updatedUserInfo = _userInfo.value?.copy(profilePicture = newProfilePicture)
-                    _userInfo.value = updatedUserInfo
-                    _tempImageURI.value = null
-                    Log.d("UserViewModel", "Updated user info: ${_userInfo.value}")
-                    onComplete(true)
-                } else {
-                    Log.e("UserViewModel", "Failed to update profile picture")
-                    onComplete(false)
-                }
-            }
-        }
-    }
-
+    // Needs testing still
     fun deleteUser(userId: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
-            userRepo.deleteUser(userId, onComplete)
+            userRepository.deleteUser(userId, onComplete)
         }
     }
 }

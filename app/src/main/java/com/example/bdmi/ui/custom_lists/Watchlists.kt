@@ -34,14 +34,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.UserViewModel
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.CustomList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WatchlistsScreen(userViewModel: UserViewModel, onListClick: (Pair<String, String>) -> Unit) {
-    val userId = userViewModel.userInfo.collectAsState().value?.userId
-    val watchlistViewModel: WatchlistViewModel = hiltViewModel()
+fun WatchlistsScreen(sessionViewModel: SessionViewModel, onListClick: (Pair<String, String>) -> Unit) {
+    val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val watchlistViewModel : WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
 
     LaunchedEffect(userId) {

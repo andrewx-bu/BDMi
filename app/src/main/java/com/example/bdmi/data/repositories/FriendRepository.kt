@@ -1,8 +1,6 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.example.bdmi.ui.notifications.Notification
-import com.example.bdmi.ui.notifications.NotificationType
 import com.example.bdmi.ui.friends.FriendStatus
 import com.example.bdmi.ui.friends.ProfileBanner
 import com.example.bdmi.UserInfo
