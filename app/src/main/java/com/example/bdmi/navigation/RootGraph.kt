@@ -10,11 +10,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bdmi.MainScreen
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.ui.theme.AppTheme
-import com.example.bdmi.UserViewModel
 
 @Composable
-fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewModel: UserViewModel) {
+fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, sessionViewModel: SessionViewModel) {
     val startDestination = if (loggedIn) {
         MainRoutes.Root.route
     } else {
@@ -31,7 +31,7 @@ fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewMo
         startDestination = startDestination
     ) {
         // Onboarding nav graph that includes login and register
-        onboardingNavGraph(navController, userViewModel)
+        onboardingNavGraph(navController, sessionViewModel)
 
         // Main nav graph that includes home, search, bookmarks, profile, and notifications
         //mainNavGraph(userViewModel)
@@ -39,7 +39,7 @@ fun RootNavGraph(navController: NavHostController, loggedIn: Boolean, userViewMo
             AppTheme(darkTheme = darkTheme) {
                 MainScreen(
                     rootNavController = navController,
-                    userViewModel = userViewModel,
+                    sessionViewModel = sessionViewModel,
                     darkTheme = darkTheme,
                     switchTheme = { darkTheme = !darkTheme }
                 )

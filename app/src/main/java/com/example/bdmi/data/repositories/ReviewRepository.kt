@@ -10,6 +10,7 @@ import javax.inject.Inject
 // Constants
 private const val TAG = "ReviewRepository"
 private const val REVIEWS_COLLECTION = "reviews"
+private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 private const val RATINGS_COLLECTION = "ratings"
 private const val MOVIES_COLLECTION = "movies"
 
@@ -21,24 +22,41 @@ class ReviewRepository @Inject constructor(
      * Updates the movies total review count
      * Calls setRating to update the rating meta data
      */
-    fun createReview(userId: String, movieId: Int, review: Review, onComplete: (Boolean) -> Unit) {
+    fun createReview(
+        userId: String, movieId: Int,
+        review: Review, userReview: UserReview,
+        onComplete: (Boolean) -> Unit
+    ) {
         val dbFunction = "CreateReview"
         Log.d("$TAG$dbFunction", "Creating review for user $userId and movie $movieId")
 
         checkIfMovieExists(movieId) {
             val movieDoc = db.collection(MOVIES_COLLECTION).document(movieId.toString())
-            val reviewDoc = movieDoc.collection(REVIEWS_COLLECTION).document(userId)
+            val movieReviewDoc = movieDoc.collection(REVIEWS_COLLECTION).document(userId)
+            val profileDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            val profileReviewDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+                .collection(REVIEWS_COLLECTION).document(movieId.toString())
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(movieDoc)
-                val reviewSnapshot = transaction.get(reviewDoc)
+                val reviewSnapshot = transaction.get(movieReviewDoc)
 
-                // Gets new values for review count and average meta data
-                val reviewCount = snapshot.getDouble("reviewCount")?: 0.0
-                val newReviewCount = if (reviewSnapshot.exists()) reviewCount else reviewCount + 1
+                // Updates movie meta data and sets review
+                val movieReviewCount = snapshot.getLong("reviewCount")?: 0
+                val newMovieReviewCount = if (reviewSnapshot.exists()) movieReviewCount else movieReviewCount + 1
 
-                transaction.update(movieDoc, "reviewCount", newReviewCount)
-                transaction.set(reviewDoc, review)
+                transaction.update(movieDoc, "reviewCount", newMovieReviewCount)
+                transaction.set(movieReviewDoc, review)
+
+                // Updates users review meta data and sets review
+                val profileSnapshot = transaction.get(profileDoc)
+                val profileReviewSnapshot = transaction.get(profileReviewDoc)
+
+                val profileReviewCount = snapshot.getLong("reviewCount")?: 0
+                val newProfileReviewCount = if (reviewSnapshot.exists()) profileReviewCount else profileReviewCount + 1
+
+                transaction.update(profileDoc, "reviewCount", newProfileReviewCount)
+                transaction.set(profileReviewDoc, review)
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Review created successfully")
                 setRating(userId, movieId, review.rating)
@@ -53,7 +71,7 @@ class ReviewRepository @Inject constructor(
     }
 
     // Deletes review and updates the movies total review count
-    fun deleteReview(userId: String, movieId: Int, onComplete: (Boolean) -> Unit) {
+    fun deleteReview(userId: String, movieId: Int) {
         val dbFunction = "DeleteReview"
         Log.d("$TAG$dbFunction", "Deleting review")
 
@@ -82,10 +100,12 @@ class ReviewRepository @Inject constructor(
      * Retrieves all reviews for a movie with pagination
      * If lastVisible is null, it retrieves the first page of reviews
      * Otherwise, it retrieves the next page of reviews
+     * Offers support for filtering by rating
      * Pagination code written by ChatGPT
      */
     fun getReviews(
         movieId: Int,
+        rating: Float? = null,
         lastVisible: DocumentSnapshot? = null,
         pageSize: Int = 20,
         onComplete: (List<Review>, DocumentSnapshot?) -> Unit
@@ -100,10 +120,15 @@ class ReviewRepository @Inject constructor(
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(pageSize.toLong())
 
-            val paginatedQuery = if (lastVisible != null) {
-                reviewQuery.startAfter(lastVisible)
-            } else {
+            val ratingQuery = if (rating != null) {
+                reviewQuery.whereEqualTo("rating", rating)
+            } else
                 reviewQuery
+
+            val paginatedQuery = if (lastVisible != null) {
+                ratingQuery.startAfter(lastVisible)
+            } else {
+                ratingQuery
             }
 
             paginatedQuery.get().addOnSuccessListener { querySnapshot ->
@@ -114,7 +139,7 @@ class ReviewRepository @Inject constructor(
         }
     }
 
-    // Unsure what to use this function for right now, but it could be useful in the future
+    // Gets the review of the logged in user to pin on the carousel
     fun getReview(userId: String, movieId: Int, onComplete: (Review?) -> Unit) {
         val dbFunction = "GetReview"
         Log.d("$TAG$dbFunction", "Getting review for user $userId and movie $movieId")
@@ -151,7 +176,7 @@ class ReviewRepository @Inject constructor(
 
                 // Gets new values for rating count and average meta data
                 val existingUserRating = ratingSnapshot.getDouble("rating")
-                val ratingCount = snapshot.getDouble("ratingCount")?: 0.0
+                val ratingCount = snapshot.getLong("ratingCount")?: 0
                 val ratingSum = snapshot.getDouble("ratingSum") ?: 0.0
 
                 // If the user has already rated the movie, update the rating count and sum
@@ -213,7 +238,7 @@ class ReviewRepository @Inject constructor(
 
                 // Gets new values for rating count and average meta data
                 val existingUserRating = ratingSnapshot.getDouble("rating")
-                val ratingCount = snapshot.getDouble("ratingCount")?: 0.0
+                val ratingCount = snapshot.getLong("ratingCount")?: 0
                 val ratingSum = snapshot.getDouble("ratingSum") ?: 0.0
 
                 val newRatingSum = if (existingUserRating != null)
@@ -264,24 +289,7 @@ class ReviewRepository @Inject constructor(
 
         movieDoc.get(Source.CACHE).addOnSuccessListener { documentSnapshot ->
             if (!documentSnapshot.exists()) {
-                val movieData = mapOf(
-                    "reviewCount" to 0,
-                    "averageRating" to 0.0,
-                    "ratingCount" to 0,
-                    "ratingSum" to 0.0,
-                    "ratingBreakdown" to mapOf(
-                        ".5" to 0,
-                        "1" to 0,
-                        "1.5" to 0,
-                        "2" to 0,
-                        "2.5" to 0,
-                        "3" to 0,
-                        "3.5" to 0,
-                        "4" to 0,
-                        "4.5" to 0,
-                        "5" to 0
-                    ),
-                )
+                val movieData = Movie() // Sets movie data to default values
                 Log.d("$TAG$dbFunction", "Movie does not exist in local cache, adding it")
                 movieDoc.set(movieData).addOnSuccessListener { onComplete() }
             } else {

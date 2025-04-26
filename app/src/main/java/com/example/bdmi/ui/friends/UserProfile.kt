@@ -28,15 +28,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.UserInfo
-import com.example.bdmi.UserViewModel
 
 private const val TAG = "ProfileScreen"
 
 @Composable
-fun UserProfile(profileUserId: String = "", userViewModel: UserViewModel) {
+fun UserProfile(profileUserId: String = "", sessionViewModel: SessionViewModel) {
     val friendViewModel: FriendViewModel = hiltViewModel()
-    var currentUser = userViewModel.userInfo.collectAsState()
+    var currentUser = sessionViewModel.userInfo.collectAsState()
     var profileInfo = friendViewModel.friendProfile.collectAsState()
     var friendButtonState = friendViewModel.friendState.collectAsState()
     LaunchedEffect(profileUserId) {

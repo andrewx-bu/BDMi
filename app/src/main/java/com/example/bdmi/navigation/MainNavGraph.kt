@@ -3,7 +3,6 @@ package com.example.bdmi.navigation
 import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AccountCircle
@@ -16,15 +15,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
 import com.example.bdmi.ui.screens.HomeScreen
 import com.example.bdmi.ui.screens.MovieDetailScreen
-import com.example.bdmi.ui.screens.ProfileScreen
+import com.example.bdmi.ui.profile.ProfileScreen
 import com.example.bdmi.ui.screens.SearchScreen
-import com.example.bdmi.UserViewModel
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen
 import kotlinx.serialization.Serializable
@@ -71,7 +70,7 @@ sealed class MainRoutes(val route: String) {
 fun MainNestedNavGraph(
     rootNavController: NavHostController,
     navController: NavHostController,
-    userViewModel: UserViewModel
+    sessionViewModel: SessionViewModel,
 ) {
     Log.d("MainNestedNavGraph", "Reached MainNestedNavGraph")
 
@@ -85,7 +84,7 @@ fun MainNestedNavGraph(
             composable(MainRoutes.Search.route) { SearchScreen() }
             composable(MainRoutes.Profile.route) {
                 ProfileScreen(
-                    userViewModel = userViewModel,
+                    sessionViewModel = sessionViewModel,
                     onLogoutClick = {
                         rootNavController.navigate(OnboardingRoutes.Root.route) {
                             popUpTo(0) { inclusive = true }
@@ -101,7 +100,7 @@ fun MainNestedNavGraph(
             }
             composable(MainRoutes.Notifications.route) {
                 NotificationsScreen(
-                    userViewModel = userViewModel,
+                    sessionViewModel = sessionViewModel,
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
@@ -123,13 +122,13 @@ fun MainNestedNavGraph(
             // Movie detail route
             composable("movie_detail/{movieId}") { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
-                MovieDetailScreen(navController, userViewModel, movieId)
+                MovieDetailScreen(navController, sessionViewModel, movieId)
             }
 
             // Friend Journey
             composable("friends") {
                 FriendListScreen(
-                    userViewModel = userViewModel,
+                    sessionViewModel = sessionViewModel,
                     onNavigateBack = { navController.navigateUp() },
                     onProfileClick = { userId ->
                         navController.navigate("user_profile/$userId") {
@@ -152,12 +151,12 @@ fun MainNestedNavGraph(
 
             composable("user_profile/{userId}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                UserProfile(userId, userViewModel)
+                UserProfile(userId, sessionViewModel)
             }
 
             // Watchlist journey
             composable(MainRoutes.Bookmarks.route) {
-                WatchlistsScreen(userViewModel) { (userId, listId) ->
+                WatchlistsScreen(sessionViewModel) { (userId, listId) ->
                     Log.d(
                         "WatchlistScreen",
                         "Clicked on watchlist with userId: $userId, listId: $listId"
@@ -174,7 +173,7 @@ fun MainNestedNavGraph(
                     "Loading CustomListScreen with userId: $userId, listId: $listId"
                 )
                 CustomListScreen(
-                    userViewModel = userViewModel,
+                    sessionViewModel = sessionViewModel,
                     listId = listId,
                     userId = userId,
                     onMovieClick = { movieId ->

@@ -77,7 +77,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.bdmi.R
-import com.example.bdmi.UserViewModel
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.api.CastMember
 import com.example.bdmi.data.api.CrewMember
 import com.example.bdmi.data.api.ImageURLHelper
@@ -103,7 +103,7 @@ import java.util.Locale
 @Composable
 fun MovieDetailScreen(
     navController: NavHostController,
-    userViewModel: UserViewModel? = null,
+    sessionViewModel: SessionViewModel? = null,
     movieId: Int
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
@@ -112,9 +112,11 @@ fun MovieDetailScreen(
 
     LaunchedEffect(movieId) {
         launch { viewModel.refreshDetails(movieId) }
-        if (userViewModel != null) {
-            if (userViewModel.userInfo.value != null) {
-                userPrivileges = true
+        launch {
+            if (sessionViewModel != null) {
+                if (sessionViewModel.userInfo.value != null) {
+                    userPrivileges = true
+                }
             }
         }
     }
@@ -998,14 +1000,14 @@ private fun ExploreSection(similar: MoviesResponse, recommended: MoviesResponse)
 @Composable
 fun MenuButton(
     userPrivileges: Boolean,
-    userViewModel: UserViewModel?,
+    sessionViewModel: SessionViewModel?,
     movieDetails: MovieDetails?,
 ) {
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
     var expanded by remember { mutableStateOf(false) }
     var showWatchlists by remember { mutableStateOf(false) }
     val watchlists = movieDetailViewModel.lists.collectAsState()
-    val userId = userViewModel?.userInfo?.collectAsState()?.value?.userId
+    val userId = sessionViewModel?.userInfo?.collectAsState()?.value?.userId
     LaunchedEffect(Unit) {
         if (userId != null)
             movieDetailViewModel.getLists(userId.toString())

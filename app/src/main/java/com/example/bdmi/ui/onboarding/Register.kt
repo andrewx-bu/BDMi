@@ -1,6 +1,5 @@
 package com.example.bdmi.ui.onboarding
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,15 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.utils.hashPassword
-import com.example.bdmi.UserViewModel
 
 private const val TAG = "RegisterScreen"
 
 @Composable
 fun RegisterScreen(
-    userViewModel: UserViewModel,
+    sessionViewModel: SessionViewModel,
     onRegisterClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -69,12 +67,9 @@ fun RegisterScreen(
                     "displayName" to displayName,
                     "password" to hashPassword(password),
                 )
-                userViewModel.register(userInfo) { userInfo ->
+                sessionViewModel.register(userInfo) { userInfo ->
                     if (userInfo != null) {
                         Log.d(TAG, "Register successful")
-                        // Saves user ID to shared preferences
-                        val sharedPreferences = context.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-                        sharedPreferences.edit { putString("userId", userInfo.userId) }
                         onRegisterClick()
                     } else {
                         Log.d(TAG, "Register failed")

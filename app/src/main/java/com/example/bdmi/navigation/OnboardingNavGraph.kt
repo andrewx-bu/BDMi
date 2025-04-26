@@ -4,10 +4,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.ui.onboarding.LoginScreen
 import com.example.bdmi.ui.onboarding.RegisterScreen
 import com.example.bdmi.ui.onboarding.StartScreen
-import com.example.bdmi.UserViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,7 +22,7 @@ sealed class OnboardingRoutes(val route: String) {
     object Register : OnboardingRoutes("register")
 }
 
-fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, userViewModel: UserViewModel) {
+fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, sessionViewModel: SessionViewModel) {
     navigation(
         startDestination = OnboardingRoutes.Start.route,
         route = OnboardingRoutes.Root.route
@@ -36,7 +36,7 @@ fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, userVie
 
         composable(OnboardingRoutes.Login.route) {
             LoginScreen(
-                userViewModel = userViewModel,
+                sessionViewModel = sessionViewModel,
                 onLoginClick = {
                     navController.navigate(MainRoutes.Root.route) {
                         popUpTo(OnboardingRoutes.Root.route) { inclusive = true }
@@ -47,7 +47,7 @@ fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, userVie
 
         composable(OnboardingRoutes.Register.route) {
             RegisterScreen(
-                userViewModel = userViewModel,
+                sessionViewModel = sessionViewModel,
                 onRegisterClick = {
                     navController.navigate(MainRoutes.Root.route)  {
                         popUpTo(OnboardingRoutes.Root.route) { inclusive = true }

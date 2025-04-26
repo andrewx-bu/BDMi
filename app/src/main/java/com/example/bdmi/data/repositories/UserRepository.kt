@@ -1,18 +1,14 @@
 package com.example.bdmi.data.repositories
 
-import android.net.Uri
 import android.util.Log
 import com.cloudinary.android.MediaManager
-import com.cloudinary.android.callback.ErrorInfo
-import com.cloudinary.android.callback.UploadCallback
 import com.example.bdmi.UserInfo
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
-import kotlin.collections.get
 
 // Constants
-private const val TAG = "FirestoreUtils"
+private const val TAG = "UserRepository"
 private const val USERS_COLLECTION = "users"
 private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 
@@ -206,66 +202,4 @@ class UserRepository @Inject constructor(
                 onComplete(false)
             }
     }
-
-    /*
-    * Changes a user's profile picture
-    * Call function to upload image to Cloudinary then updates
-    * database on the callback function
-    * */
-    fun changeProfilePicture(
-        userId: String,
-        profilePicture: Uri,
-        onComplete: (String?) -> Unit
-    ) {
-        val dbFunction = "changeProfilePicture"
-        val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-        uploadImage(profilePicture) { profilePictureUrl ->
-            if (profilePictureUrl != null) {
-                // Update database only after successful upload
-                userRef.update("profilePicture", profilePictureUrl)
-                    .addOnSuccessListener {
-                        Log.d("$TAG$dbFunction", "Profile picture updated successfully")
-                        onComplete(profilePictureUrl)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("$TAG$dbFunction", "Error updating profile picture", e)
-                        onComplete(null)
-                    }
-            } else {
-                Log.e("$TAG$dbFunction", "Error uploading profile picture")
-                onComplete(null)
-            }
-        }
-
-    }
-
-    /*
-    * Uploads an image to Cloudinary
-    * Returns the URL of the uploaded image
-    * Based on their documentation at: https://cloudinary.com/documentation/kotlin_integration
-    * Documentation is really bad so following this repository from 5 years ago:
-    * https://github.com/riyhs/Android-Kotlin-Cloudinary-Example */
-    private fun uploadImage(imageUri: Uri, onComplete: (String?) -> Unit) {
-        var imageUrl: String? = null
-        mediaManager.upload(imageUri).callback(object : UploadCallback {
-            override fun onStart(requestId: String) {
-                Log.d("Cloudinary", "Upload started")
-            }
-            override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
-            }
-            override fun onSuccess(requestId: String?, resultData: Map<*, *>?) {
-                Log.d("Cloudinary", "Upload successful")
-                imageUrl = resultData?.get("secure_url") as String?
-                Log.d("Cloudinary", "URL: $imageUrl")
-                onComplete(imageUrl)
-            }
-            override fun onError(requestId: String, error: ErrorInfo) {
-                Log.e("Cloudinary", "Upload error: ${error.description}")
-            }
-            override fun onReschedule(requestId: String, error: ErrorInfo) {
-            }
-        }).dispatch()
-    }
-
-
 }

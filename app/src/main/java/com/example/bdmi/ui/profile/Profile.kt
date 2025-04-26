@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.profile
 
 import android.net.Uri
 import android.util.Log
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.example.bdmi.UserViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,32 +46,40 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.SessionViewModel
 
 private const val TAG = "ProfileScreen"
 
 @Composable
 fun ProfileScreen(
-    userViewModel: UserViewModel,
+    sessionViewModel: SessionViewModel,
     onLogoutClick: () -> Unit,
     navigateToUserSearch: () -> Unit,
     navigateToFriends: () -> Unit
 ) {
-    val userInfo by userViewModel.userInfo.collectAsState()
-    val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
-    val tempImageURI by userViewModel.tempImageURI.collectAsState()
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
+    val userInfo by profileViewModel.userInfo.collectAsState()
+    val tempImageURI by profileViewModel.tempImageURI.collectAsState()
 
-    Log.d(TAG, "ProfileScreen: $userInfo")
-    Log.d(TAG, "isLoggedIn: $isLoggedIn")
+    LaunchedEffect(userInfo) {
+        if (isLoggedIn) {
+            val currentUser = sessionViewModel.userInfo.value
+            if (currentUser != null) {
+                profileViewModel.setUserInfo(currentUser) {
+                    profileViewModel.reviewCarousel()
+                }
+            }
+        }
+    }
+
     if (isLoggedIn && userInfo != null) {
         // Followed android docs for this
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null) {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                userViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) {
-                }
-            } else {
-                Log.d("PhotoPicker", "No photo selected")
+                profileViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) {}
             }
         }
 
@@ -118,7 +126,7 @@ fun ProfileScreen(
 
             Button(
                 onClick = {
-                    userViewModel.logout()
+                    sessionViewModel.logout()
                     onLogoutClick()
                 },
                 colors = ButtonDefaults.buttonColors(
