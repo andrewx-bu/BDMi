@@ -51,6 +51,7 @@ class SessionViewModel @Inject constructor(
 
     init {
         val userId = sessionManager.getUserId()
+        Log.d("UserViewModel", "UserViewModel initialized with userId: $userId")
         if (userId != null) {
             viewModelScope.launch {
                 loadUser(userId) { loadedUserInfo ->
@@ -59,7 +60,8 @@ class SessionViewModel @Inject constructor(
                     }
                 }
             }
-        }
+        } else
+            _isInitialized.value = true
     }
 
     fun loadUser(userId: String?, onComplete: (UserInfo?) -> Unit) {

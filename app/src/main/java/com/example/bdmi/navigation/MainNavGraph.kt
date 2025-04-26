@@ -20,7 +20,6 @@ import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
-import com.example.bdmi.ui.screens.MovieDetailScreen
 import com.example.bdmi.ui.profile.ProfileScreen
 import com.example.bdmi.ui.home.HomeScreen
 import com.example.bdmi.ui.home.MovieDetailScreen
@@ -132,7 +131,6 @@ fun MainNestedNavGraph(
                             restoreState = true
                         }
                     })
-                MovieDetailScreen(navController, sessionViewModel, movieId)
             }
 
             // Friend Journey

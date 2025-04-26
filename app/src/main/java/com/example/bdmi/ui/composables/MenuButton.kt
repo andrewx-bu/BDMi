@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.UserViewModel
+import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.home.MovieDetailViewModel
@@ -31,14 +31,14 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun MenuButton(
     userPrivileges: Boolean,
-    userViewModel: UserViewModel?,
+    sessionViewModel: SessionViewModel?,
     movieDetails: MovieDetails?,
 ) {
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
     var expanded by remember { mutableStateOf(false) }
     var showWatchlists by remember { mutableStateOf(false) }
     val watchlists = movieDetailViewModel.lists.collectAsState()
-    val userId = userViewModel?.userInfo?.collectAsState()?.value?.userId
+    val userId = sessionViewModel?.userInfo?.collectAsState()?.value?.userId
     LaunchedEffect(Unit) {
         if (userId != null)
             movieDetailViewModel.getLists(userId.toString())
