@@ -128,7 +128,7 @@ class NotificationViewModel @Inject constructor(
 
         viewModelScope.launch {
             notificationRepository.respondFriendRequest(userId, notificationId) {
-                if(it)
+                if (it)
                     Log.d(TAG, "Friend request responded to")
             }
         }

@@ -148,7 +148,7 @@ fun MainScreen(
                     onItemClicked = { route: String ->
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                                //saveState = true
                             }
                             launchSingleTop = true
                             restoreState = true
@@ -191,8 +191,8 @@ fun TopBar(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "BDMi",
                 modifier = Modifier
-                    .size(MaterialTheme.dimens.logoSizeMedium)
-                    .clip(RoundedCornerShape(MaterialTheme.dimens.small3))
+                    .size(dimens.logoSizeMedium)
+                    .clip(RoundedCornerShape(dimens.small3))
             )
         },
         actions = {
@@ -202,10 +202,10 @@ fun TopBar(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier
-                            .size(MaterialTheme.dimens.notificationBadgeSize)
+                            .size(dimens.notificationBadgeSize)
                             .offset(
-                                x = -MaterialTheme.dimens.small3,
-                                y = MaterialTheme.dimens.small2
+                                x = -dimens.small3,
+                                y = dimens.small2
                             )
                     ) {
                         // TODO: Implement Notifications #
@@ -218,11 +218,11 @@ fun TopBar(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                        modifier = Modifier.size(dimens.iconMedium)
                     )
                 }
             }
-            Spacer(Modifier.width(MaterialTheme.dimens.medium3))
+            Spacer(Modifier.width(dimens.medium3))
 
             IconButton(onClick = onThemeClick) {
                 Icon(
@@ -231,16 +231,16 @@ fun TopBar(
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier
                         .rotate(rotation)
-                        .size(MaterialTheme.dimens.iconMedium)
+                        .size(dimens.iconMedium)
                 )
             }
 
-            Spacer(Modifier.width(MaterialTheme.dimens.medium3))
+            Spacer(Modifier.width(dimens.medium3))
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent
         ),
-        modifier = Modifier.height(MaterialTheme.dimens.topBarHeight)
+        modifier = Modifier.height(dimens.topBarHeight)
     )
 }
 
@@ -287,7 +287,7 @@ fun MovieDetailTopAppBar(
                     imageVector = Icons.Default.MoreHoriz,
                     contentDescription = "Back",
                     tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(MaterialTheme.dimens.iconMedium)
+                    modifier = Modifier.size(dimens.iconMedium)
                 )
             }
         },
@@ -309,7 +309,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
     )
 
     NavigationBar(
-        modifier = Modifier.height(MaterialTheme.dimens.bottomBarHeight),
+        modifier = Modifier.height(dimens.bottomBarHeight),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         screens.forEach { screen ->
@@ -344,6 +344,6 @@ fun RowScope.AddItem(
         },
         selected = isSelected,
         onClick = { onItemClicked(screen.route) },
-        modifier = Modifier.offset(y = MaterialTheme.dimens.small2)
+        modifier = Modifier.offset(y = dimens.small2)
     )
 }

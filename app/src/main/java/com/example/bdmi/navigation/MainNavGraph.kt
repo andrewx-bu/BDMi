@@ -20,10 +20,11 @@ import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
-import com.example.bdmi.ui.screens.HomeScreen
 import com.example.bdmi.ui.screens.MovieDetailScreen
 import com.example.bdmi.ui.profile.ProfileScreen
-import com.example.bdmi.ui.screens.SearchScreen
+import com.example.bdmi.ui.home.HomeScreen
+import com.example.bdmi.ui.home.MovieDetailScreen
+import com.example.bdmi.ui.home.SearchScreen
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen
 import kotlinx.serialization.Serializable
@@ -122,6 +123,15 @@ fun MainNestedNavGraph(
             // Movie detail route
             composable("movie_detail/{movieId}") { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
+                MovieDetailScreen(
+                    navController,
+                    sessionViewModel,
+                    movieId,
+                    onMovieClick = { movieId ->
+                        navController.navigate("movie_detail/$movieId") {
+                            restoreState = true
+                        }
+                    })
                 MovieDetailScreen(navController, sessionViewModel, movieId)
             }
 

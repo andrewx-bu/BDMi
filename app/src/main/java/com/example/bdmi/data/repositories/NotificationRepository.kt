@@ -48,7 +48,11 @@ class NotificationRepository @Inject constructor(
             }
     }
 
-    fun respondFriendRequest(userId: String, notificationId: String, onComplete: (Boolean) -> Unit) {
+    fun respondFriendRequest(
+        userId: String,
+        notificationId: String,
+        onComplete: (Boolean) -> Unit
+    ) {
         val dbFunction = "respondFriendRequest"
         db.collection(USERS_COLLECTION).document(userId).collection(NOTIFICATIONS_SUBCOLLECTION)
             .document(notificationId)
@@ -114,12 +118,13 @@ class NotificationRepository @Inject constructor(
                     userId = dataMap?.get("userId") as? String ?: "",
                     displayName = dataMap?.get("displayName") as? String ?: "",
                     profilePicture = dataMap?.get("profilePicture") as? String ?: "",
-                    friendCount = (dataMap?.get("friendCount") as? Long)?: 0,
-                    listCount = (dataMap?.get("listCount") as? Long)?: 0,
-                    reviewCount = (dataMap?.get("reviewCount") as? Long)?: 0,
+                    friendCount = (dataMap?.get("friendCount") as? Long) ?: 0,
+                    listCount = (dataMap?.get("listCount") as? Long) ?: 0,
+                    reviewCount = (dataMap?.get("reviewCount") as? Long) ?: 0,
                     isPublic = dataMap?.get("isPublic") as? Boolean == true
                 )
             }
+
             else -> NotificationType.FriendRequest() // Add other types later
         }
         Log.d("NotificationRepository", "New Notification data: $data")

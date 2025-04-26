@@ -25,6 +25,7 @@ class CustomListViewModel @Inject constructor(
         val isLoading: Boolean = false,
         val error: APIError? = null
     )
+
     private val _listUIState = MutableStateFlow(ListUIState())
     val listUIState: StateFlow<ListUIState> = _listUIState.asStateFlow()
 

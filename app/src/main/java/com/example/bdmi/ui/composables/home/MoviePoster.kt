@@ -1,4 +1,4 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.composables.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
-import com.example.bdmi.data.api.ImageURLHelper
+import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
@@ -31,8 +31,8 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .aspectRatio(MaterialTheme.uiConstants.posterAspectRatio)
-            .clip(RoundedCornerShape(MaterialTheme.dimens.medium3))
+            .aspectRatio(uiConstants.posterAspectRatio)
+            .clip(RoundedCornerShape(dimens.medium3))
     ) {
         if (imageUrl.isNotEmpty()) {
             Box(
@@ -44,7 +44,6 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -60,12 +59,12 @@ fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
                         imageVector = Icons.Default.Movie,
                         contentDescription = "No poster available",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(MaterialTheme.dimens.iconHuge)
+                        modifier = Modifier.size(dimens.iconHuge)
                     )
                     Text(
                         text = title,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(MaterialTheme.dimens.small2),
+                        modifier = Modifier.padding(dimens.small2),
                         textAlign = TextAlign.Center
                     )
                 }

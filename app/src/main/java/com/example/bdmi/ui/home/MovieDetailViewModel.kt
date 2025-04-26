@@ -1,30 +1,34 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.ui.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
-import com.example.bdmi.data.api.Movie
-import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.api.WatchProvidersResponse
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.data.api.toAPIError
+import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.data.repositories.MovieRepository
+import com.example.bdmi.data.repositories.WatchlistRepository
+import com.example.bdmi.data.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
+
+private const val TAG = "MovieDetailViewModel"
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) : ViewModel() {
-    data class HomeUIState(
-        override val isLoading: Boolean = false,
-        val movies: List<Movie> = emptyList(),
-        override val error: APIError? = null
-    ) : UIState
-
+class MovieDetailViewModel @Inject constructor(
+    private val movieRepo: MovieRepository,
+    private val watchlistRepository: WatchlistRepository
+) : ViewModel() {
     data class DetailUIState(
         override val isLoading: Boolean = false,
         val details: MovieDetails? = null,
@@ -32,43 +36,15 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
         override val error: APIError? = null
     ) : UIState
 
-    private val _homeUIState = MutableStateFlow(HomeUIState())
-    val homeUIState = _homeUIState.asStateFlow()
+    private var _lists = MutableStateFlow<List<CustomList>>(emptyList())
+    val lists: StateFlow<List<CustomList>> = _lists.asStateFlow()
 
     private val _detailUIState = MutableStateFlow(DetailUIState())
     val detailUIState = _detailUIState.asStateFlow()
 
-    fun refreshHome() {
-        _homeUIState.update { HomeUIState(isLoading = true, movies = emptyList(), error = null) }
-        loadMovies()
-    }
-
     fun refreshDetails(movieId: Int) {
         _detailUIState.update { DetailUIState(isLoading = true, error = null) }
         loadMovieDetails(movieId)
-    }
-
-    private fun loadMovies() {
-        viewModelScope.launch {
-            _homeUIState.update { it.copy(isLoading = true, error = null) }
-            movieRepo.discoverMovies().fold(
-                onSuccess = { response ->
-                    // If no movies are fetched, we'll throw an empty response error
-                    if (response.results.isEmpty()) {
-                        _homeUIState.update {
-                            it.copy(error = APIError.EmptyResponseError(), isLoading = false)
-                        }
-                    } else {
-                        _homeUIState.update {
-                            it.copy(movies = response.results, isLoading = false)
-                        }
-                    }
-                },
-                onFailure = { e ->
-                    _homeUIState.update { it.copy(error = e.toAPIError(), isLoading = false) }
-                }
-            )
-        }
     }
 
     private fun loadMovieDetails(movieId: Int) {
@@ -103,6 +79,25 @@ class HomeViewModel @Inject constructor(private val movieRepo: MovieRepository) 
             )
 
             _detailUIState.update { it.copy(isLoading = false) }
+        }
+    }
+
+    fun addToWatchlist(userId: String, listId: String, item: MediaItem) {
+        Log.d(TAG, "Adding item to watchlist: $item")
+
+        viewModelScope.launch {
+            watchlistRepository.addToList(listId, userId, item)
+        }
+    }
+
+    fun getLists(userId: String) {
+        Log.d(TAG, "Getting lists for user: $userId")
+
+        viewModelScope.launch {
+            watchlistRepository.getLists(userId) { lists ->
+                Log.d(TAG, "Lists retrieved: $lists")
+                _lists.value = lists
+            }
         }
     }
 }

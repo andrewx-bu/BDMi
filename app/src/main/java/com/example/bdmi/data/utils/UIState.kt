@@ -1,8 +1,8 @@
-package com.example.bdmi.ui.screens
+package com.example.bdmi.data.utils
 
 import com.example.bdmi.data.api.APIError
 
-sealed interface UIState {
+interface UIState {
     val isLoading: Boolean
     val error: APIError?
 }

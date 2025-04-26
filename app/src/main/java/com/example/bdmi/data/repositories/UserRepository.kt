@@ -123,7 +123,7 @@ class UserRepository @Inject constructor(
                     val profileInfo = profileDoc.toObject(UserInfo::class.java)
                     Log.d("$TAG$dbFunction", "Profile found")
                     onComplete(profileInfo)
-                    } else {
+                } else {
                     Log.d("$TAG$dbFunction", "No profile found")
                     onComplete(null)
                 }

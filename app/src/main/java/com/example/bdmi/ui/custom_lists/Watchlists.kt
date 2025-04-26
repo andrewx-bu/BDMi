@@ -55,23 +55,33 @@ fun WatchlistsScreen(sessionViewModel: SessionViewModel, onListClick: (Pair<Stri
             TopAppBar(
                 title = { Text("Watchlists") },
                 actions = {
-                    AddListButton { list : CustomList ->
+                    AddListButton { list: CustomList ->
                         watchlistViewModel.createList(userId.toString(), list)
                     }
                 }
             )
         }
     ) { innerPadding ->
-        WatchlistList(userId.toString(), modifier = Modifier.padding(innerPadding), lists.value, onListClick)
+        WatchlistList(
+            userId.toString(),
+            modifier = Modifier.padding(innerPadding),
+            lists.value,
+            onListClick
+        )
     }
 }
 
 @Composable
-fun WatchlistList(userId: String, modifier: Modifier, lists: List<CustomList>, onListClick: (Pair<String, String>) -> Unit) {
+fun WatchlistList(
+    userId: String,
+    modifier: Modifier,
+    lists: List<CustomList>,
+    onListClick: (Pair<String, String>) -> Unit
+) {
     LazyColumn(
         modifier = modifier
     ) {
-        items(lists) { list : CustomList ->
+        items(lists) { list: CustomList ->
             WatchlistItem(list) {
                 onListClick(Pair(userId, list.listId))
             }
@@ -82,7 +92,8 @@ fun WatchlistList(userId: String, modifier: Modifier, lists: List<CustomList>, o
 @Composable
 fun WatchlistItem(list: CustomList, onListClick: () -> Unit) {
     Row(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
             .clickable {
                 onListClick()
             }

@@ -13,7 +13,7 @@ private const val LISTS_COLLECTION = "lists"
 private const val ITEMS_COLLECTION = "items"
 
 class WatchlistRepository @Inject constructor(
-        private val db: FirebaseFirestore
+    private val db: FirebaseFirestore
 ) {
     // Creates a new custom list in the database
     fun createList(userId: String, list: CustomList, onComplete: (Boolean) -> Unit) {
@@ -79,7 +79,11 @@ class WatchlistRepository @Inject constructor(
     }
 
     // Retrieves all custom lists from the database given a user ID
-    fun getLists(userId: String, publicOnly: Boolean = false, onComplete: (List<CustomList>) -> Unit) {
+    fun getLists(
+        userId: String,
+        publicOnly: Boolean = false,
+        onComplete: (List<CustomList>) -> Unit
+    ) {
         val dbFunction = "GetLists"
 
         // If publicOnly is true, only retrieve public lists, otherwise retrieve all lists
@@ -159,17 +163,18 @@ class WatchlistRepository @Inject constructor(
                     for (document in querySnapshot.documents) {
                         transaction.delete(document.reference)
                     }
-                    val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId).collection(LISTS_COLLECTION).document(listId)
+                    val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+                        .collection(LISTS_COLLECTION).document(listId)
                     transaction.update(listRef, "numOfItems", FieldValue.increment(-1))
                 }
-                .addOnSuccessListener {
-                    Log.d("$TAG$dbFunction", "Item removed from list")
-                    onComplete(true)
-                }
-                .addOnFailureListener { e ->
-                    Log.w("$TAG$dbFunction", "Error removing item from list", e)
-                    onComplete(false)
-                }
+                    .addOnSuccessListener {
+                        Log.d("$TAG$dbFunction", "Item removed from list")
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("$TAG$dbFunction", "Error removing item from list", e)
+                        onComplete(false)
+                    }
             }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error getting item to remove", e)
@@ -193,7 +198,12 @@ class WatchlistRepository @Inject constructor(
             }
     }
 
-    fun updateListInfo(userId: String, listId: String, list: CustomList, onComplete: (Boolean) -> Unit) {
+    fun updateListInfo(
+        userId: String,
+        listId: String,
+        list: CustomList,
+        onComplete: (Boolean) -> Unit
+    ) {
         val dbFunction = "UpdateListInfo"
 
         db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)

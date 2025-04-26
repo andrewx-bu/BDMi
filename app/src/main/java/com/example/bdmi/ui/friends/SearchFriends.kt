@@ -124,7 +124,7 @@ fun ProfileCard(user: ProfileBanner, onProfileClick: (String) -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(

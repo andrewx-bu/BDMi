@@ -13,16 +13,22 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class OnboardingRoutes(val route: String) {
     @Serializable
-    object Root : OnboardingRoutes("onboarding")
+    data object Root : OnboardingRoutes("onboarding")
+
     @Serializable
-    object Start : OnboardingRoutes("start")
+    data object Start : OnboardingRoutes("start")
+
     @Serializable
-    object Login : OnboardingRoutes("login")
+    data object Login : OnboardingRoutes("login")
+
     @Serializable
-    object Register : OnboardingRoutes("register")
+    data object Register : OnboardingRoutes("register")
 }
 
-fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, sessionViewModel: SessionViewModel) {
+fun NavGraphBuilder.onboardingNavGraph(
+    navController: NavHostController,
+    sessionViewModel: SessionViewModel) {
+) {
     navigation(
         startDestination = OnboardingRoutes.Start.route,
         route = OnboardingRoutes.Root.route
@@ -49,7 +55,7 @@ fun NavGraphBuilder.onboardingNavGraph(navController: NavHostController, session
             RegisterScreen(
                 sessionViewModel = sessionViewModel,
                 onRegisterClick = {
-                    navController.navigate(MainRoutes.Root.route)  {
+                    navController.navigate(MainRoutes.Root.route) {
                         popUpTo(OnboardingRoutes.Root.route) { inclusive = true }
                     }
                 }

@@ -1,9 +1,9 @@
 package com.example.bdmi.data.repositories
 
 import com.example.bdmi.data.api.APIService
-import com.example.bdmi.data.api.MovieDetails
-import com.example.bdmi.data.api.MoviesResponse
-import com.example.bdmi.data.api.WatchProvidersResponse
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.api.models.MoviesResponse
+import com.example.bdmi.data.api.models.WatchProvidersResponse
 import javax.inject.Inject
 
 class MovieRepository @Inject constructor(
