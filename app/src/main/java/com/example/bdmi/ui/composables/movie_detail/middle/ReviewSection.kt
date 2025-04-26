@@ -13,18 +13,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import com.example.bdmi.data.repositories.MovieMetrics
+import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.theme.dimens
 import kotlinx.coroutines.launch
 
 // TODO: Prioritize Friend Reviews.
 // TODO: Make Reviews clickable.
 @Composable
-fun ReviewSection(reviews: List<String>) {
+fun ReviewSection(reviews: List<MovieReview>, movieData: MovieMetrics?) {
     // Simulate infinite scroll
     val pageCount = 1000 * reviews.size
     val startIndex = (pageCount / 2)
@@ -57,14 +63,18 @@ fun ReviewSection(reviews: List<String>) {
         }
 
         // TODO: Implement
+        var averageRating by remember { mutableDoubleStateOf(0.0) }
+        var totalReviews by remember { mutableIntStateOf(0) }
+        var ratingCounts by remember { mutableStateOf(mapOf<String, Int>()) }
+        if (movieData != null) {
+            averageRating = movieData.averageRating
+            totalReviews = movieData.reviewCount
+            ratingCounts = movieData.ratingBreakdown
+        }
         ReviewHistogram(
-            averageRating = 3.9f,
-            totalReviews = 12045,
-            ratingCounts = mapOf(
-                "5.0" to 2345, "4.5" to 1600, "4.0" to 2800, "3.5" to 3400,
-                "3.0" to 2300, "2.5" to 1200, "2.0" to 500, "1.5" to 300,
-                "1.0" to 150, "0.5" to 1600
-            )
+            averageRating = averageRating,
+            totalReviews = totalReviews,
+            ratingCounts = ratingCounts
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -89,11 +99,10 @@ fun ReviewSection(reviews: List<String>) {
         // Scrollable Review Cards
         HorizontalPager(state = pagerState) { page ->
             val reviewIndex = page % reviews.size
+            val review = reviews[reviewIndex]
             ReviewCard(
-                text = reviews[reviewIndex],
-                rating = 5f,
+                review = review,
                 liked = true,
-                username = "Steve"
             )
         }
 

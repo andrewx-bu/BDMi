@@ -67,8 +67,8 @@ fun RegisterScreen(
                     "displayName" to displayName,
                     "password" to hashPassword(password),
                 )
-                sessionViewModel.register(userInfo) { userInfo ->
-                    if (userInfo != null) {
+                sessionViewModel.register(userInfo) { success ->
+                    if (success) {
                         Log.d(TAG, "Register successful")
                         onRegisterClick()
                     } else {

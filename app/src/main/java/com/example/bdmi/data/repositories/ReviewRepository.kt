@@ -17,6 +17,23 @@ private const val MOVIES_COLLECTION = "movies"
 class ReviewRepository @Inject constructor(
     private val db: FirebaseFirestore
 ) {
+    fun getMovieData(movieId: Int, onComplete: (MovieMetrics) -> Unit) {
+        val dbFunction = "GetMovieData"
+        Log.d("$TAG$dbFunction", "Getting movie data for movie $movieId")
+
+        checkIfMovieExists(movieId) {
+            db.collection(MOVIES_COLLECTION).document(movieId.toString()).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val movieData = documentSnapshot.toObject(MovieMetrics::class.java)
+                    Log.d("$TAG$dbFunction", "Movie data retrieved: $movieData")
+                    onComplete(movieData!!)
+                }
+                .addOnFailureListener { e ->
+                    Log.w("$TAG$dbFunction", "Error getting movie data", e)
+                }
+        }
+    }
+
     /*
      * Creates a new review for a movie using transactions
      * Updates the movies total review count
@@ -24,7 +41,7 @@ class ReviewRepository @Inject constructor(
      */
     fun createReview(
         userId: String, movieId: Int,
-        review: Review, userReview: UserReview,
+        movieReview: MovieReview, userReview: UserReview,
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "CreateReview"
@@ -46,20 +63,20 @@ class ReviewRepository @Inject constructor(
                 val newMovieReviewCount = if (reviewSnapshot.exists()) movieReviewCount else movieReviewCount + 1
 
                 transaction.update(movieDoc, "reviewCount", newMovieReviewCount)
-                transaction.set(movieReviewDoc, review)
+                transaction.set(movieReviewDoc, movieReview)
 
                 // Updates users review meta data and sets review
                 val profileSnapshot = transaction.get(profileDoc)
                 val profileReviewSnapshot = transaction.get(profileReviewDoc)
 
-                val profileReviewCount = snapshot.getLong("reviewCount")?: 0
-                val newProfileReviewCount = if (reviewSnapshot.exists()) profileReviewCount else profileReviewCount + 1
+                val profileReviewCount = profileSnapshot.getLong("reviewCount")?: 0
+                val newProfileReviewCount = if (profileReviewSnapshot.exists()) profileReviewCount else profileReviewCount + 1
 
                 transaction.update(profileDoc, "reviewCount", newProfileReviewCount)
-                transaction.set(profileReviewDoc, review)
+                transaction.set(profileReviewDoc, userReview)
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Review created successfully")
-                setRating(userId, movieId, review.rating)
+                setRating(userId, movieId, movieReview.rating)
 
                 onComplete(true)
             }.addOnFailureListener { e ->
@@ -78,6 +95,9 @@ class ReviewRepository @Inject constructor(
         checkIfMovieExists(movieId) {
             val movieDoc = db.collection(MOVIES_COLLECTION).document(movieId.toString())
             val reviewDoc = movieDoc.collection(REVIEWS_COLLECTION).document(userId)
+            val profileDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            val profileReviewDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+                .collection(REVIEWS_COLLECTION).document(movieId.toString())
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(movieDoc)
@@ -87,6 +107,13 @@ class ReviewRepository @Inject constructor(
                 val newReviewCount = reviewCount - 1
                 transaction.update(movieDoc, "reviewCount", newReviewCount)
                 transaction.delete(reviewDoc)
+
+                val profileSnapshot = transaction.get(profileDoc)
+
+                val profileReviewCount = profileSnapshot.getLong("reviewCount")?: 0
+                val newProfileReviewCount = if (profileReviewCount > 0) profileReviewCount - 1 else 0
+                transaction.update(profileDoc, "reviewCount", newProfileReviewCount)
+                transaction.delete(profileReviewDoc)
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Review deleted successfully")
             }.addOnFailureListener { e ->
@@ -108,7 +135,7 @@ class ReviewRepository @Inject constructor(
         rating: Float? = null,
         lastVisible: DocumentSnapshot? = null,
         pageSize: Int = 20,
-        onComplete: (List<Review>, DocumentSnapshot?) -> Unit
+        onComplete: (List<MovieReview>, DocumentSnapshot?) -> Unit
     ) {
         val dbFunction = "GetReviews"
         Log.d("$TAG$dbFunction", "Getting reviews for movie $movieId")
@@ -132,7 +159,7 @@ class ReviewRepository @Inject constructor(
             }
 
             paginatedQuery.get().addOnSuccessListener { querySnapshot ->
-                val reviews = querySnapshot.toObjects(Review::class.java)
+                val reviews = querySnapshot.toObjects(MovieReview::class.java)
                 val newLastVisible = querySnapshot.documents.lastOrNull()
                 onComplete(reviews, newLastVisible)
             }
@@ -140,7 +167,7 @@ class ReviewRepository @Inject constructor(
     }
 
     // Gets the review of the logged in user to pin on the carousel
-    fun getReview(userId: String, movieId: Int, onComplete: (Review?) -> Unit) {
+    fun getReview(userId: String, movieId: Int, onComplete: (MovieReview?) -> Unit) {
         val dbFunction = "GetReview"
         Log.d("$TAG$dbFunction", "Getting review for user $userId and movie $movieId")
 
@@ -150,8 +177,10 @@ class ReviewRepository @Inject constructor(
 
             reviewDoc.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    val review = documentSnapshot.toObject(Review::class.java)
+                    val review = documentSnapshot.toObject(MovieReview::class.java)
                     onComplete(review)
+                } else {
+                    onComplete(null)
                 }
             }
         }
@@ -289,7 +318,7 @@ class ReviewRepository @Inject constructor(
 
         movieDoc.get(Source.CACHE).addOnSuccessListener { documentSnapshot ->
             if (!documentSnapshot.exists()) {
-                val movieData = Movie() // Sets movie data to default values
+                val movieData = MovieMetrics() // Sets movie data to default values
                 Log.d("$TAG$dbFunction", "Movie does not exist in local cache, adding it")
                 movieDoc.set(movieData).addOnSuccessListener { onComplete() }
             } else {

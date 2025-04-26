@@ -40,9 +40,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.bdmi.SessionViewModel
+import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
+import com.example.bdmi.data.repositories.MovieMetrics
+import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.data.utils.fadingEdge
 import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.LoadingIndicator
@@ -67,15 +70,24 @@ fun MovieDetailScreen(
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
-    var userPrivileges by remember { mutableStateOf(false) }
+    val movieData by viewModel.movieData.collectAsState()
+    val lists by viewModel.lists.collectAsState()
+    val userPrivileges by viewModel.userPrivileges.collectAsState()
+    val carouselReviews by viewModel.carouselReviews.collectAsState()
+    val userReview by viewModel.userReview.collectAsState()
 
     LaunchedEffect(movieId) {
         launch { viewModel.refreshDetails(movieId) }
-        if (sessionViewModel != null) {
-            if (sessionViewModel.userInfo.value != null) {
-                userPrivileges = true
+        launch {
+            if (sessionViewModel != null) {
+                if (sessionViewModel.userInfo.value != null) {
+                    viewModel.setPrivileges(true)
+                    viewModel.setLists(sessionViewModel.watchlists.value)
+                    viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
+                }
             }
         }
+        launch { viewModel.reviewCarousel(movieId) }
     }
 
     val details = uiState.details
@@ -143,17 +155,17 @@ fun MovieDetailScreen(
 
                 item {
                     // TODO: Add actual reviews
-                    val reviews = listOf(
-                        "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-                                "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
-                        "Flint and Steel",
-                        "Ender Pearl",
-                        "Water Bucket Release",
-                        "Diamond Armor, Full Set"
-                    )
-                    MiddleSection(details, reviews)
+//                    val reviews = listOf(
+//                        "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+//                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+//                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
+//                                "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
+//                        "Flint and Steel",
+//                        "Ender Pearl",
+//                        "Water Bucket Release",
+//                        "Diamond Armor, Full Set"
+//                    )
+                    MiddleSection(details, carouselReviews, movieData)
                 }
 
                 item {
@@ -232,7 +244,7 @@ fun TopSection(
 
 // Description and Reviews
 @Composable
-fun MiddleSection(details: MovieDetails, reviews: List<String>) {
+fun MiddleSection(details: MovieDetails, reviews: List<MovieReview>, movieData: MovieMetrics?) {
     var isExpanded by remember { mutableStateOf(false) }
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     val maxLines = if (isExpanded) Int.MAX_VALUE else uiConstants.descriptionMaxLines
@@ -280,7 +292,7 @@ fun MiddleSection(details: MovieDetails, reviews: List<String>) {
             }
         }
         Spacer(Modifier.height(dimens.small2))
-        ReviewSection(reviews = reviews)
+        ReviewSection(reviews = reviews, movieData = movieData)
     }
 }
 

@@ -27,7 +27,7 @@ import com.example.bdmi.ui.theme.dimens
 
 @Composable
 fun ReviewHistogram(
-    averageRating: Float,
+    averageRating: Double,
     totalReviews: Int,
     ratingCounts: Map<String, Int>,
 ) {

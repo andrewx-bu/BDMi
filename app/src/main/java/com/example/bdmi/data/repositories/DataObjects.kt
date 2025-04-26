@@ -4,29 +4,27 @@ import com.google.firebase.Timestamp
 
 /* Used in Review Journey */
 // For Review Repository
-data class Movie(
+data class MovieMetrics(
     val reviewCount : Int = 0,
     val averageRating : Double = 0.0,
     val ratingCount : Int = 0,
     val ratingSum : Double = 0.0,
     val ratingBreakdown : Map<String, Int> = mapOf(
-        ".5" to 0,
-        "1" to 0,
+        "0.5" to 0,
+        "1.0" to 0,
         "1.5" to 0,
-        "2" to 0,
+        "2.0" to 0,
         "2.5" to 0,
-        "3" to 0,
+        "3.0" to 0,
         "3.5" to 0,
-        "4" to 0,
+        "4.0" to 0,
         "4.5" to 0,
-        "5" to 0
+        "5.0" to 0
     )
 )
 
-data class Review(
-    val userId: String,
-    val userName: String,
-    val userProfilePicture: String,
+// Base review class
+open class Review(
     val reviewTitle: String,
     val reviewText: String,
     val rating: Float,
@@ -34,17 +32,29 @@ data class Review(
     val timestamp: Timestamp = Timestamp.now()
 )
 
-// For User Repository
-data class UserReview(
+// User-specific review class
+class UserReview(
     val movieId: Int,
     val movieTitle: String,
     val posterPath: String,
-    val reviewTitle: String,
-    val reviewText: String,
-    val rating: Float,
-    val spoiler: Boolean = false,
-    val timestamp: Timestamp = Timestamp.now()
-)
+    reviewTitle: String,
+    reviewText: String,
+    rating: Float,
+    spoiler: Boolean = false,
+    timestamp: Timestamp = Timestamp.now()
+) : Review(reviewTitle, reviewText, rating, spoiler, timestamp)
+
+// Movie-specific review class
+class MovieReview(
+    val userId: String,
+    val displayName: String,
+    val userProfilePicture: String,
+    reviewTitle: String,
+    reviewText: String,
+    rating: Float,
+    spoiler: Boolean = false,
+    timestamp: Timestamp = Timestamp.now(),
+) : Review(reviewTitle, reviewText, rating, spoiler, timestamp)
 
 // Used in Watchlist Journey
 data class CustomList(

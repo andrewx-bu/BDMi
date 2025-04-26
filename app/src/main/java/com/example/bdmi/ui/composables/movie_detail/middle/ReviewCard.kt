@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.StarHalf
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,19 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
+import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
-fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
+fun ReviewCard(review: MovieReview, liked: Boolean) {
     Column {
         // Review info row
         Row(
             modifier = Modifier.padding(horizontal = dimens.small2),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val fullStars = rating.toInt()
-            val hasHalf = (rating - fullStars) >= 0.5f
+            // TODO: Logic here is confusing
+            val fullStars = review.rating.toInt()
+            val hasHalf = (review.rating - fullStars) >= 0.5f
             val starCount = fullStars + if (hasHalf) 1 else 0
             // Stars
             repeat(starCount) { index ->
@@ -69,17 +71,17 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
             //
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = username,
+                    text = review.displayName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
-                // TODO: Show Icon if is Friend
-                Icon(
-                    imageVector = Icons.Default.Group,
-                    contentDescription = "Friend",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(dimens.iconSmall)
-                )
+                // TODO: Show Icon if is Friend | Not implementing rn
+//                Icon(
+//                    imageVector = Icons.Default.Group,
+//                    contentDescription = "Friend",
+//                    tint = MaterialTheme.colorScheme.secondary,
+//                    modifier = Modifier.size(dimens.iconSmall)
+//                )
             }
             Spacer(Modifier.width(dimens.small3))
             // Profile photo
@@ -89,10 +91,17 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.secondaryContainer)
                     .clickable { /* TODO: Implement */ }
-            )
+            ) {
+                AsyncImage(
+                    model = review.userProfilePicture,
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
         Spacer(Modifier.height(dimens.small3))
         // Review text
+        // TODO: Add review title, and clickable to all reviews screen
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,7 +111,7 @@ fun ReviewCard(text: String, rating: Float, liked: Boolean, username: String) {
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
             Text(
-                text = text,
+                text = review.reviewText,
                 modifier = Modifier.padding(dimens.medium1),
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = uiConstants.reviewMaxLines,

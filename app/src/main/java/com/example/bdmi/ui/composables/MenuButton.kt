@@ -39,10 +39,6 @@ fun MenuButton(
     var showWatchlists by remember { mutableStateOf(false) }
     val watchlists = movieDetailViewModel.lists.collectAsState()
     val userId = sessionViewModel?.userInfo?.collectAsState()?.value?.userId
-    LaunchedEffect(Unit) {
-        if (userId != null)
-            movieDetailViewModel.getLists(userId.toString())
-    }
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier
