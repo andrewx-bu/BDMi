@@ -10,27 +10,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.models.Movie
+import com.example.bdmi.data.api.models.MovieDetails
 import kotlinx.coroutines.launch
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MovieRepository
+import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.WatchlistRepository
 import com.example.bdmi.data.utils.SessionManager
+import com.google.firebase.auth.FirebaseAuth
 
 private const val TAG = "SessionViewModel"
 
-data class UserInfo(
-    val userId: String = "", // Provide a default value
-    val displayName: String? = null,
-    val profilePicture: String? = null,
-    val friendCount: Long? = null,
-    val listCount: Long? = null,
-    val reviewCount: Long? = null,
-    val isPublic: Boolean? = null,
-    // Add other fields later
-)
-
 @HiltViewModel
 class SessionViewModel @Inject constructor(
+    private val firebaseAuth: FirebaseAuth,
     private val sessionManager: SessionManager,
     private val userRepository: UserRepository,
     private val watchlistRepository: WatchlistRepository,
@@ -54,11 +47,17 @@ class SessionViewModel @Inject constructor(
     private val _cachedMovies = MutableStateFlow<List<Movie>>(emptyList())
     val cachedMovies: StateFlow<List<Movie>> = _cachedMovies.asStateFlow()
 
+    private val _selectedMovie = MutableStateFlow<MovieDetails?>(null)
+    val selectedMovie: StateFlow<MovieDetails?> = _selectedMovie.asStateFlow()
+
+    // Loads user if they are logged in, gets the current theme, and load cached info
     init {
         _darkMode.value = sessionManager.getDarkMode()
-        val userId = sessionManager.getUserId()
-        Log.d("UserViewModel", "UserViewModel initialized with userId: $userId")
-        if (userId != null) {
+        val currentUser = firebaseAuth.currentUser
+
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            Log.d("UserViewModel", "UserViewModel initialized with userId: $userId")
             viewModelScope.launch {
                 loadUser(userId) { loadedUserInfo ->
                     if (loadedUserInfo != null) {
@@ -104,6 +103,7 @@ class SessionViewModel @Inject constructor(
     }
 
     fun logout() {
+        firebaseAuth.signOut()
         userRepository.removeUserListener()
         _isLoggedIn.value = false
         _userInfo.value = null
@@ -113,13 +113,14 @@ class SessionViewModel @Inject constructor(
     }
 
     fun login(
-        loginInformation: HashMap<String, String>,
+        email: String,
+        password: String,
         onComplete: (UserInfo?) -> Unit
     ) {
-        Log.d(TAG, "Logging in with email: ${loginInformation["email"]}")
+        Log.d(TAG, "Logging in with email: $email")
 
         viewModelScope.launch {
-            userRepository.authenticateUser(loginInformation) { userId ->
+            userRepository.authenticateUser(email, password) { userId ->
                 if (userId != null) {
                     loadUser(userId) { loadedUserInfo ->
                         if (loadedUserInfo != null) {
@@ -166,7 +167,7 @@ class SessionViewModel @Inject constructor(
         }
     }
 
-    // Needs testing still
+    // TODO: Update with Firebase Auth
     fun deleteUser(userId: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             userRepository.deleteUser(userId, onComplete)
@@ -177,4 +178,14 @@ class SessionViewModel @Inject constructor(
         _darkMode.value = !_darkMode.value
         sessionManager.setDarkMode(_darkMode.value)
     }
+
+    fun loadSelectedMovie(movieDetails: MovieDetails) {
+        _selectedMovie.value = movieDetails
+    }
+
+    // Unsure how to use this as of now
+    fun clearSelectedMovie() {
+        _selectedMovie.value = null
+    }
+
 }

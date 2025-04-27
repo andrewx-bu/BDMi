@@ -59,6 +59,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
+import com.example.bdmi.ui.composables.MenuButton
 import com.example.bdmi.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,7 +134,8 @@ fun MainScreen(
                     MovieDetailTopAppBar(
                         title = titleState.value,
                         onBackClick = { navController.popBackStack() },
-                        scrollBehavior = scrollBehavior
+                        scrollBehavior = scrollBehavior,
+                        sessionViewModel = sessionViewModel
                     )
                 }
             }
@@ -249,6 +251,7 @@ fun MovieDetailTopAppBar(
     title: String,
     onBackClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    sessionViewModel: SessionViewModel
 ) {
     TopAppBar(
         title = {
@@ -278,17 +281,7 @@ fun MovieDetailTopAppBar(
             }
         },
         actions = {
-            IconButton(
-                onClick = { /* TODO: More Options */ },
-                modifier = Modifier
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreHoriz,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(dimens.iconMedium)
-                )
-            }
+            MenuButton(sessionViewModel)
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,

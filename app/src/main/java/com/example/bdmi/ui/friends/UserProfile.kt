@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.SessionViewModel
-import com.example.bdmi.UserInfo
+import com.example.bdmi.data.repositories.FriendStatus
+import com.example.bdmi.data.repositories.ProfileBanner
+import com.example.bdmi.data.repositories.UserInfo
 
 private const val TAG = "ProfileScreen"
 

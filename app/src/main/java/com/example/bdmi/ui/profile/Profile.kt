@@ -75,7 +75,7 @@ fun ProfileScreen(
         }
     }
 
-    if (isLoggedIn && userInfo != null) {
+    if (isLoggedIn) {
         // Followed android docs for this
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null) {

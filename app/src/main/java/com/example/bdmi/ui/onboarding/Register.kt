@@ -16,11 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.bdmi.SessionViewModel
-import com.example.bdmi.data.utils.hashPassword
 
 private const val TAG = "RegisterScreen"
 
@@ -32,7 +30,6 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val context = LocalContext.current
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,7 +62,7 @@ fun RegisterScreen(
                 val userInfo: HashMap<String, Any> = hashMapOf(
                     "email" to email,
                     "displayName" to displayName,
-                    "password" to hashPassword(password),
+                    "password" to password,
                 )
                 sessionViewModel.register(userInfo) { success ->
                     if (success) {

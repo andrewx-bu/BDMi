@@ -16,7 +16,7 @@ class WatchlistRepository @Inject constructor(
     private val db: FirebaseFirestore
 ) {
     // Creates a new custom list in the database
-    fun createList(userId: String, list: CustomList, onComplete: (Boolean) -> Unit) {
+    fun createList(userId: String, list: CustomList, onComplete: (CustomList?) -> Unit) {
         val dbFunction = "CreateList"
 
         db.collection(PUBLIC_PROFILES_COLLECTION)
@@ -29,16 +29,17 @@ class WatchlistRepository @Inject constructor(
                 documentReference.update("listId", listId)
                     .addOnSuccessListener {
                         Log.d("$TAG$dbFunction", "List ID updated successfully")
-                        onComplete(true)
+                        val updatedList = list.copy(listId = listId)
+                        onComplete(updatedList)
                     }
                     .addOnFailureListener { e ->
                         Log.w("$TAG$dbFunction", "Error updating list ID", e)
-                        onComplete(false)
+                        onComplete(null)
                     }
             }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error adding list", e)
-                onComplete(false)
+                onComplete(null)
             }
 
     }

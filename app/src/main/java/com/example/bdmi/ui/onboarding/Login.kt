@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.bdmi.data.utils.hashPassword
 import com.example.bdmi.SessionViewModel
 
 private const val TAG = "LoginScreen"
@@ -55,11 +54,7 @@ fun LoginScreen(
         Button(
             onClick = {
                 Log.d(TAG, "Login button clicked")
-                val loginInfo: HashMap<String, String> = hashMapOf(
-                    "email" to email,
-                    "password" to hashPassword(password)
-                )
-                sessionViewModel.login(loginInfo) { userInfo ->
+                sessionViewModel.login(email, password) { userInfo ->
                     if (userInfo != null) {
                         onLoginClick()
                     } else {

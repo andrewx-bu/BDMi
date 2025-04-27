@@ -2,6 +2,16 @@ package com.example.bdmi.data.repositories
 
 import com.google.firebase.Timestamp
 
+data class UserInfo(
+    val userId: String = "", // Provide a default value
+    val displayName: String? = "",
+    val profilePicture: String? = "https://res.cloudinary.com/dle98umos/image/upload/v1744005666/default_hm4pfx.jpg",
+    val friendCount: Long? = 0,
+    val listCount: Long? = 0,
+    val reviewCount: Long? = 0,
+    val isPublic: Boolean? = true,
+)
+
 /* Used in Review Journey */
 // For Review Repository
 data class MovieMetrics(
@@ -97,4 +107,20 @@ sealed class NotificationType {
     ) : NotificationType()
     object Message : NotificationType()
     object Review : NotificationType()
+}
+
+data class ProfileBanner(
+    val userId: String = "", // Provide a default value
+    val displayName: String = "",
+    val profilePicture: String = "",
+    val friendCount: Long? = 0,
+    val listCount: Long? = 0,
+    val reviewCount: Long? = 0,
+    val isPublic: Boolean? = true
+)
+
+enum class FriendStatus {
+    NOT_FRIENDS,
+    PENDING,
+    FRIEND
 }

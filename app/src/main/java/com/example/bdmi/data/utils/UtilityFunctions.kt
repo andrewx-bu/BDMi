@@ -6,14 +6,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import java.security.MessageDigest
-
-// Returns the password hash in SHA-256
-fun hashPassword(password: String): String {
-    val digest = MessageDigest.getInstance("SHA-256")
-    val hash = digest.digest(password.toByteArray())
-    return hash.joinToString("") { "%02x".format(it) }
-}
 
 // Formats budget and revenue
 fun formatAmount(value: Long): String {

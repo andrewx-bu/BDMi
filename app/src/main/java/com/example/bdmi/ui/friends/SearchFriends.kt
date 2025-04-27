@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.bdmi.data.repositories.ProfileBanner
 import com.example.bdmi.ui.notifications.UserStats
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce

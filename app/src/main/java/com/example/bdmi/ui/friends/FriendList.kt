@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
+import com.example.bdmi.data.repositories.ProfileBanner
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

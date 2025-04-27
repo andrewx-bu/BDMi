@@ -4,30 +4,16 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
+import com.example.bdmi.data.repositories.FriendStatus
+import com.example.bdmi.data.repositories.ProfileBanner
+import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.UserRepository
-import com.example.bdmi.UserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class ProfileBanner(
-    val userId: String = "", // Provide a default value
-    val displayName: String = "",
-    val profilePicture: String = "",
-    val friendCount: Long? = 0,
-    val listCount: Long? = 0,
-    val reviewCount: Long? = 0,
-    val isPublic: Boolean? = true
-)
-
-enum class FriendStatus {
-    NOT_FRIENDS,
-    PENDING,
-    FRIEND
-}
 
 private const val TAG = "FriendViewModel"
 

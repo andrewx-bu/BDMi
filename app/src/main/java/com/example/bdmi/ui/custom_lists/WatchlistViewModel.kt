@@ -34,11 +34,15 @@ class WatchlistViewModel @Inject constructor(
 
     fun createList(userId: String, list: CustomList) {
         Log.d(TAG, "Creating a list for user: $userId")
-        _lists.value += list
 
         viewModelScope.launch {
-            watchlistRepository.createList(userId, list) { success ->
+            watchlistRepository.createList(userId, list) { list ->
                 Log.d(TAG, "List created successfully")
+                if (list != null) {
+                    _lists.value = listOf(list) + _lists.value
+                } else {
+                    Log.d(TAG, "List creation failed")
+                }
             }
         }
     }

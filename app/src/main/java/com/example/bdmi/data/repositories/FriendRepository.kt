@@ -1,9 +1,6 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.example.bdmi.ui.friends.FriendStatus
-import com.example.bdmi.ui.friends.ProfileBanner
-import com.example.bdmi.UserInfo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore

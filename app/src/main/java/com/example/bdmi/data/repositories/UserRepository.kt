@@ -1,11 +1,9 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
-import com.cloudinary.android.MediaManager
-import com.example.bdmi.UserInfo
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
 
 // Constants
@@ -16,6 +14,7 @@ private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
 // Repository class for user database operations
 class UserRepository @Inject constructor(
     private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
 ) {
     private var userListener: ListenerRegistration? = null
 
@@ -44,9 +43,52 @@ class UserRepository @Inject constructor(
         userListener = null
     }
 
+
+    // Creates a user in FirebaseAuth first, then adds user info to Firestore
+    fun createUser(
+        userInformation: HashMap<String, Any>,
+        onComplete: (UserInfo?) -> Unit
+    ) {
+        val dbFunction = "createUser"
+
+        auth.createUserWithEmailAndPassword(userInformation["email"].toString(), userInformation["password"].toString())
+            .addOnSuccessListener { authResult ->
+                val userId = authResult.user?.uid ?: return@addOnSuccessListener onComplete(null)
+
+                // Add userId into userInformation
+                userInformation["userId"] = userId
+                userInformation.remove("password") // Remove password from userInformation
+
+                db.collection(USERS_COLLECTION)
+                    .document(userId)
+                    .set(userInformation)
+                    .addOnSuccessListener {
+                        Log.d("$TAG$dbFunction", "User added successfully with ID: $userId")
+
+                        val profileInfo = UserInfo(
+                            userId = userId,
+                            displayName =  userInformation["displayName"] as? String
+                        )
+
+                        createPublicProfile(userId, profileInfo) {
+                            Log.d("$TAG$dbFunction", "Public profile created")
+
+                            onComplete(profileInfo)
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("$TAG$dbFunction", "Error saving user info", e)
+                        onComplete(null)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error creating FirebaseAuth user", e)
+                onComplete(null)
+            }
+    }
     // Adds a user to the users collection. Information should already be validated and password hashed
     // Checks for unique email before adding
-    fun createUser(
+   /* fun createUser(
         userInformation: HashMap<String, Any>,
         onComplete: (UserInfo?) -> Unit
     ) {
@@ -115,13 +157,13 @@ class UserRepository @Inject constructor(
                 Log.e("$TAG$dbFunction", "Error checking email uniqueness", e)
                 onComplete(null) //Error during email check
             }
-    }
+    }*/
 
     // Creates a public profile for a user.
     // Called from the createUser function when a user is created
     private fun createPublicProfile(
         userId: String,
-        profileInfo: HashMap<String, Any?>,
+        profileInfo: UserInfo,
         onComplete: (Boolean) -> Unit = {}
     ) {
         val dbFunction = "addPublicProfile"
@@ -161,9 +203,34 @@ class UserRepository @Inject constructor(
             }
     }
 
+    // Authenticates a user with Firebase Authentication
+    fun authenticateUser(
+        email: String,
+        password: String,
+        onComplete: (String?) -> Unit
+    ) {
+        val dbFunction = "authenticateUser"
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+                val userId = authResult.user?.uid
+                if (userId != null) {
+                    Log.d("$TAG$dbFunction", "Authentication successful")
+                    onComplete(userId)
+                } else {
+                    Log.d("$TAG$dbFunction", "Authentication failed: no UID")
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Authentication failed", e)
+                onComplete(null)
+            }
+    }
+
     // Authenticates a user during the login process
     // Returns a HashMap of the user's information via onComplete, or null if the user doesn't exist
-    fun authenticateUser(
+    /*fun authenticateUser(
         loginInformation: HashMap<String, String>,
         onComplete: (String?) -> Unit
     ) {
@@ -188,7 +255,7 @@ class UserRepository @Inject constructor(
                 Log.e("$TAG$dbFunction", "Error loading user", e)
                 onComplete(null) // Return null in case of error
             }
-    }
+    }*/
 
     // Updates a user's information in the users collection
     // Returns true if the update was successful, false otherwise
