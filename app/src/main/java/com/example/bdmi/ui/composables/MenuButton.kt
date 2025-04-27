@@ -1,5 +1,6 @@
 package com.example.bdmi.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -30,15 +31,16 @@ import com.example.bdmi.ui.theme.dimens
 // TODO: Issue with dropdown menu overlapping
 @Composable
 fun MenuButton(
-    userPrivileges: Boolean,
-    sessionViewModel: SessionViewModel?,
-    movieDetails: MovieDetails?,
+    sessionViewModel: SessionViewModel,
 ) {
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
     var expanded by remember { mutableStateOf(false) }
     var showWatchlists by remember { mutableStateOf(false) }
-    val watchlists = movieDetailViewModel.lists.collectAsState()
-    val userId = sessionViewModel?.userInfo?.collectAsState()?.value?.userId
+    val watchlists = sessionViewModel.watchlists.collectAsState()
+    val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val loggedIn = sessionViewModel.isLoggedIn.collectAsState().value
+    val movieDetails = sessionViewModel.selectedMovie.collectAsState().value
+    Log.d("MenuButton", "Movie Details: $movieDetails")
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier
@@ -61,11 +63,22 @@ fun MenuButton(
             showWatchlists = false
         }
     ) {
-        if (userPrivileges) {
+        if (loggedIn && movieDetails != null) {
             DropdownMenuItem(
                 text = { Text("Add to Watchlist") },
                 onClick = {
+                    // Close current dropdown and open watchlist dropdown
+                    expanded = false
                     showWatchlists = true
+                }
+            )
+
+        } else {
+            // TODO: Add future support for non-logged in users
+            DropdownMenuItem(
+                text = { Text("Login/Register") },
+                onClick = {
+                    expanded = false
                 }
             )
         }
@@ -91,7 +104,6 @@ fun MenuButton(
                             )
                         )
                         showWatchlists = false
-                        expanded = false
                     }
                 )
             }

@@ -63,7 +63,7 @@ import java.util.Locale
 @Composable
 fun MovieDetailScreen(
     navController: NavHostController,
-    sessionViewModel: SessionViewModel? = null,
+    sessionViewModel: SessionViewModel,
     movieId: Int,
     onMovieClick: (Int) -> Unit
 ) {
@@ -76,12 +76,10 @@ fun MovieDetailScreen(
     LaunchedEffect(movieId) {
         launch { viewModel.refreshDetails(movieId) }
         launch {
-            if (sessionViewModel != null) {
-                if (sessionViewModel.userInfo.value != null) {
-                    viewModel.setPrivileges(true)
-                    viewModel.setLists(sessionViewModel.watchlists.value)
-                    viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
-                }
+            if (sessionViewModel.userInfo.value != null) {
+                viewModel.setPrivileges(true)
+                viewModel.setLists(sessionViewModel.watchlists.value)
+                viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
             }
         }
         launch { viewModel.reviewCarousel(movieId) }
@@ -112,6 +110,7 @@ fun MovieDetailScreen(
         }
 
         details != null -> {
+            sessionViewModel.loadSelectedMovie(details)
             LaunchedEffect(details) {
                 details.title.let { title ->
                     navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -151,17 +150,6 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    // TODO: Add actual reviews
-//                    val reviews = listOf(
-//                        "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-//                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-//                                "Chicken Jockey Chicken Jockey Chicken Jockey Chicken Jockey " +
-//                                "Chicken Jockey CHICKEN JOCKEY CHICKEN JOCKEY CHICKEN JOCKEY",
-//                        "Flint and Steel",
-//                        "Ender Pearl",
-//                        "Water Bucket Release",
-//                        "Diamond Armor, Full Set"
-//                    )
                     MiddleSection(details, carouselReviews, movieData)
                 }
 
