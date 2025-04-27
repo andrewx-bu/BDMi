@@ -36,6 +36,9 @@ class SessionViewModel @Inject constructor(
     private val watchlistRepository: WatchlistRepository,
     private val movieRepository: MovieRepository
 ) : ViewModel() {
+    private val _darkMode = MutableStateFlow(false)
+    val darkMode: StateFlow<Boolean> = _darkMode.asStateFlow()
+
     private val _userInfo = MutableStateFlow<UserInfo?>(null)
     val userInfo: StateFlow<UserInfo?> = _userInfo.asStateFlow()
 
@@ -52,6 +55,7 @@ class SessionViewModel @Inject constructor(
     val cachedMovies: StateFlow<List<Movie>> = _cachedMovies.asStateFlow()
 
     init {
+        _darkMode.value = sessionManager.getDarkMode()
         val userId = sessionManager.getUserId()
         Log.d("UserViewModel", "UserViewModel initialized with userId: $userId")
         if (userId != null) {
@@ -99,6 +103,15 @@ class SessionViewModel @Inject constructor(
 
     }
 
+    fun logout() {
+        userRepository.removeUserListener()
+        _isLoggedIn.value = false
+        _userInfo.value = null
+        _watchlists.value = emptyList()
+        _cachedMovies.value = emptyList() // Clear user info on logout
+        sessionManager.clearUserId()
+    }
+
     fun login(
         loginInformation: HashMap<String, String>,
         onComplete: (UserInfo?) -> Unit
@@ -122,15 +135,6 @@ class SessionViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun logout() {
-        userRepository.removeUserListener()
-        _isLoggedIn.value = false
-        _userInfo.value = null
-        _watchlists.value = emptyList()
-        _cachedMovies.value = emptyList() // Clear user info on logout
-        sessionManager.clearUserId()
     }
 
     fun register(
@@ -167,5 +171,10 @@ class SessionViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.deleteUser(userId, onComplete)
         }
+    }
+
+    fun switchTheme() {
+        _darkMode.value = !_darkMode.value
+        sessionManager.setDarkMode(_darkMode.value)
     }
 }

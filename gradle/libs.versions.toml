@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.1"
+agp = "8.9.2"
 animationCore = "1.7.8"
 cloudinaryAndroidVersion = "3.0.2"
 coilCompose = "3.1.0"

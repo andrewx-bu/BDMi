@@ -2,10 +2,7 @@ package com.example.bdmi.navigation
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,28 +20,24 @@ fun RootNavGraph(
     } else {
         OnboardingRoutes.Root.route
     }
-    // TODO: Implement dark theme into preferences
-    val systemDark = isSystemInDarkTheme()
-    var darkTheme by remember { mutableStateOf(systemDark) }
-    //Force dark theme:
-    //var darkTheme by remember { mutableStateOf(true) }
+    val darkTheme = sessionViewModel.darkMode.collectAsState()
+    if (isSystemInDarkTheme() && darkTheme.value == false) {
+        sessionViewModel.switchTheme()
+    }
 
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
         // Onboarding nav graph that includes login and register
-        onboardingNavGraph(navController, sessionViewModel)
+        onboardingNavGraph(navController, sessionViewModel, darkTheme.value)
 
         // Main nav graph that includes home, search, bookmarks, profile, and notifications
-        //mainNavGraph(userViewModel)
         composable(MainRoutes.Root.route) {
-            AppTheme(darkTheme = darkTheme) {
+            AppTheme(darkTheme = darkTheme.value) {
                 MainScreen(
                     rootNavController = navController,
                     sessionViewModel = sessionViewModel,
-                    darkTheme = darkTheme,
-                    switchTheme = { darkTheme = !darkTheme }
                 )
             }
         }

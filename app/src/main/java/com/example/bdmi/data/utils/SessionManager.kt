@@ -13,7 +13,7 @@ class SessionManager @Inject constructor(
     private val prefs = context.getSharedPreferences("BDMi_Prefs", Context.MODE_PRIVATE)
 
     fun saveUserId(userId: String) {
-        prefs.edit() { putString("userId", userId) }
+        prefs.edit { putString("userId", userId) }
     }
 
     fun getUserId(): String? {
@@ -21,6 +21,15 @@ class SessionManager @Inject constructor(
     }
 
     fun clearUserId() {
-        prefs.edit() { remove("userId") }
+        prefs.edit { remove("userId") }
     }
+
+    fun getDarkMode(): Boolean {
+        return prefs.getBoolean("darkMode", false)
+    }
+
+    fun setDarkMode(darkMode: Boolean) {
+        prefs.edit { putBoolean("darkMode", darkMode) }
+    }
+
 }

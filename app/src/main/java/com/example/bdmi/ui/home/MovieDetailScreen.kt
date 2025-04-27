@@ -40,7 +40,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.bdmi.SessionViewModel
-import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
@@ -71,8 +70,6 @@ fun MovieDetailScreen(
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
     val movieData by viewModel.movieData.collectAsState()
-    val lists by viewModel.lists.collectAsState()
-    val userPrivileges by viewModel.userPrivileges.collectAsState()
     val carouselReviews by viewModel.carouselReviews.collectAsState()
     val userReview by viewModel.userReview.collectAsState()
 
