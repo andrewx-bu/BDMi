@@ -71,6 +71,8 @@ dependencies {
     //Firebase libraries
     implementation(libs.google.firebase.firestore)
     implementation(platform(libs.firebase.bom))
+//    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
     //Hilt and viewmodel libraries
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

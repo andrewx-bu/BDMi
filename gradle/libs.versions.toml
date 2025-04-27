@@ -1,22 +1,22 @@
 [versions]
 agp = "8.9.2"
-animationCore = "1.7.8"
+animationCore = "1.8.0"
 cloudinaryAndroidVersion = "3.0.2"
 coilCompose = "3.1.0"
 coilComposeVersion = "2.6.0"
 composeShimmer = "1.3.2"
 converterMoshi = "2.11.0"
 firebaseBom = "33.12.0"
-firebaseFirestore = "25.1.3"
+firebaseFirestore = "25.1.4"
 jetpackLoading = "1.1.0"
-kotlin = "2.0.21"
+kotlin = "2.1.20"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.04.00"
+composeBom = "2025.04.01"
 google-services = "4.4.2"
 loggingInterceptor = "4.12.0"
 materialIconsExtended = "1.7.8"
@@ -43,7 +43,8 @@ coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+#firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-bom = { module = "com.google.firebase:firebbase-bom", version.ref = "firebaseBom" }
 google-firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
 jetpack-loading = { module = "com.github.MahboubehSeyedpour:jetpack-loading", version.ref = "jetpackLoading" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
