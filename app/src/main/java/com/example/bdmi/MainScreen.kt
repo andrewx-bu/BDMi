@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -59,7 +58,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
-import com.example.bdmi.ui.composables.MenuButton
+import com.example.bdmi.ui.composables.movie_detail.MenuButton
 import com.example.bdmi.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -85,6 +85,11 @@ fun MovieDetailScreen(
         launch { viewModel.reviewCarousel(movieId) }
     }
 
+    LaunchedEffect(userReview) {
+        if (userReview != null)
+            sessionViewModel.loadSelectedMovieReview(userReview!!)
+    }
+
     val details = uiState.details
     val providers = uiState.providers
     val error = uiState.error

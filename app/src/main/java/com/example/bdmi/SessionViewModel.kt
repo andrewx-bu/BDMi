@@ -14,6 +14,7 @@ import com.example.bdmi.data.api.models.MovieDetails
 import kotlinx.coroutines.launch
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MovieRepository
+import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.WatchlistRepository
 import com.example.bdmi.data.utils.SessionManager
@@ -49,6 +50,9 @@ class SessionViewModel @Inject constructor(
 
     private val _selectedMovie = MutableStateFlow<MovieDetails?>(null)
     val selectedMovie: StateFlow<MovieDetails?> = _selectedMovie.asStateFlow()
+
+    private val _selectedMovieReview = MutableStateFlow<MovieReview?>(null)
+    val selectedMovieReview: StateFlow<MovieReview?> = _selectedMovieReview.asStateFlow()
 
     // Loads user if they are logged in, gets the current theme, and load cached info
     init {
@@ -186,6 +190,10 @@ class SessionViewModel @Inject constructor(
     // Unsure how to use this as of now
     fun clearSelectedMovie() {
         _selectedMovie.value = null
+    }
+
+    fun loadSelectedMovieReview(movieReview: MovieReview) {
+        _selectedMovieReview.value = movieReview
     }
 
 }
