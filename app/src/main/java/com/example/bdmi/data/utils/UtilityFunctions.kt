@@ -6,10 +6,16 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.repositories.MovieReview
+import com.example.bdmi.data.repositories.Review
+import com.example.bdmi.data.repositories.UserInfo
+import com.example.bdmi.data.repositories.UserReview
+import kotlin.math.abs
 
 // Formats budget and revenue
 fun formatAmount(value: Long): String {
-    val abs = kotlin.math.abs(value)
+    val abs = abs(value)
     return when {
         abs >= 1_000_000_000 -> "$%.1fB".format(value / 1_000_000_000.0)
         abs >= 1_000_000 -> "$%.1fM".format(value / 1_000_000.0)
@@ -45,3 +51,27 @@ fun Modifier.fadingEdge(brush: Brush) = this
         drawContent()
         drawRect(brush = brush, blendMode = BlendMode.DstIn)
     }
+
+fun createReviewObjects(userInfo: UserInfo, movieDetails: MovieDetails, review: Review) : Pair<UserReview, MovieReview> {
+    val userReview = UserReview(
+        movieId = movieDetails.id,
+        movieTitle = movieDetails.title,
+        posterPath = movieDetails.posterPath.toString(),
+        reviewTitle = review.reviewTitle,
+        reviewText = review.reviewText,
+        rating = review.rating,
+        spoiler = review.spoiler,
+        timestamp = review.timestamp
+    )
+    val movieReview = MovieReview(
+        userId = userInfo.userId,
+        displayName = userInfo.displayName.toString(),
+        userProfilePicture = userInfo.profilePicture.toString(),
+        reviewTitle = review.reviewTitle,
+        reviewText = review.reviewText,
+        rating = review.rating,
+        spoiler = review.spoiler,
+        timestamp = review.timestamp
+    )
+    return Pair(userReview, movieReview)
+}

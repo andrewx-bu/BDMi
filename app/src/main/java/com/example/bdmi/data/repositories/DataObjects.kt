@@ -44,24 +44,24 @@ open class Review(
 
 // User-specific review class
 class UserReview(
-    val movieId: Int,
-    val movieTitle: String,
-    val posterPath: String,
-    reviewTitle: String,
-    reviewText: String,
-    rating: Float,
+    val movieId: Int = -1,
+    val movieTitle: String = "",
+    val posterPath: String = "",
+    reviewTitle: String = "",
+    reviewText: String = "",
+    rating: Float = 0f,
     spoiler: Boolean = false,
     timestamp: Timestamp = Timestamp.now()
 ) : Review(reviewTitle, reviewText, rating, spoiler, timestamp)
 
 // Movie-specific review class
 class MovieReview(
-    val userId: String,
-    val displayName: String,
-    val userProfilePicture: String,
-    reviewTitle: String,
-    reviewText: String,
-    rating: Float,
+    val userId: String = "",
+    val displayName: String = "",
+    val userProfilePicture: String = "",
+    reviewTitle: String = "",
+    reviewText: String = "",
+    rating: Float = 0f,
     spoiler: Boolean = false,
     timestamp: Timestamp = Timestamp.now(),
 ) : Review(reviewTitle, reviewText, rating, spoiler, timestamp)
@@ -106,7 +106,7 @@ sealed class NotificationType {
         val responded: Boolean = false
     ) : NotificationType()
     object Message : NotificationType()
-    object Review : NotificationType()
+    object Review0 : NotificationType()
 }
 
 data class ProfileBanner(

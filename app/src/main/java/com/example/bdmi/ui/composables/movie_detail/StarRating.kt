@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.StarHalf
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 // Written by ChatGPT
-
 @Composable
 fun StarRating(
     rating: Float,
@@ -41,12 +38,12 @@ fun StarRating(
 ) {
     var localRating by remember { mutableFloatStateOf(rating) }
 
-    // 🔥 Keep localRating synced to external rating changes
     LaunchedEffect(rating) {
         localRating = rating
     }
 
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -58,7 +55,7 @@ fun StarRating(
                         val normalizedX = change.position.x.coerceIn(0f, starWidth * starCount)
                         val rawRating = (normalizedX / starWidth)
 
-                        val finalRating = (rawRating * 2).roundToInt() / 2f // ⭐ fix flicker here
+                        val finalRating = (rawRating * 2).roundToInt() / 2f
                         localRating = finalRating.coerceIn(0.5f, starCount.toFloat())
                     }
                 )
@@ -69,7 +66,7 @@ fun StarRating(
                     val normalizedX = offset.x.coerceIn(0f, starWidth * starCount)
                     val rawRating = (normalizedX / starWidth)
 
-                    val finalRating = (rawRating * 2).roundToInt() / 2f // ⭐ fix flicker here
+                    val finalRating = (rawRating * 2).roundToInt() / 2f
                     localRating = finalRating.coerceIn(0.5f, starCount.toFloat())
                     onRatingChanged(localRating)
                 }

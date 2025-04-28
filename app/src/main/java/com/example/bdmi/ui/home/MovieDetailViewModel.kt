@@ -22,7 +22,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -164,6 +163,7 @@ class MovieDetailViewModel @Inject constructor(
         movieReview: MovieReview, userReview: UserReview,
         onComplete: (Boolean) -> Unit
     ) {
+        Log.d(TAG, "Creating review: $movieReview")
         if (_userReview.value != null)
             _carouselReviews.value = _carouselReviews.value.drop(1)
         _carouselReviews.value = _carouselReviews.value + movieReview
@@ -179,6 +179,15 @@ class MovieDetailViewModel @Inject constructor(
                     onComplete(false)
                 }
             }
+        }
+    }
+
+    fun createRating(
+        userId: String, movieId: Int,
+        rating: Float, onComplete: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            reviewRepository.setRating(userId, movieId, rating)
         }
     }
 }

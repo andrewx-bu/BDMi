@@ -2,11 +2,17 @@ package com.example.bdmi.ui.composables.movie_detail
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -14,38 +20,39 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.api.models.MovieDetails
+import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
+import com.example.bdmi.data.repositories.Review
+import com.example.bdmi.data.utils.createReviewObjects
 import com.example.bdmi.ui.home.MovieDetailViewModel
 import com.example.bdmi.ui.theme.dimens
-import com.example.bdmi.data.repositories.CustomList
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 
 // TODO: Integrate with outer scaffold
 // TODO: Issue with dropdown menu overlapping
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuButton(
     sessionViewModel: SessionViewModel,
@@ -53,13 +60,15 @@ fun MenuButton(
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
     var expanded by remember { mutableStateOf(false) }
     var showWatchlists by remember { mutableStateOf(false) }
+    var showWriteReviewSheet by remember { mutableStateOf(false) }
+    var showRatingSheet by remember { mutableStateOf(false) }
     val watchlists = sessionViewModel.watchlists.collectAsState()
     val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val userInfo = sessionViewModel.userInfo.collectAsState().value
     val loggedIn = sessionViewModel.isLoggedIn.collectAsState().value
     val movieDetails = sessionViewModel.selectedMovie.collectAsState().value
     val userReview = sessionViewModel.selectedMovieReview.collectAsState().value
 
-    Log.d("MenuButton", "Movie Details: $movieDetails")
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier
@@ -95,19 +104,23 @@ fun MenuButton(
                 text = { Text("Add Rating") },
                 onClick = {
                     // TODO: Add rating functionality
+                    expanded = false
+                    showRatingSheet = true
                 }
             )
             DropdownMenuItem(
                 text = { Text(text = if (userReview != null) "Edit Review" else "Add Review") },
                 onClick = {
                     // TODO: Add review functionality
+                    expanded = false
+                    showWriteReviewSheet = true
                 }
             )
             if (userReview != null) {
                 DropdownMenuItem(
                     text = { Text("Delete Review") },
                     onClick = {
-                        // TODO: Delete review functionality
+                        expanded = false
                     }
                 )
             }
@@ -126,13 +139,63 @@ fun MenuButton(
     if (showWatchlists && movieDetails != null) {
         WatchlistDropdown(userId.toString(), watchlists.value, movieDetails) { showWatchlists = false }
     }
+
+    if (showWriteReviewSheet && movieDetails != null && userInfo != null) {
+        ModalBottomSheet(
+            onDismissRequest = { showWriteReviewSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            WriteReview(
+                onConfirm = { review ->
+                    Log.d("WriteReview", "Create view button clicked")
+                    showWriteReviewSheet = false
+                    val (userReview, movieReview) = createReviewObjects(userInfo = userInfo, movieDetails = movieDetails, review = review)
+                    movieDetailViewModel.createReview(
+                        userId.toString(),
+                        movieDetails.id,
+                        userReview = userReview,
+                        movieReview = movieReview
+                    ) {
+                        if (it) {
+                            Log.d("WriteReview", "Review created successfully")
+                        }
+                    }
+                },
+                onDismiss = {
+                    showWriteReviewSheet = false
+                }
+            )
+        }
+    }
+
+    if (showRatingSheet && movieDetails != null) {
+        ModalBottomSheet(
+            onDismissRequest = { showRatingSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            WriteRating(
+                onConfirm = { rating ->
+                    showWriteReviewSheet = false
+                    movieDetailViewModel.createRating(
+                        userId.toString(),
+                        movieDetails.id,
+                        rating
+                    ) {}
+                },
+                onDismiss = {
+                    showWriteReviewSheet = false
+                }
+            )
+        }
+    }
+
 }
 
 @Composable
 fun WatchlistDropdown(
     userId: String, watchlists: List<CustomList>, movieDetails: MovieDetails,
-    onWatchlistClose: () -> Unit,
-    ) {
+    onWatchlistClose: () -> Unit
+) {
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
 
     DropdownMenu(
@@ -160,10 +223,9 @@ fun WatchlistDropdown(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WriteReview(
-    onConfirm: (String, String, Float, Boolean) -> Unit, // title, review, rating, spoiler
+    onConfirm: (Review) -> Unit, // title, review, rating, spoiler
     onDismiss: () -> Unit = {}
 ) {
     val title = remember { mutableStateOf("") }
@@ -172,106 +234,133 @@ fun WriteReview(
     val spoiler = remember { mutableStateOf(false) }
     val isReviewValid = review.value.length >= 100
 
-    BottomSheetScaffold(
-        sheetContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Write a Review", style = MaterialTheme.typography.titleMedium)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextField(
-                    value = title.value,
-                    onValueChange = { title.value = it },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy( // What is this?
-                        imeAction = ImeAction.Next
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextField(
-                    value = review.value,
-                    onValueChange = { review.value = it },
-                    label = { Text("Review (100+ characters)") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    )
-                )
-
-                Text(
-                    text = "${review.value.length}/100",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isReviewValid) Color.Green else Color.Red,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("Rating: ${rating.floatValue}")
-
-                StarRating(
-                    rating = 0f,
-                    onRatingChanged = { rating.floatValue = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    starSize = 48
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text("Spoiler?", modifier = Modifier.weight(1f))
-                    Switch(
-                        checked = spoiler.value,
-                        onCheckedChange = { spoiler.value = it }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        onConfirm(title.value.trim(), review.value.trim(), rating.floatValue, spoiler.value)
-                        onDismiss()
-                    },
-                    enabled = isReviewValid,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Confirm")
-                }
-            }
-        },
-        sheetPeekHeight = 0.dp,
-        scaffoldState = rememberBottomSheetScaffoldState()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Empty content behind the bottom sheet
+        Text("Write a Review", style = MaterialTheme.typography.titleMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = title.value,
+            onValueChange = { title.value = it },
+            label = { Text("Title") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy( // What is this?
+                imeAction = ImeAction.Next
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = review.value,
+            onValueChange = { review.value = it },
+            label = { Text("Review (100+ characters)") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
+        )
+
+        Text(
+            text = "${review.value.length}/100",
+            style = MaterialTheme.typography.titleMedium,
+            color = if (isReviewValid) Color.Green else Color.Red,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Rating: ${rating.floatValue}")
+
+        StarRating(
+            rating = 0f,
+            onRatingChanged = { rating.floatValue = it },
+            modifier = Modifier.fillMaxWidth(),
+            starSize = 48
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Spoiler?", modifier = Modifier.weight(1f))
+            Switch(
+                checked = spoiler.value,
+                onCheckedChange = { spoiler.value = it }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                onConfirm(
+                    Review(
+                        reviewTitle = title.value.trim(),
+                        reviewText = review.value.trim(),
+                        rating = rating.floatValue,
+                        spoiler = spoiler.value
+                    )
+                )
+                onDismiss()
+            },
+            enabled = isReviewValid,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Confirm")
+        }
     }
 }
 
 @Composable
-fun WriteRating() {
+fun WriteRating(
+    onConfirm: (Float) -> Unit,
+    onDismiss: () -> Unit = {}
+) {
+    val rating = remember { mutableFloatStateOf(0f) }
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Write a Rating", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Rating: ${rating.floatValue}")
+        StarRating(
+            rating = 0f,
+            onRatingChanged = { rating.floatValue = it },
+            modifier = Modifier.fillMaxWidth(),
+            starSize = 48
+        )
+        Button(
+            onClick = {
+                onConfirm(rating.floatValue)
+                onDismiss()
+            }
+        ) {
+            Text("Confirm")
+        }
+    }
 }
 
 @Preview
 @Composable
 fun PreviewUI() {
-    WriteReview(onConfirm = { _, _, _, _ -> })
+    WriteReview(onConfirm = {})
 }

@@ -1,6 +1,7 @@
 package com.example.bdmi.data.repositories
 
 import android.util.Log
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -57,6 +58,8 @@ class ReviewRepository @Inject constructor(
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(movieDoc)
                 val reviewSnapshot = transaction.get(movieReviewDoc)
+                val profileSnapshot = transaction.get(profileDoc)
+                val profileReviewSnapshot = transaction.get(profileReviewDoc)
 
                 // Updates movie meta data and sets review
                 val movieReviewCount = snapshot.getLong("reviewCount")?: 0
@@ -66,9 +69,6 @@ class ReviewRepository @Inject constructor(
                 transaction.set(movieReviewDoc, movieReview)
 
                 // Updates users review meta data and sets review
-                val profileSnapshot = transaction.get(profileDoc)
-                val profileReviewSnapshot = transaction.get(profileReviewDoc)
-
                 val profileReviewCount = profileSnapshot.getLong("reviewCount")?: 0
                 val newProfileReviewCount = if (profileReviewSnapshot.exists()) profileReviewCount else profileReviewCount + 1
 
@@ -314,17 +314,41 @@ class ReviewRepository @Inject constructor(
     private fun checkIfMovieExists(movieId: Int, onComplete: () -> Unit) {
         val dbFunction = "CheckIfMovieExists"
 
+        Log.d("$TAG$dbFunction", "Checking if movie $movieId exists (cache first)")
         val movieDoc = db.collection(MOVIES_COLLECTION).document(movieId.toString())
 
         movieDoc.get(Source.CACHE).addOnSuccessListener { documentSnapshot ->
             if (!documentSnapshot.exists()) {
-                val movieData = MovieMetrics() // Sets movie data to default values
-                Log.d("$TAG$dbFunction", "Movie does not exist in local cache, adding it")
-                movieDoc.set(movieData).addOnSuccessListener { onComplete() }
+                Log.d("$TAG$dbFunction", "Movie not in cache, assuming needs adding")
+                addMovie(movieDoc, onComplete)
             } else {
-                onComplete()
                 Log.d("$TAG$dbFunction", "Movie already exists in local cache")
+                onComplete()
             }
+        }.addOnFailureListener { cacheError ->
+            Log.w("$TAG$dbFunction", "Cache failed, trying server", cacheError)
+
+            // Try fetching from server
+            movieDoc.get(Source.SERVER).addOnSuccessListener { documentSnapshot ->
+                if (!documentSnapshot.exists()) {
+                    Log.d("$TAG$dbFunction", "Movie not found on server either, adding")
+                    addMovie(movieDoc, onComplete)
+                } else {
+                    Log.d("$TAG$dbFunction", "Movie exists on server")
+                    onComplete()
+                }
+            }.addOnFailureListener { serverError ->
+                Log.e("$TAG$dbFunction", "Failed to retrieve movie from server", serverError)
+            }
+        }
+    }
+
+    private fun addMovie(movieDoc: DocumentReference, onComplete: () -> Unit) {
+        val movieData = MovieMetrics()
+        movieDoc.set(movieData).addOnSuccessListener {
+            onComplete()
+        }.addOnFailureListener { error ->
+            Log.e("CheckIfMovieExists", "Failed to add movie document", error)
         }
     }
 }
