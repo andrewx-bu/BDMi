@@ -57,7 +57,8 @@ fun ProfileScreen(
     sessionViewModel: SessionViewModel,
     onLogoutClick: () -> Unit,
     navigateToUserSearch: () -> Unit,
-    navigateToFriends: () -> Unit
+    navigateToFriends: (String) -> Unit,
+    navigateToReviews: (String) -> Unit
 ) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
@@ -103,7 +104,7 @@ fun ProfileScreen(
                     modifier = Modifier.clickable(
                         enabled = true
                     ) {
-                        navigateToFriends()
+                        navigateToFriends(userInfo?.userId.toString())
                     }
                 )
                 IconButton(

@@ -46,9 +46,6 @@ class MovieDetailViewModel @Inject constructor(
     private val _lists = MutableStateFlow<List<CustomList>>(emptyList())
     val lists: StateFlow<List<CustomList>> = _lists.asStateFlow()
 
-    private val _userPrivileges = MutableStateFlow(false)
-    val userPrivileges: StateFlow<Boolean> = _userPrivileges.asStateFlow()
-
     private val _carouselReviews = MutableStateFlow<List<MovieReview>>(
         listOf(
         MovieReview(
@@ -118,10 +115,6 @@ class MovieDetailViewModel @Inject constructor(
         }
     }
 
-    fun setPrivileges(privileges: Boolean) {
-        _userPrivileges.value = privileges
-    }
-
     fun addToWatchlist(userId: String, listId: String, item: MediaItem) {
         Log.d(TAG, "Adding item to watchlist: $item")
 
@@ -152,6 +145,7 @@ class MovieDetailViewModel @Inject constructor(
                     _carouselReviews.value = listOf(review) + _carouselReviews.value
                     _userReview.value = review
                 } else
+                    _userReview.value = null
                     Log.d(TAG, "User review not found")
             }
         }
@@ -180,6 +174,22 @@ class MovieDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun deleteReview(userId: String, movieId: Int, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            reviewRepository.deleteReview(userId, movieId) {
+                if (it) {
+                    Log.d(TAG, "Review deleted successfully")
+                    _carouselReviews.value = _carouselReviews.value.drop(1)
+                    _userReview.value = null
+                    onComplete(true)
+                } else {
+                    Log.d(TAG, "Review deletion failed")
+                }
+            }
+        }
+
     }
 
     fun createRating(

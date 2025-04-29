@@ -295,7 +295,7 @@ fun BottomBar(currentRoute: String?, onItemClicked: (String) -> Unit) {
     val screens = listOf(
         MainRoutes.Home,
         MainRoutes.Search,
-        MainRoutes.Bookmarks,
+        MainRoutes.Watchlists,
         MainRoutes.Profile
     )
 

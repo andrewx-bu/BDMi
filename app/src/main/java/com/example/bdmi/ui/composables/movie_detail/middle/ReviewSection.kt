@@ -62,7 +62,6 @@ fun ReviewSection(reviews: List<MovieReview>, movieData: MovieMetrics?) {
             }
         }
 
-        // TODO: Implement
         var averageRating by remember { mutableDoubleStateOf(0.0) }
         var totalReviews by remember { mutableIntStateOf(0) }
         var ratingCounts by remember { mutableStateOf(mapOf<String, Int>()) }

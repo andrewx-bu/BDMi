@@ -110,7 +110,7 @@ sealed class NotificationType {
 }
 
 data class ProfileBanner(
-    val userId: String = "", // Provide a default value
+    val userId: String = "",
     val displayName: String = "",
     val profilePicture: String = "",
     val friendCount: Long? = 0,

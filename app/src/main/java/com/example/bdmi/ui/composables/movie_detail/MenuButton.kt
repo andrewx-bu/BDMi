@@ -45,13 +45,12 @@ import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
+import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.data.repositories.Review
 import com.example.bdmi.data.utils.createReviewObjects
 import com.example.bdmi.ui.home.MovieDetailViewModel
 import com.example.bdmi.ui.theme.dimens
 
-// TODO: Integrate with outer scaffold
-// TODO: Issue with dropdown menu overlapping
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuButton(
@@ -103,7 +102,6 @@ fun MenuButton(
             DropdownMenuItem(
                 text = { Text("Add Rating") },
                 onClick = {
-                    // TODO: Add rating functionality
                     expanded = false
                     showRatingSheet = true
                 }
@@ -111,7 +109,6 @@ fun MenuButton(
             DropdownMenuItem(
                 text = { Text(text = if (userReview != null) "Edit Review" else "Add Review") },
                 onClick = {
-                    // TODO: Add review functionality
                     expanded = false
                     showWriteReviewSheet = true
                 }
@@ -121,6 +118,14 @@ fun MenuButton(
                     text = { Text("Delete Review") },
                     onClick = {
                         expanded = false
+                        movieDetailViewModel.deleteReview(
+                            userId.toString(),
+                            movieDetails.id
+                        ) {
+                            if (it) {
+                                Log.d("MenuButton", "Review deleted successfully")
+                            }
+                        }
                     }
                 )
             }
@@ -225,14 +230,26 @@ fun WatchlistDropdown(
 
 @Composable
 fun WriteReview(
+    userReview: MovieReview? = null,
     onConfirm: (Review) -> Unit, // title, review, rating, spoiler
     onDismiss: () -> Unit = {}
 ) {
-    val title = remember { mutableStateOf("") }
-    val review = remember { mutableStateOf("") }
-    val rating = remember { mutableFloatStateOf(0f) }
-    val spoiler = remember { mutableStateOf(false) }
-    val isReviewValid = review.value.length >= 100
+    val title = remember {
+        if (userReview != null) mutableStateOf(userReview.reviewTitle)
+        else mutableStateOf("")
+    }
+    val review = remember {
+        if (userReview != null) mutableStateOf(userReview.reviewText)
+        else mutableStateOf("") }
+    val rating = remember {
+        if (userReview != null) mutableFloatStateOf(userReview.rating)
+        else mutableFloatStateOf(0f) }
+    val spoiler = remember {
+        if (userReview != null) mutableStateOf(userReview.spoiler)
+        else mutableStateOf(false) }
+    val isReviewValid = review.value.length >= 25
+    val isTitleValid = title.value.isNotBlank()
+    val isRatingValid = rating.floatValue > 0
 
     Column(
         modifier = Modifier
@@ -271,7 +288,7 @@ fun WriteReview(
         )
 
         Text(
-            text = "${review.value.length}/100",
+            text = "${review.value.length}/25",
             style = MaterialTheme.typography.titleMedium,
             color = if (isReviewValid) Color.Green else Color.Red,
             textAlign = TextAlign.End,
@@ -318,7 +335,7 @@ fun WriteReview(
                 )
                 onDismiss()
             },
-            enabled = isReviewValid,
+            enabled = isReviewValid && isTitleValid && isRatingValid,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Confirm")

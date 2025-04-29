@@ -44,6 +44,7 @@ fun StarRating(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
         modifier = modifier
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(

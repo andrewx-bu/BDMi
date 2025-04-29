@@ -20,10 +20,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.ProfileBanner
 
+// TODO: Abstract friend list screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendListScreen(
     sessionViewModel: SessionViewModel,
+    userId: String,
     onNavigateBack: () -> Unit,
     onProfileClick: (String) -> Unit
 ) {

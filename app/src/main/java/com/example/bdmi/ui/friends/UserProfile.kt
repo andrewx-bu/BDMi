@@ -35,6 +35,7 @@ import com.example.bdmi.data.repositories.UserInfo
 
 private const val TAG = "ProfileScreen"
 
+// TODO: Error adding friends. Originates here I believe.
 @Composable
 fun UserProfile(profileUserId: String = "", sessionViewModel: SessionViewModel) {
     val friendViewModel: FriendViewModel = hiltViewModel()

@@ -57,9 +57,15 @@ import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.Notification
 import com.example.bdmi.data.repositories.NotificationType
 
+// TODO: Improve notification screen and add more notification types
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationsScreen(sessionViewModel: SessionViewModel, onNavigateBack: () -> Unit) {
+fun NotificationsScreen(
+    sessionViewModel: SessionViewModel,
+    onNavigateBack: () -> Unit,
+    onProfileClick: (String) -> Unit,
+    onMovieClick: (Int) -> Unit
+) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val userId = sessionViewModel.userInfo.collectAsState().value?.userId
 
@@ -91,12 +97,19 @@ fun NotificationsScreen(sessionViewModel: SessionViewModel, onNavigateBack: () -
             )
         }
     ) { padding ->
-        NotificationList(modifier = Modifier.padding(padding), userId)
+        NotificationList(
+            modifier = Modifier.padding(padding),
+            userId = userId,
+            onProfileClick = onProfileClick,)
     }
 }
 
 @Composable
-fun NotificationList(modifier: Modifier = Modifier, userId: String?) {
+fun NotificationList(
+    modifier: Modifier = Modifier,
+    userId: String?,
+    onProfileClick: (String) -> Unit
+) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val notificationList = notificationViewModel.notificationList.collectAsState()
     val numOfNotifications = notificationViewModel.numOfNotifications.collectAsState()
@@ -119,7 +132,10 @@ fun NotificationList(modifier: Modifier = Modifier, userId: String?) {
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 items(notificationList.value) { notification ->
-                    NotificationItem(notification = notification)
+                    NotificationItem(
+                        notification = notification,
+                        onProfileClick = onProfileClick,
+                    )
                 }
             }
         } else {
@@ -134,7 +150,11 @@ fun NotificationList(modifier: Modifier = Modifier, userId: String?) {
 }
 
 @Composable
-fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) {
+fun NotificationItem(
+    modifier: Modifier = Modifier,
+    notification: Notification,
+    onProfileClick: (String) -> Unit
+) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val sharedPreferences =
         LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
@@ -198,7 +218,8 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
                 "friend_request" -> FriendRequestNotification(
                     notification.notificationId,
                     notification.data as NotificationType.FriendRequest,
-                    userId
+                    userId,
+                    onProfileClick = onProfileClick
                 )
                 // Add more notification types here
             }
@@ -211,7 +232,8 @@ fun NotificationItem(modifier: Modifier = Modifier, notification: Notification) 
 fun FriendRequestNotification(
     notificationId: String,
     data: NotificationType.FriendRequest,
-    userId: String?
+    userId: String?,
+    onProfileClick: (String) -> Unit
 ) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     Row(
@@ -230,6 +252,9 @@ fun FriendRequestNotification(
                     .border(2.dp, Color.Black, CircleShape)
                     .padding(4.dp)
                     .clip(CircleShape)
+                    .clickable {
+                        onProfileClick(data.userId)
+                    }
             ) {
                 AsyncImage(
                     model = data.profilePicture,
@@ -344,6 +369,5 @@ fun NotificationPreview() {
             isPublic = true
         )
     )
-    NotificationItem(notification = notification)
-
+    //NotificationItem(notification = notification)
 }

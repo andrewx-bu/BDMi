@@ -88,7 +88,7 @@ class ReviewRepository @Inject constructor(
     }
 
     // Deletes review and updates the movies total review count
-    fun deleteReview(userId: String, movieId: Int) {
+    fun deleteReview(userId: String, movieId: Int, onComplete: (Boolean) -> Unit) {
         val dbFunction = "DeleteReview"
         Log.d("$TAG$dbFunction", "Deleting review")
 
@@ -116,8 +116,10 @@ class ReviewRepository @Inject constructor(
                 transaction.delete(profileReviewDoc)
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Review deleted successfully")
+                onComplete(true)
             }.addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error deleting review", e)
+                onComplete(false)
             }
         }
 

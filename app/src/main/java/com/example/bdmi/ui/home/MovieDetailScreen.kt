@@ -65,7 +65,9 @@ fun MovieDetailScreen(
     navController: NavHostController,
     sessionViewModel: SessionViewModel,
     movieId: Int,
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
+    onProfileClick: (String) -> Unit,
+    onActorClick: () -> Unit
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
@@ -77,7 +79,6 @@ fun MovieDetailScreen(
         launch { viewModel.refreshDetails(movieId) }
         launch {
             if (sessionViewModel.userInfo.value != null) {
-                viewModel.setPrivileges(true)
                 viewModel.setLists(sessionViewModel.watchlists.value)
                 viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
             }
