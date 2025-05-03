@@ -65,6 +65,12 @@ fun SearchScreen(
     var showFilters by remember { mutableStateOf(false) }
     val state by voiceToTextParser.state.collectAsState()
 
+    LaunchedEffect(state.spokenText) {
+        if (state.spokenText.isNotEmpty() && state.spokenText != searchText) {
+            viewModel.onSearchTextChange(state.spokenText)
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -101,10 +107,6 @@ fun SearchScreen(
                 onYearChange = viewModel::setYear,
             )
         }
-
-        Spacer(Modifier.height(dimens.medium1))
-
-        Text(state.spokenText.ifEmpty { "Click on mic to record audio" })
 
         Spacer(Modifier.height(dimens.medium1))
 

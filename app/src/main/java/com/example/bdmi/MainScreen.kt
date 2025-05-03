@@ -195,6 +195,11 @@ fun MainScreen(
                         } else {
                             voiceToTextParser.startListening()
                         }
+                    },
+                    containerColor = if (state.isSpeaking) {
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.secondaryContainer
                     }
                 ) {
                     AnimatedContent(targetState = state.isSpeaking) { isSpeaking ->
