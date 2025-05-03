@@ -34,6 +34,15 @@ fun formatReviewCount(count: Int): String {
     }.replace(".0", "")
 }
 
+// Convert 1-10 scale to 0.5-5 scale
+fun Double.toStarRating(): Double {
+    return (this / 2).coerceIn(0.5, 5.0)
+}
+
+fun formatStarRating(voteAverage: Double): String {
+    return "%.1f".format(voteAverage.toStarRating())
+}
+
 // Converts 2 letter iso31661 country code to flag emoji
 fun String.toFlagEmoji(): String {
     if (this.length != 2) return this

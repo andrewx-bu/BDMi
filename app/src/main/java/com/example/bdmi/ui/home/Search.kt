@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,10 +39,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.api.models.Movie
+import com.example.bdmi.data.utils.GenreMappings
+import com.example.bdmi.data.utils.formatReviewCount
+import com.example.bdmi.data.utils.formatStarRating
 import com.example.bdmi.ui.composables.ErrorMessage
 import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
@@ -200,7 +208,12 @@ fun MovieListItem(
             .padding(dimens.small3),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(width = 100.dp, height = 150.dp)) {
+        Box(
+            modifier = Modifier.size(
+                width = dimens.movieRowWidth,
+                height = dimens.movieRowHeight
+            )
+        ) {
             MoviePoster(
                 title = movie.title,
                 posterPath = movie.posterPath,
@@ -222,13 +235,37 @@ fun MovieListItem(
             )
             Spacer(modifier = Modifier.height(dimens.small2))
             Text(
-                text = "Genres: ${movie.genreIds}",
+                text = "Genres: ${
+                    movie.genreIds?.map { GenreMappings.getGenreName(it) }
+                        ?.joinToString(", ")
+                }",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(dimens.small2))
             Text(
-                text = "Rating: ${movie.voteAverage} (${movie.voteCount})",
-                style = MaterialTheme.typography.bodyMedium
+                // Built by ChatGPT. displays a star with color. lol
+                text = buildAnnotatedString {
+                    append("Rating: ${formatStarRating(movie.voteAverage)} ")
+                    appendInlineContent("star", "★")
+                    append(" (${formatReviewCount(movie.voteCount)})")
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                inlineContent = mapOf(
+                    "star" to InlineTextContent(
+                        Placeholder(
+                            width = dimens.placeholderWidth,
+                            height = dimens.placeholderHeight,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "star rating",
+                            modifier = Modifier.size(dimens.large1),
+                            tint = MaterialTheme.colorScheme.tertiaryContainer
+                        )
+                    }
+                )
             )
         }
     }

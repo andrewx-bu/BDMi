@@ -1,7 +1,9 @@
 package com.example.bdmi.ui.theme
 
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 data class Dimens(
     // Spacing
@@ -51,7 +53,13 @@ data class Dimens(
     val personRowHeight: Dp,
     val bottomColumnHeight: Dp,
     val countryRowHeight: Dp,
-    val exploreRowHeight: Dp
+    val exploreRowHeight: Dp,
+
+    // Ratings stuff
+    val movieRowWidth: Dp,
+    val movieRowHeight: Dp,
+    val placeholderWidth: TextUnit,
+    val placeholderHeight: TextUnit
 )
 
 val MediumDimens = Dimens(
@@ -102,7 +110,13 @@ val MediumDimens = Dimens(
     personRowHeight = 75.dp,
     bottomColumnHeight = 550.dp,
     countryRowHeight = 25.dp,
-    exploreRowHeight = 200.dp
+    exploreRowHeight = 200.dp,
+
+    // Ratings stuff
+    movieRowWidth = 100.dp,
+    movieRowHeight = 150.dp,
+    placeholderWidth = 15.sp,
+    placeholderHeight = 18.sp
 )
 
 // TODO: Add dimens for Expanded devices in portrait
@@ -143,7 +157,11 @@ val LargeDimens = Dimens(
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,
     countryRowHeight = 0.dp,
-    exploreRowHeight = 0.dp
+    exploreRowHeight = 0.dp,
+    movieRowWidth = 0.dp,
+    movieRowHeight = 0.dp,
+    placeholderWidth = 0.sp,
+    placeholderHeight = 0.sp
 )
 
 // TODO: Add dimens for Expanded devices in landscape
@@ -184,5 +202,9 @@ val ExpandedDimens = Dimens(
     personRowHeight = 0.dp,
     bottomColumnHeight = 0.dp,
     countryRowHeight = 0.dp,
-    exploreRowHeight = 0.dp
+    exploreRowHeight = 0.dp,
+    movieRowWidth = 0.dp,
+    movieRowHeight = 0.dp,
+    placeholderWidth = 0.sp,
+    placeholderHeight = 0.sp
 )
