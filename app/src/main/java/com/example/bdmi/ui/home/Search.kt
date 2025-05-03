@@ -37,8 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.ui.composables.ErrorMessage
+import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 
 @Composable
@@ -63,7 +66,12 @@ fun SearchScreen(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = dimens.small3),
-                placeholder = { Text("Search movies...") }
+                placeholder = {
+                    Text(
+                        text = "Search Movies...",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             )
             IconButton(onClick = { showFilters = !showFilters }) {
                 Icon(
@@ -103,13 +111,17 @@ fun SearchScreen(
             }
 
             else -> {
+                if (uiState.movies.isEmpty()) {
+                    Text(
+                        text = "No results",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 LazyColumn {
                     itemsIndexed(uiState.movies) { index, movie ->
-                        Text(
-                            text = movie.title,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onMovieClick(movie.id) }
+                        MovieListItem(
+                            movie = movie,
+                            onClick = { onMovieClick(movie.id) }
                         )
 
                         if (index == uiState.movies.lastIndex) {
@@ -173,6 +185,51 @@ fun FilterPanel(
                     onCheckedChange = onIncludeAdultChange
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun MovieListItem(
+    movie: Movie,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(dimens.small3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(width = 100.dp, height = 150.dp)) {
+            MoviePoster(
+                title = movie.title,
+                posterPath = movie.posterPath,
+                onClick = onClick,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(dimens.medium2))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = movie.title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(dimens.small2))
+            Text(
+                text = "Release: ${movie.releaseDate}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(dimens.small2))
+            Text(
+                text = "Genres: ${movie.genreIds}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(dimens.small2))
+            Text(
+                text = "Rating: ${movie.voteAverage} (${movie.voteCount})",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
