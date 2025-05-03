@@ -13,7 +13,14 @@ interface APIService {
     @GET("discover/movie")
     suspend fun discoverMovies(
         @Query("page") page: Int = 1,
+        // popularity, revenue, primary_release_date, title, vote_average, and vote_count
         @Query("sort_by") sortBy: String = "popularity.desc",
+        @Query("with_genres") genres: String? = null,
+        @Query("with_people") people: String? = null,
+        @Query("vote_count.gte") voteCountGte: Float? = null,
+        @Query("vote_count.lte") voteCountLte: Float? = null,
+        @Query("vote_average.gte") voteAverageGte: Float? = null,
+        @Query("vote_average.lte") voteAverageLte: Float? = null,
         @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
     ): MoviesResponse
 

@@ -9,10 +9,27 @@ import javax.inject.Inject
 class MovieRepository @Inject constructor(
     private val apiService: APIService
 ) {
-    suspend fun discoverMovies(page: Int = 1): Result<MoviesResponse> =
-        runCatching {
-            apiService.discoverMovies(page = page)
-        }
+    suspend fun discoverMovies(
+        page: Int = 1,
+        sortBy: String = "popularity.desc",
+        genres: String? = null,
+        people: String? = null,
+        voteCountGte: Float? = null,
+        voteCountLte: Float? = null,
+        voteAverageGte: Float? = null,
+        voteAverageLte: Float? = null
+    ): Result<MoviesResponse> = runCatching {
+        apiService.discoverMovies(
+            page = page,
+            sortBy = sortBy,
+            genres = genres,
+            people = people,
+            voteCountGte = voteCountGte,
+            voteCountLte = voteCountLte,
+            voteAverageGte = voteAverageGte,
+            voteAverageLte = voteAverageLte
+        )
+    }
 
     suspend fun getMovieDetails(movieId: Int): Result<MovieDetails> =
         runCatching {
