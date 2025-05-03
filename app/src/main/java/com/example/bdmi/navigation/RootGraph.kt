@@ -8,20 +8,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bdmi.MainScreen
 import com.example.bdmi.SessionViewModel
+import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.ui.theme.AppTheme
 
 @Composable
 fun RootNavGraph(
     navController: NavHostController,
-    loggedIn: Boolean, sessionViewModel:
-    SessionViewModel) {
+    loggedIn: Boolean,
+    sessionViewModel: SessionViewModel,
+    voiceToTextParser: VoiceToTextParser
+) {
     val startDestination = if (loggedIn) {
         MainRoutes.Root.route
     } else {
         OnboardingRoutes.Root.route
     }
     val darkTheme = sessionViewModel.darkMode.collectAsState()
-    if (isSystemInDarkTheme() && darkTheme.value == false) {
+    if (isSystemInDarkTheme() && !darkTheme.value) {
         sessionViewModel.switchTheme()
     }
 
@@ -38,6 +41,7 @@ fun RootNavGraph(
                 MainScreen(
                     rootNavController = navController,
                     sessionViewModel = sessionViewModel,
+                    voiceToTextParser = voiceToTextParser
                 )
             }
         }

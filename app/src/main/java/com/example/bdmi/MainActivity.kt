@@ -14,24 +14,29 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.navigation.RootNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val voiceToTextParser by lazy {
+        VoiceToTextParser(application)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            RootNavigation()
+            RootNavigation(voiceToTextParser)
         }
     }
 }
 
 @Composable
-fun RootNavigation() {
+fun RootNavigation(voiceToTextParser: VoiceToTextParser) {
     val navController = rememberNavController()
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val loggedIn = sessionViewModel.isLoggedIn.collectAsState()
@@ -46,7 +51,8 @@ fun RootNavigation() {
         RootNavGraph(
             navController = navController,
             loggedIn = loggedIn.value,
-            sessionViewModel = sessionViewModel
+            sessionViewModel = sessionViewModel,
+            voiceToTextParser = voiceToTextParser
         )
     }
 }
