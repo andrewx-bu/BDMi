@@ -7,6 +7,7 @@ import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.utils.UIState
+import com.example.bdmi.ui.home.HomeViewModel.HomeUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,56 +24,53 @@ class SearchViewModel @Inject constructor(
     private val movieRepository: MovieRepository
 ) : ViewModel() {
     data class SearchUIState(
-        override val isLoading: Boolean = false,
+        val searchQuery: String = "",
         val movies: List<Movie> = emptyList(),
-        override val error: APIError? = null,
-        val searchQuery: String = ""
+        override val isLoading: Boolean = false,
+        override val error: APIError? = null
     ) : UIState
 
-    private val _searchUIState = MutableStateFlow(SearchUIState())
-    val searchUIState = _searchUIState.asStateFlow()
+    private val _uiState = MutableStateFlow(SearchUIState())
+    val searchUIState = _uiState.asStateFlow()
+
+    fun refresh() {
+        _uiState.update {
+            SearchUIState(
+                isLoading = true,
+                movies = emptyList(),
+                error = null,
+                searchQuery = ""
+            )
+        }
+    }
 
     fun onSearchQueryChanged(query: String) {
-        _searchUIState.update { it.copy(searchQuery = query) }
+        _uiState.update { it.copy(searchQuery = query) }
     }
 
     fun executeSearch() {
-        val query = _searchUIState.value.searchQuery
+        val query = _uiState.value.searchQuery
         if (query.isBlank()) return
 
-        _searchUIState.update {
-            it.copy(
-                isLoading = true,
-                movies = emptyList(),
-                error = null
-            )
-        }
-
         viewModelScope.launch {
-            movieRepository.searchMovies(query).fold(
-                onSuccess = { response ->
-                    if (response.results.isEmpty()) {
-                        _searchUIState.update {
-                            it.copy(error = APIError.EmptyResponseError(), isLoading = false)
-                        }
-                    } else {
-                        _searchUIState.update {
-                            it.copy(movies = response.results, isLoading = false)
-                        }
-                    }
-                },
-                onFailure = { e ->
-                    _searchUIState.update {
-                        it.copy(error = e.toAPIError(), isLoading = false)
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            movieRepository.searchMovies(query)
+                .onSuccess { response ->
+                    _uiState.update {
+                        it.copy(
+                            movies = response.results,
+                            isLoading = false
+                        )
                     }
                 }
-            )
-        }
-    }
-
-    fun clearSearch() {
-        _searchUIState.update {
-            SearchUIState() // Resets to initial state
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(
+                            error = e.toAPIError(),
+                            isLoading = false
+                        )
+                    }
+                }
         }
     }
 }
