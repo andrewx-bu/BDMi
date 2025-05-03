@@ -35,7 +35,6 @@ class MovieRepository @Inject constructor(
         query: String,
         page: Int = 1,
         includeAdult: Boolean = false,
-        primaryReleaseYear: String? = null,
         region: String? = null,
         year: String? = null
     ): Result<MoviesResponse> = runCatching {
@@ -43,7 +42,6 @@ class MovieRepository @Inject constructor(
             query = query,
             page = page,
             includeAdult = includeAdult,
-            primaryReleaseYear = primaryReleaseYear,
             region = region,
             year = year
         )
