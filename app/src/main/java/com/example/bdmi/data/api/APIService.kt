@@ -30,7 +30,7 @@ interface APIService {
         @Query("query") query: String,
         @Query("page") page: Int = 1,
         @Query("include_adult") includeAdult: Boolean = false,
-        @Query("year") year: String? = null,
+        @Query("primary_release_year") primaryReleaseYear: String? = null,
         @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
     ): MoviesResponse
 

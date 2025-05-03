@@ -98,7 +98,7 @@ class SearchViewModel @Inject constructor(
                 query = s.query,
                 page = s.page,
                 includeAdult = s.includeAdult,
-                year = s.year
+                primaryReleaseYear = s.year
             ).fold(
                 onSuccess = { response ->
                     _uiState.update {

@@ -51,13 +51,13 @@ class MovieRepository @Inject constructor(
         query: String,
         page: Int = 1,
         includeAdult: Boolean = false,
-        year: String? = null
+        primaryReleaseYear: String? = null,
     ): Result<MoviesResponse> = runCatching {
         apiService.searchMovies(
             query = query,
             page = page,
             includeAdult = includeAdult,
-            year = year
+            primaryReleaseYear = primaryReleaseYear,
         )
     }
 
