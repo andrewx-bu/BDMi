@@ -196,4 +196,7 @@ class SessionViewModel @Inject constructor(
         _selectedMovieReview.value = movieReview
     }
 
+    fun clearSelectedMovieReview() {
+        _selectedMovieReview.value = null
+    }
 }

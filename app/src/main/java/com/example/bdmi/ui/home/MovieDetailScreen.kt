@@ -67,7 +67,8 @@ fun MovieDetailScreen(
     movieId: Int,
     onMovieClick: (Int) -> Unit,
     onProfileClick: (String) -> Unit,
-    onActorClick: () -> Unit
+    onActorClick: () -> Unit,
+    onAllReviewsClick: (Int) -> Unit
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
@@ -76,10 +77,12 @@ fun MovieDetailScreen(
     val userReview by viewModel.userReview.collectAsState()
 
     LaunchedEffect(movieId) {
+        sessionViewModel.clearSelectedMovie()
+        sessionViewModel.clearSelectedMovieReview()
         launch { viewModel.refreshDetails(movieId) }
         launch {
             if (sessionViewModel.userInfo.value != null) {
-                viewModel.setLists(sessionViewModel.watchlists.value)
+
                 viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
             }
         }
@@ -156,7 +159,7 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    MiddleSection(details, carouselReviews, movieData)
+                    MiddleSection(details, carouselReviews, movieData, onProfileClick, onAllReviewsClick)
                 }
 
                 item {
@@ -235,7 +238,13 @@ fun TopSection(
 
 // Description and Reviews
 @Composable
-fun MiddleSection(details: MovieDetails, reviews: List<MovieReview>, movieData: MovieMetrics?) {
+fun MiddleSection(
+    details: MovieDetails,
+    reviews: List<MovieReview>,
+    movieData: MovieMetrics?,
+    onProfileClick: (String) -> Unit,
+    onAllReviewsClick: (Int) -> Unit
+) {
     var isExpanded by remember { mutableStateOf(false) }
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     val maxLines = if (isExpanded) Int.MAX_VALUE else uiConstants.descriptionMaxLines
@@ -283,7 +292,12 @@ fun MiddleSection(details: MovieDetails, reviews: List<MovieReview>, movieData: 
             }
         }
         Spacer(Modifier.height(dimens.small2))
-        ReviewSection(reviews = reviews, movieData = movieData)
+        ReviewSection(
+            reviews = reviews,
+            movieData = movieData,
+            onProfileClick = onProfileClick,
+            onAllReviewsClick = { onAllReviewsClick(details.id) }
+        )
     }
 }
 

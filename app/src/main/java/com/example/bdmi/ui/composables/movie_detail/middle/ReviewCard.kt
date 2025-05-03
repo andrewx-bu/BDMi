@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,33 +34,42 @@ import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
-fun ReviewCard(review: MovieReview, liked: Boolean) {
-    Column {
-        // Review info row
+fun ReviewCard(
+    review: MovieReview,
+    liked: Boolean = true,
+    onProfileClick: (String) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        // Top Row: Rating, Heart, User Info
         Row(
-            modifier = Modifier.padding(horizontal = dimens.small2),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimens.small2),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO: Logic here is confusing
+            // Stars
             val fullStars = review.rating.toInt()
             val hasHalf = (review.rating - fullStars) >= 0.5f
-            val starCount = fullStars + if (hasHalf) 1 else 0
-            // Stars
-            repeat(starCount) { index ->
-                val icon = when {
-                    index < fullStars -> Icons.Default.Star
-                    else -> Icons.AutoMirrored.Filled.StarHalf
-                }
+            repeat(fullStars) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = Icons.Default.Star,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.tertiaryContainer,
                     modifier = Modifier.size(dimens.iconMedium)
                 )
-                Spacer(Modifier.width(dimens.small1))
             }
-            // Heart
+            if (hasHalf) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.StarHalf,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiaryContainer,
+                    modifier = Modifier.size(dimens.iconMedium)
+                )
+            }
+
             if (liked) {
+                Spacer(Modifier.width(dimens.small1))
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Liked",
@@ -67,56 +77,65 @@ fun ReviewCard(review: MovieReview, liked: Boolean) {
                     modifier = Modifier.size(dimens.iconMedium)
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            //
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = review.displayName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                // TODO: Show Icon if is Friend | Not implementing rn
-//                Icon(
-//                    imageVector = Icons.Default.Group,
-//                    contentDescription = "Friend",
-//                    tint = MaterialTheme.colorScheme.secondary,
-//                    modifier = Modifier.size(dimens.iconSmall)
-//                )
-            }
-            Spacer(Modifier.width(dimens.small3))
-            // Profile photo
+
+            Spacer(Modifier.weight(1f))
+
+            // User Info (Display Name + Profile Picture)
+            Text(
+                text = review.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+
+            Spacer(Modifier.width(dimens.small2))
+
             Box(
                 modifier = Modifier
                     .size(dimens.iconLarge)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .clickable { /* TODO: Implement */ }
+                    .clickable { onProfileClick(review.userId) }
             ) {
                 AsyncImage(
                     model = review.userProfilePicture,
                     contentDescription = "Profile Picture",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
+
         Spacer(Modifier.height(dimens.small3))
-        // Review text
-        // TODO: Add review title, and clickable to all reviews screen
+
+        // Review Card (Title + Text)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimens.small2)
-                .height(dimens.reviewHeight),
+                .padding(horizontal = dimens.small2),
             shape = RoundedCornerShape(dimens.medium3),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
-            Text(
-                text = review.reviewText,
-                modifier = Modifier.padding(dimens.medium1),
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = uiConstants.reviewMaxLines,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column(modifier = Modifier.padding(dimens.medium1)) {
+                Text(
+                    text = review.reviewTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(dimens.small2))
+                Text(
+                    text = review.reviewText,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = uiConstants.reviewMaxLines,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
+
+
+/*Icon(
+    imageVector = Icons.Default.Group,
+    contentDescription = "Friend",
+    tint = MaterialTheme.colorScheme.secondary,
+    modifier = Modifier.size(dimens.iconSmall)
+)*/

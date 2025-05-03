@@ -56,7 +56,7 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun SearchScreen(
     voiceToTextParser: VoiceToTextParser,
-    onMovieClick: (Int) -> Unit = {}
+    onMovieClick: (Int) -> Unit
 ) {
     val viewModel: SearchViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()

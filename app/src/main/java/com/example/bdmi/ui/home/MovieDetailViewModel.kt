@@ -7,7 +7,6 @@ import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
 import com.example.bdmi.data.api.toAPIError
-import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.data.repositories.MovieMetrics
 import com.example.bdmi.data.repositories.MovieRepository
@@ -43,20 +42,7 @@ class MovieDetailViewModel @Inject constructor(
     private val _detailUIState = MutableStateFlow(DetailUIState())
     val detailUIState = _detailUIState.asStateFlow()
 
-    private val _lists = MutableStateFlow<List<CustomList>>(emptyList())
-    val lists: StateFlow<List<CustomList>> = _lists.asStateFlow()
-
-    private val _carouselReviews = MutableStateFlow<List<MovieReview>>(
-        listOf(
-        MovieReview(
-            userId = "1",
-            displayName = "John Doe",
-            userProfilePicture = "https://example.com/profile.jpg",
-            reviewTitle = "Great Movie!",
-            reviewText = "I really enjoyed this movie. It was amazing!",
-            rating = 3.5f,
-        ))
-    )
+    private val _carouselReviews = MutableStateFlow<List<MovieReview>>(emptyList())
     val carouselReviews: StateFlow<List<MovieReview>> = _carouselReviews.asStateFlow()
 
     private val _userReview = MutableStateFlow<MovieReview?>(null)
@@ -121,10 +107,6 @@ class MovieDetailViewModel @Inject constructor(
         viewModelScope.launch {
             watchlistRepository.addToList(listId, userId, item)
         }
-    }
-
-    fun setLists(watchlists: List<CustomList>) {
-        _lists.value = watchlists
     }
 
     // Loads reviews for the carousel

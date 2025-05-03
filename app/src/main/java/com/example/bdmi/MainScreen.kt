@@ -81,7 +81,7 @@ fun MainScreen(
 ) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     // TODO: More elegant route checking
-    val showOuterBar = currentRoute != null && !currentRoute.startsWith("movie_detail/")
+    val showOuterBar = currentRoute != null && (!currentRoute.startsWith("movie_detail/") && !currentRoute.startsWith("reviews/"))
     // TODO: Separate scroll state for top bars
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 

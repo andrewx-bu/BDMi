@@ -84,7 +84,16 @@ fun MainNestedNavGraph(
         route = MainRoutes.Root.route
     ) {
         // Main routes
-        composable(MainRoutes.Search.route) { SearchScreen(voiceToTextParser) }
+        composable(MainRoutes.Search.route) {
+            SearchScreen(
+                voiceToTextParser = voiceToTextParser,
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                }
+            )
+        }
         composable(MainRoutes.Profile.route) {
             ProfileScreen(
                 sessionViewModel = sessionViewModel,
@@ -135,7 +144,7 @@ fun MainNestedNavGraph(
             )
         }
 
-        // Movie detail route
+            // Movie detail route
         composable("movie_detail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
             MovieDetailScreen(
@@ -153,10 +162,15 @@ fun MainNestedNavGraph(
                     }
                 },
                 // TODO: What does an actor route need
-                onActorClick = { navController.navigate("actor_detail") }
+                onActorClick = { navController.navigate("actor_detail") },
+                onAllReviewsClick = { movieId ->
+                    navController.navigate("reviews/$movieId") {
+                        restoreState = true
+                    }
+                }
             )
         }
-
+        // Movie detail route
         composable("reviews/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toInt()
             AllReviews(
@@ -167,7 +181,6 @@ fun MainNestedNavGraph(
                         restoreState = true
                     }
                 },
-                onNavigateBack = { navController.navigateUp() }
             )
         }
 

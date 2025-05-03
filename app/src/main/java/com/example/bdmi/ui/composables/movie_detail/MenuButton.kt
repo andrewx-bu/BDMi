@@ -68,21 +68,24 @@ fun MenuButton(
     val movieDetails = sessionViewModel.selectedMovie.collectAsState().value
     val userReview = sessionViewModel.selectedMovieReview.collectAsState().value
 
-    IconButton(
-        onClick = { expanded = true },
-        modifier = Modifier
-            .background(
-                MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+    if (movieDetails != null) {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.5f), CircleShape
+                )
+                .size(dimens.iconLarge)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Menu",
+                modifier = Modifier.size(dimens.iconSmall),
+                tint = MaterialTheme.colorScheme.onSurface
             )
-            .size(dimens.iconLarge)
-    ) {
-        Icon(
-            imageVector = Icons.Default.MoreHoriz,
-            contentDescription = "Menu",
-            modifier = Modifier.size(dimens.iconSmall),
-            tint = MaterialTheme.colorScheme.onSurface
-        )
+        }
     }
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = {
@@ -247,7 +250,7 @@ fun WriteReview(
     val spoiler = remember {
         if (userReview != null) mutableStateOf(userReview.spoiler)
         else mutableStateOf(false) }
-    val isReviewValid = review.value.length >= 25
+    val isReviewValid = review.value.length >= 2
     val isTitleValid = title.value.isNotBlank()
     val isRatingValid = rating.floatValue > 0
 
@@ -277,7 +280,7 @@ fun WriteReview(
         TextField(
             value = review.value,
             onValueChange = { review.value = it },
-            label = { Text("Review (100+ characters)") },
+            label = { Text("Review (2+ characters)") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp),
@@ -288,7 +291,7 @@ fun WriteReview(
         )
 
         Text(
-            text = "${review.value.length}/25",
+            text = "${review.value.length}/2",
             style = MaterialTheme.typography.titleMedium,
             color = if (isReviewValid) Color.Green else Color.Red,
             textAlign = TextAlign.End,

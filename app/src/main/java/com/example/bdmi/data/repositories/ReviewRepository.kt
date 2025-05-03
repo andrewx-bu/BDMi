@@ -135,18 +135,23 @@ class ReviewRepository @Inject constructor(
     fun getReviews(
         movieId: Int,
         rating: Float? = null,
+        timeFilter: TimeFilter = TimeFilter.DESCENDING,
         lastVisible: DocumentSnapshot? = null,
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         onComplete: (List<MovieReview>, DocumentSnapshot?) -> Unit
     ) {
         val dbFunction = "GetReviews"
         Log.d("$TAG$dbFunction", "Getting reviews for movie $movieId")
 
         checkIfMovieExists(movieId) {
+            val queryDirection = when (timeFilter) {
+                TimeFilter.ASCENDING -> Query.Direction.ASCENDING
+                TimeFilter.DESCENDING -> Query.Direction.DESCENDING
+            }
             val reviewQuery = db.collection(MOVIES_COLLECTION)
                 .document(movieId.toString())
                 .collection(REVIEWS_COLLECTION)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("timestamp", queryDirection)
                 .limit(pageSize.toLong())
 
             val ratingQuery = if (rating != null) {
@@ -354,15 +359,3 @@ class ReviewRepository @Inject constructor(
         }
     }
 }
-
-// Example of using pagination in view model
-/*
-var lastSnapshot: DocumentSnapshot? = null
-
-fun loadNextPage() {
-    getReviews(movieId, lastVisible = lastSnapshot, pageSize = 10) { reviews, newLast ->
-        reviewList.addAll(reviews)
-        lastSnapshot = newLast
-    }
-}
- */

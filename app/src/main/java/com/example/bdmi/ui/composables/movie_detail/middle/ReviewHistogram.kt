@@ -28,11 +28,11 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun ReviewHistogram(
     averageRating: Double,
-    totalReviews: Int,
-    ratingCounts: Map<String, Int>,
+    totalRatings: Int,
+    ratingBreakdown: Map<String, Int>,
 ) {
-    val maxCount = remember(ratingCounts) {
-        ratingCounts.values.maxOrNull()?.coerceAtLeast(1) ?: 1
+    val maxCount = remember(ratingBreakdown) {
+        ratingBreakdown.values.maxOrNull()?.coerceAtLeast(1) ?: 1
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -54,7 +54,7 @@ fun ReviewHistogram(
             }
             Spacer(Modifier.height(dimens.small2))
             Text(
-                text = formatReviewCount(totalReviews),
+                text = "(${formatReviewCount(totalRatings)})",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -77,7 +77,7 @@ fun ReviewHistogram(
             ) {
                 // Construct bars
                 (1..10).map { it * 0.5f }.forEach { rating ->
-                    val count = ratingCounts[rating.toString()] ?: 0
+                    val count = ratingBreakdown[rating.toString()] ?: 0
                     val fraction = count.toFloat() / maxCount
                     Box(
                         modifier = Modifier

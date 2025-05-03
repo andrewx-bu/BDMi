@@ -1,15 +1,18 @@
 package com.example.bdmi.ui.composables.movie_detail.middle
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -27,10 +30,13 @@ import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.theme.dimens
 import kotlinx.coroutines.launch
 
-// TODO: Prioritize Friend Reviews.
-// TODO: Make Reviews clickable.
 @Composable
-fun ReviewSection(reviews: List<MovieReview>, movieData: MovieMetrics?) {
+fun ReviewSection(
+    reviews: List<MovieReview>,
+    movieData: MovieMetrics?,
+    onProfileClick: (String) -> Unit,
+    onAllReviewsClick: () -> Unit
+) {
     // Simulate infinite scroll
     val pageCount = 1000 * reviews.size
     val startIndex = (pageCount / 2)
@@ -38,7 +44,6 @@ fun ReviewSection(reviews: List<MovieReview>, movieData: MovieMetrics?) {
         initialPage = startIndex,
         pageCount = { pageCount }
     )
-    val currentReviewIndex by remember { derivedStateOf { pagerState.currentPage % reviews.size } }
     val coroutineScope = rememberCoroutineScope()
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -63,58 +68,90 @@ fun ReviewSection(reviews: List<MovieReview>, movieData: MovieMetrics?) {
         }
 
         var averageRating by remember { mutableDoubleStateOf(0.0) }
-        var totalReviews by remember { mutableIntStateOf(0) }
-        var ratingCounts by remember { mutableStateOf(mapOf<String, Int>()) }
+        var totalRatings by remember { mutableIntStateOf(0) }
+        var ratingBreakdown by remember { mutableStateOf(mapOf<String, Int>()) }
         if (movieData != null) {
             averageRating = movieData.averageRating
-            totalReviews = movieData.reviewCount
-            ratingCounts = movieData.ratingBreakdown
+            totalRatings = movieData.ratingCount
+            ratingBreakdown = movieData.ratingBreakdown
         }
-        ReviewHistogram(
-            averageRating = averageRating,
-            totalReviews = totalReviews,
-            ratingCounts = ratingCounts
-        )
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .graphicsLayer { scaleX = -1f }
+        if (totalRatings != 0) {
+            ReviewHistogram(
+                averageRating = averageRating,
+                totalRatings = totalRatings,
+                ratingBreakdown = ratingBreakdown
+            )
+        }
+        if (reviews.isEmpty()) {
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(vertical = dimens.medium2)
             ) {
-                ShimmeringDivider()
+                Text("No reviews available")
             }
-            Text(
-                text = "FEATURED",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                modifier = Modifier.padding(horizontal = dimens.small3)
-            )
-            Box(modifier = Modifier.weight(1f)) {
-                ShimmeringDivider()
-            }
-        }
-
-        // Scrollable Review Cards
-        HorizontalPager(state = pagerState) { page ->
-            val reviewIndex = page % reviews.size
-            val review = reviews[reviewIndex]
-            ReviewCard(
-                review = review,
-                liked = true,
-            )
-        }
-
-        Spacer(Modifier.height(dimens.small3))
-
-        DotsIndicator(
-            numDots = reviews.size,
-            currentIndex = currentReviewIndex,
-            onDotClick = { index ->
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(index)
+        } else {
+            val currentReviewIndex by remember { derivedStateOf { pagerState.currentPage % reviews.size } }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .graphicsLayer { scaleX = -1f }
+                ) {
+                    ShimmeringDivider()
+                }
+                Text(
+                    text = "FEATURED",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(horizontal = dimens.small3)
+                )
+                Box(modifier = Modifier.weight(1f)) {
+                    ShimmeringDivider()
                 }
             }
-        )
+
+            // Scrollable Review Cards
+            HorizontalPager(state = pagerState) { page ->
+                val reviewIndex = page % reviews.size
+                val review = reviews[reviewIndex]
+                ReviewCard(
+                    review = review,
+                    liked = true,
+                    onProfileClick = onProfileClick,
+                )
+            }
+
+            Spacer(Modifier.height(dimens.small3))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimens.medium2),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    DotsIndicator(
+                        numDots = reviews.size,
+                        currentIndex = currentReviewIndex,
+                        onDotClick = { index ->
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        }
+                    )
+                }
+                TextButton(
+                    onClick = { onAllReviewsClick() } ,
+                    modifier = Modifier.padding(horizontal = dimens.small3)
+                ) {
+                    Text(
+                        text = "ALL REVIEWS (${movieData?.reviewCount})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(horizontal = dimens.small3)
+                    )
+                }
+            }
+        }
     }
 }

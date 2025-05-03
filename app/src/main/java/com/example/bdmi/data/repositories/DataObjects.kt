@@ -124,3 +124,8 @@ enum class FriendStatus {
     PENDING,
     FRIEND
 }
+
+enum class TimeFilter {
+    ASCENDING,
+    DESCENDING
+}
