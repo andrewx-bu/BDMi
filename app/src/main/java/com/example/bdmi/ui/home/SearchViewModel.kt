@@ -8,84 +8,71 @@ import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class MovieFilters(
-    val sortBy: String = "popularity.desc",
-    val withGenres: String? = null,
-    val withPeople: String? = null,
-    val voteCountGte: Float? = null,
-    val voteCountLte: Float? = null,
-    val voteAverageGte: Float? = null,
-    val voteAverageLte: Float? = null
-)
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val movieRepository: MovieRepository
 ) : ViewModel() {
-
     data class SearchUIState(
         override val isLoading: Boolean = false,
         val movies: List<Movie> = emptyList(),
-        val page: Int = 1,
-        val totalPages: Int = Int.MAX_VALUE,
         override val error: APIError? = null,
-        val filters: MovieFilters = MovieFilters()
+        val searchQuery: String = ""
     ) : UIState
 
-    private val _uiState = MutableStateFlow(SearchUIState())
-    val uiState = _uiState.asStateFlow()
+    private val _searchUIState = MutableStateFlow(SearchUIState())
+    val searchUIState = _searchUIState.asStateFlow()
 
-    fun refreshScreen() {
-        val currentFilters = _uiState.value.filters
-        _uiState.value = SearchUIState(isLoading = true, filters = currentFilters)
-        loadMovies(page = 1, filters = currentFilters, append = false)
+    fun onSearchQueryChanged(query: String) {
+        _searchUIState.update { it.copy(searchQuery = query) }
     }
 
-    fun loadFirstPage(filters: MovieFilters = MovieFilters()) {
-        _uiState.value = SearchUIState(isLoading = true, filters = filters)
-        loadMovies(page = 1, filters = filters, append = false)
-    }
+    fun executeSearch() {
+        val query = _searchUIState.value.searchQuery
+        if (query.isBlank()) return
 
-    fun loadNextPage() {
-        val state = _uiState.value
-        if (state.isLoading || state.page >= state.totalPages) return
-        loadMovies(page = state.page + 1, filters = state.filters, append = true)
-    }
+        _searchUIState.update {
+            it.copy(
+                isLoading = true,
+                movies = emptyList(),
+                error = null
+            )
+        }
 
-    private fun loadMovies(page: Int, filters: MovieFilters, append: Boolean) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-
-            movieRepository.discoverMovies(
-                page = page,
-                sortBy = filters.sortBy,
-                genres = filters.withGenres,
-                people = filters.withPeople,
-                voteCountGte = filters.voteCountGte,
-                voteCountLte = filters.voteCountLte,
-                voteAverageGte = filters.voteAverageGte,
-                voteAverageLte = filters.voteAverageLte
-            ).fold(
+            movieRepository.searchMovies(query).fold(
                 onSuccess = { response ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            movies = if (append) it.movies + response.results else response.results,
-                            page = response.page,
-                            totalPages = response.totalPages
-                        )
+                    if (response.results.isEmpty()) {
+                        _searchUIState.update {
+                            it.copy(error = APIError.EmptyResponseError(), isLoading = false)
+                        }
+                    } else {
+                        _searchUIState.update {
+                            it.copy(movies = response.results, isLoading = false)
+                        }
                     }
                 },
                 onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
+                    _searchUIState.update {
+                        it.copy(error = e.toAPIError(), isLoading = false)
+                    }
                 }
             )
+        }
+    }
+
+    fun clearSearch() {
+        _searchUIState.update {
+            SearchUIState() // Resets to initial state
         }
     }
 }

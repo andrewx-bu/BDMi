@@ -31,6 +31,24 @@ class MovieRepository @Inject constructor(
         )
     }
 
+    suspend fun searchMovies(
+        query: String,
+        page: Int = 1,
+        includeAdult: Boolean = false,
+        primaryReleaseYear: String? = null,
+        region: String? = null,
+        year: String? = null
+    ): Result<MoviesResponse> = runCatching {
+        apiService.searchMovies(
+            query = query,
+            page = page,
+            includeAdult = includeAdult,
+            primaryReleaseYear = primaryReleaseYear,
+            region = region,
+            year = year
+        )
+    }
+
     suspend fun getMovieDetails(movieId: Int): Result<MovieDetails> =
         runCatching {
             apiService.getMovieDetails(movieId = movieId)
