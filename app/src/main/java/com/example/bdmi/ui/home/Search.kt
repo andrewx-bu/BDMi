@@ -84,7 +84,8 @@ fun SearchScreen(
             IconButton(onClick = { showFilters = !showFilters }) {
                 Icon(
                     imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
-                    contentDescription = "Toggle filters"
+                    contentDescription = "Toggle filters",
+                    modifier = Modifier.size(dimens.iconMedium)
                 )
             }
         }
@@ -226,7 +227,7 @@ fun MovieListItem(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = movie.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(dimens.small2))
             Text(
