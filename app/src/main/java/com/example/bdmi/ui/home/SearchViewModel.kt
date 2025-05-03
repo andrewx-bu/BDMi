@@ -98,7 +98,6 @@ class SearchViewModel @Inject constructor(
                 query = s.query,
                 page = s.page,
                 includeAdult = s.includeAdult,
-                region = s.region,
                 year = s.year
             ).fold(
                 onSuccess = { response ->
@@ -125,13 +124,6 @@ class SearchViewModel @Inject constructor(
                 totalPages = Int.MAX_VALUE,
                 movies = emptyList()
             )
-        }
-        loadMovies()
-    }
-
-    fun setRegion(region: String?) {
-        _uiState.update {
-            it.copy(region = region, page = 1, totalPages = Int.MAX_VALUE, movies = emptyList())
         }
         loadMovies()
     }
