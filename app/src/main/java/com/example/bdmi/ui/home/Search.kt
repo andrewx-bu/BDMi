@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.utils.GenreMappings
+import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.data.utils.formatReviewCount
 import com.example.bdmi.data.utils.formatStarRating
 import com.example.bdmi.ui.composables.ErrorMessage
@@ -54,6 +55,7 @@ import com.example.bdmi.ui.theme.dimens
 
 @Composable
 fun SearchScreen(
+    voiceToTextParser: VoiceToTextParser,
     onMovieClick: (Int) -> Unit = {}
 ) {
     val viewModel: SearchViewModel = hiltViewModel()
@@ -61,6 +63,7 @@ fun SearchScreen(
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     var showFilters by remember { mutableStateOf(false) }
+    val state by voiceToTextParser.state.collectAsState()
 
     Column(
         Modifier
@@ -98,6 +101,10 @@ fun SearchScreen(
                 onYearChange = viewModel::setYear,
             )
         }
+
+        Spacer(Modifier.height(dimens.medium1))
+
+        Text(state.spokenText.ifEmpty { "Click on mic to record audio" })
 
         Spacer(Modifier.height(dimens.medium1))
 

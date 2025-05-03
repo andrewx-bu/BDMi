@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+// Code from https://www.youtube.com/watch?v=jyXf1WS-wI8
 class VoiceToTextParser(
     private val app: Application
 ) : RecognitionListener {

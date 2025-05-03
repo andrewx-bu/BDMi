@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.bdmi.SessionViewModel
+import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
 import com.example.bdmi.ui.friends.UserProfile
@@ -74,6 +75,7 @@ fun MainNestedNavGraph(
     rootNavController: NavHostController,
     navController: NavHostController,
     sessionViewModel: SessionViewModel,
+    voiceToTextParser: VoiceToTextParser
 ) {
     Log.d("MainNestedNavGraph", "Reached MainNestedNavGraph")
 
@@ -84,7 +86,7 @@ fun MainNestedNavGraph(
             route = MainRoutes.Root.route
         ) {
             // Main routes
-            composable(MainRoutes.Search.route) { SearchScreen() }
+            composable(MainRoutes.Search.route) { SearchScreen(voiceToTextParser) }
             composable(MainRoutes.Profile.route) {
                 ProfileScreen(
                     sessionViewModel = sessionViewModel,

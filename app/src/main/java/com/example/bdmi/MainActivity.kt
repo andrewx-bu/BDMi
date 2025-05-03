@@ -42,7 +42,7 @@ fun RootNavigation(voiceToTextParser: VoiceToTextParser) {
     val loggedIn = sessionViewModel.isLoggedIn.collectAsState()
     val isInitialized = sessionViewModel.isInitialized.collectAsState()
 
-    // TODO: Splash Screen
+    // TODO: Splash Screen?
     if (!isInitialized.value) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()

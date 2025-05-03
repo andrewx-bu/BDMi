@@ -216,7 +216,8 @@ fun MainScreen(
             MainNestedNavGraph(
                 rootNavController = rootNavController,
                 navController = navController,
-                sessionViewModel = sessionViewModel
+                sessionViewModel = sessionViewModel,
+                voiceToTextParser = voiceToTextParser
             )
         }
     }
