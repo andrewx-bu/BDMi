@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.repositories.MovieReview
+import com.example.bdmi.data.repositories.Notification
+import com.example.bdmi.data.repositories.NotificationRepository
 import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.WatchlistRepository
 import com.example.bdmi.data.utils.SessionManager
@@ -28,7 +30,8 @@ class SessionViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val userRepository: UserRepository,
     private val watchlistRepository: WatchlistRepository,
-    private val movieRepository: MovieRepository
+    private val movieRepository: MovieRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
     private val _darkMode = MutableStateFlow(false)
     val darkMode: StateFlow<Boolean> = _darkMode.asStateFlow()
@@ -44,6 +47,9 @@ class SessionViewModel @Inject constructor(
 
     private val _watchlists = MutableStateFlow<List<CustomList>>(emptyList())
     val watchlists: StateFlow<List<CustomList>> = _watchlists.asStateFlow()
+
+    private val _numUnreadNotifications = MutableStateFlow(0)
+    val numUnreadNotifications: StateFlow<Int> = _numUnreadNotifications.asStateFlow()
 
     private val _cachedMovies = MutableStateFlow<List<Movie>>(emptyList())
     val cachedMovies: StateFlow<List<Movie>> = _cachedMovies.asStateFlow()
@@ -95,8 +101,15 @@ class SessionViewModel @Inject constructor(
      */
     private fun loadCachedInfo() {
         viewModelScope.launch {
-            watchlistRepository.getLists(_userInfo.value?.userId.toString()) { lists ->
-                _watchlists.value = lists
+            launch {
+                watchlistRepository.getLists(_userInfo.value?.userId.toString()) { lists ->
+                    _watchlists.value = lists
+                }
+            }
+            launch {
+                notificationRepository.getNotifications(_userInfo.value?.userId.toString()) { notifications ->
+                    _numUnreadNotifications.value = notifications.count { !it.read }
+                }
             }
         }
     }
@@ -198,5 +211,9 @@ class SessionViewModel @Inject constructor(
 
     fun clearSelectedMovieReview() {
         _selectedMovieReview.value = null
+    }
+
+    fun loadNumOfUnreadNotifications(numUnreadNotifications: Int) {
+        _numUnreadNotifications.value = numUnreadNotifications
     }
 }

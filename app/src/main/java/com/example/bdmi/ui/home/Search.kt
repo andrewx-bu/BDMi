@@ -1,5 +1,8 @@
 package com.example.bdmi.ui.home
 
+import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +25,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.FilterListOff
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,11 +45,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.utils.GenreMappings
 import com.example.bdmi.data.utils.VoiceToTextParser
@@ -64,6 +75,8 @@ fun SearchScreen(
     val isSearching by viewModel.isSearching.collectAsState()
     var showFilters by remember { mutableStateOf(false) }
     val state by voiceToTextParser.state.collectAsState()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(state.spokenText) {
         if (state.spokenText.isNotEmpty() && state.spokenText != searchText) {
@@ -71,88 +84,127 @@ fun SearchScreen(
         }
     }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(dimens.medium2)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextField(
-                value = searchText,
-                onValueChange = viewModel::onSearchTextChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = dimens.small3),
-                placeholder = {
-                    Text(
-                        text = "Search Movies...",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            )
-            IconButton(onClick = { showFilters = !showFilters }) {
-                Icon(
-                    imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
-                    contentDescription = "Toggle filters",
-                    modifier = Modifier.size(dimens.iconMedium)
-                )
-            }
-        }
-
-        AnimatedVisibility(showFilters) {
-            FilterPanel(
-                includeAdult = uiState.includeAdult,
-                onIncludeAdultChange = viewModel::setIncludeAdult,
-                year = uiState.year ?: "",
-                onYearChange = viewModel::setYear,
-            )
-        }
-
-        Spacer(Modifier.height(dimens.medium1))
-
-        when {
-            uiState.error != null -> {
-                ErrorMessage(
-                    message = uiState.error.toString(),
-                    onRetry = { /* refresh */ }
-                )
-            }
-
-            isSearching || (uiState.isLoading && uiState.movies.isEmpty()) -> {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = dimens.large3)
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-            }
-
-            else -> {
-                if (uiState.movies.isEmpty()) {
-                    Text(
-                        text = "No results",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                LazyColumn {
-                    itemsIndexed(uiState.movies) { index, movie ->
-                        MovieListItem(
-                            movie = movie,
-                            onClick = { onMovieClick(movie.id) }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimens.medium2)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextField(
+                    value = searchText,
+                    onValueChange = viewModel::onSearchTextChange,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = dimens.small3),
+                    placeholder = {
+                        Text(
+                            text = "Search Movies...",
+                            style = MaterialTheme.typography.bodyMedium
                         )
+                    }
+                )
+                IconButton(onClick = { showFilters = !showFilters }) {
+                    Icon(
+                        imageVector = if (showFilters) Icons.Default.FilterListOff else Icons.Default.FilterList,
+                        contentDescription = "Toggle filters",
+                        modifier = Modifier.size(dimens.iconMedium)
+                    )
+                }
+            }
 
-                        if (index == uiState.movies.lastIndex) {
-                            LaunchedEffect(Unit) {
-                                viewModel.loadNextPage()
+            AnimatedVisibility(showFilters) {
+                FilterPanel(
+                    includeAdult = uiState.includeAdult,
+                    onIncludeAdultChange = viewModel::setIncludeAdult,
+                    year = uiState.year ?: "",
+                    onYearChange = viewModel::setYear,
+                )
+            }
+
+            Spacer(Modifier.height(dimens.medium1))
+
+            when {
+                uiState.error != null -> {
+                    ErrorMessage(
+                        message = uiState.error.toString(),
+                        onRetry = { /* refresh */ }
+                    )
+                }
+
+                isSearching || (uiState.isLoading && uiState.movies.isEmpty()) -> {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = dimens.large3)
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
+
+                else -> {
+                    if (uiState.movies.isEmpty()) {
+                        Text(
+                            text = "No results",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    LazyColumn {
+                        itemsIndexed(uiState.movies) { index, movie ->
+                            MovieListItem(
+                                movie = movie,
+                                onClick = { onMovieClick(movie.id) }
+                            )
+
+                            if (index == uiState.movies.lastIndex) {
+                                LaunchedEffect(Unit) {
+                                    viewModel.loadNextPage()
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        // FAB goes here
+        FloatingActionButton(
+            onClick = {
+                val permission = android.Manifest.permission.RECORD_AUDIO
+                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                    if (state.isSpeaking) {
+                        voiceToTextParser.stopListening()
+                    } else {
+                        voiceToTextParser.startListening()
+                    }
+                } else {
+                    ActivityCompat.requestPermissions(
+                        context as Activity,
+                        arrayOf(permission),
+                        1001
+                    )
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = if (state.isSpeaking) {
+                MaterialTheme.colorScheme.tertiaryContainer
+            } else {
+                MaterialTheme.colorScheme.secondaryContainer
+            }
+        ) {
+            AnimatedContent(targetState = state.isSpeaking) { isSpeaking ->
+                if (isSpeaking) {
+                    Icon(imageVector = Icons.Rounded.Stop, contentDescription = null)
+                } else {
+                    Icon(imageVector = Icons.Rounded.Mic, contentDescription = null)
+                }
+            }
+        }
     }
 }
+
 
 @Composable
 fun FilterPanel(
@@ -246,8 +298,7 @@ fun MovieListItem(
             Spacer(modifier = Modifier.height(dimens.small2))
             Text(
                 text = "Genres: ${
-                    movie.genreIds?.map { GenreMappings.getGenreName(it) }
-                        ?.joinToString(", ")
+                    movie.genreIds?.joinToString(", ") { GenreMappings.getGenreName(it).toString() }
                 }",
                 style = MaterialTheme.typography.bodyMedium
             )
