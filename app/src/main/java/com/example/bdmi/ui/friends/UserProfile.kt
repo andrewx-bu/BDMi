@@ -142,7 +142,7 @@ fun FriendButton(
                             friendCount = currentUser?.friendCount,
                             listCount = currentUser?.listCount,
                             reviewCount = currentUser?.reviewCount,
-                            isPublic = currentUser?.isPublic
+                            isPublic = currentUser?.isPublic == true
                         ),
                         recipientId = profileUserId,
                         onComplete = {

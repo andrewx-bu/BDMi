@@ -116,7 +116,7 @@ class FriendRepository @Inject constructor(
     fun acceptFriendInvite(
         userId: String,
         friendId: String,
-        onComplete: (ProfileBanner?) -> Unit
+        onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "addFriend"
         val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
@@ -127,8 +127,6 @@ class FriendRepository @Inject constructor(
         val friendFriendsRef =
             db.collection(USERS_COLLECTION).document(friendId).collection(FRIENDS_SUBCOLLECTION)
                 .document(userId)
-        var userInfo: ProfileBanner?
-        var friendInfo: ProfileBanner? = null
 
         db.runTransaction { transaction ->
             // Get user and friend documents
@@ -140,34 +138,18 @@ class FriendRepository @Inject constructor(
             }
 
             // Extract user and friend info
-            userInfo = ProfileBanner(
-                userId = userDoc.getString("userId").toString(),
-                profilePicture = userDoc.getString("profilePicture").toString(),
-                displayName = userDoc.getString("displayName").toString(),
-                friendCount = userDoc.getLong("friendCount")!!,
-                listCount = userDoc.getLong("listCount")!!,
-                reviewCount = userDoc.getLong("reviewCount")!!,
-                isPublic = userDoc.getBoolean("isPublic")!!
-            )
-            friendInfo = ProfileBanner(
-                userId = friendDoc.getString("userId").toString(),
-                profilePicture = friendDoc.getString("profilePicture").toString(),
-                displayName = friendDoc.getString("displayName").toString(),
-                friendCount = friendDoc.getLong("friendCount")!!,
-                listCount = friendDoc.getLong("listCount")!!,
-                reviewCount = friendDoc.getLong("reviewCount")!!,
-                isPublic = friendDoc.getBoolean("isPublic")!!
-            )
+            val userInfo = userDoc.toObject(ProfileBanner::class.java)
+            val friendInfo = friendDoc.toObject(ProfileBanner::class.java)
 
-            // Add friend to user's 'friends' subcollection
-            transaction.set(userFriendsRef, friendInfo)
-            // Add user to friend's 'friends' subcollection
-            transaction.set(friendFriendsRef, userInfo)
+            if (userInfo != null && friendInfo != null) {
+                // Add friend to user's 'friends' subcollection
+                transaction.set(userFriendsRef, friendInfo)
+                // Add user to friend's 'friends' subcollection
+                transaction.set(friendFriendsRef, userInfo)
+            }
 
             // Increment friend counts for both profiles
-            transaction.update(
-                userRef, "friendCount", FieldValue.increment(1)
-            ) // Copilot assisted with these 2 lines
+            transaction.update(userRef, "friendCount", FieldValue.increment(1))
             transaction.update(friendRef, "friendCount", FieldValue.increment(1))
 
             // Remove outgoing requests from friends outgoing request subcollection
@@ -188,11 +170,11 @@ class FriendRepository @Inject constructor(
                 } else {
                     Log.d("$TAG$dbFunction", "Issue not adding Snapshot Listener")
                 }
-                onComplete(friendInfo)
+                onComplete(true)
             }
         }.addOnFailureListener { e ->
             Log.e("$TAG$dbFunction", "Error adding friend", e)
-            onComplete(null)
+            onComplete(false)
         }
     }
 

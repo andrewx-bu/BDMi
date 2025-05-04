@@ -22,9 +22,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -68,6 +70,16 @@ fun NotificationsScreen(
 ) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val notifications = notificationViewModel.notificationList.collectAsState().value
+
+    LaunchedEffect(userId) {
+        notificationViewModel.getNotifications(userId.toString())
+    }
+
+    LaunchedEffect(notifications) {
+        val unreadCount = notifications.count { !it.read }
+        sessionViewModel.loadNumOfUnreadNotifications(unreadCount)
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -83,8 +95,8 @@ fun NotificationsScreen(
                     }
                 },
                 actions = {
-                    Card(
-                        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                    ElevatedButton(
+                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 10.dp),
                         onClick = {
                             notificationViewModel.deleteAllNotifications(userId.toString())
                         }
@@ -100,6 +112,7 @@ fun NotificationsScreen(
         NotificationList(
             modifier = Modifier.padding(padding),
             userId = userId,
+            notifications = notifications,
             onProfileClick = onProfileClick,)
     }
 }
@@ -107,16 +120,10 @@ fun NotificationsScreen(
 @Composable
 fun NotificationList(
     modifier: Modifier = Modifier,
-    userId: String?,
-    onProfileClick: (String) -> Unit
+    userId: String? = null,
+    notifications: List<Notification> = emptyList(),
+    onProfileClick: (String) -> Unit,
 ) {
-    val notificationViewModel: NotificationViewModel = hiltViewModel()
-    val notificationList = notificationViewModel.notificationList.collectAsState()
-    val numOfNotifications = notificationViewModel.numOfNotifications.collectAsState()
-    LaunchedEffect(userId) {
-        if (userId != null)
-            notificationViewModel.getNotifications(userId)
-    }
 
     Box(
         modifier = modifier
@@ -124,16 +131,17 @@ fun NotificationList(
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
-        if (numOfNotifications.value > 0) {
-            Log.d("NotificationList", "Notification list: ${notificationList.value}")
+        if (notifications.isNotEmpty()) {
+            Log.d("NotificationList", "Notification list: $notifications")
             LazyColumn(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                items(notificationList.value) { notification ->
+                items(notifications) { notification ->
                     NotificationItem(
                         notification = notification,
+                        userId = userId,
                         onProfileClick = onProfileClick,
                     )
                 }
@@ -152,15 +160,12 @@ fun NotificationList(
 @Composable
 fun NotificationItem(
     modifier: Modifier = Modifier,
+    userId: String? = null,
     notification: Notification,
     onProfileClick: (String) -> Unit
 ) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
-    val sharedPreferences =
-        LocalContext.current.getSharedPreferences("UserPref", Context.MODE_PRIVATE)
-    val userId = sharedPreferences.getString("userId", null)
-    val isRead by remember { mutableStateOf(notification.read) }
-    val cardVisibility = if (isRead) 0.6f else 1f
+    val cardVisibility = if (notification.read) 0.5f else 1f
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = RoundedCornerShape(5.dp),
@@ -168,7 +173,7 @@ fun NotificationItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(10.dp)
-            .clickable(enabled = !isRead) {
+            .clickable {
                 notificationViewModel.readNotification(
                     userId.toString(),
                     notification.notificationId
@@ -194,10 +199,30 @@ fun NotificationItem(
             // Delete a notification
             IconButton(
                 onClick = {
-                    notificationViewModel.deleteNotification(
-                        userId.toString(),
-                        notification.notificationId
-                    )
+                    if (notification.type == "friend_request") {
+                        val friendData = notification.data as NotificationType.FriendRequest
+                        if (!friendData.responded) {
+                            notificationViewModel.declineInvite (
+                                userId.toString(),
+                                friendData.userId
+                            ) {
+                                notificationViewModel.deleteNotification(
+                                    userId.toString(),
+                                    notification.notificationId
+                                )
+                            }
+                        } else {
+                            notificationViewModel.deleteNotification(
+                                userId.toString(),
+                                notification.notificationId
+                            )
+                        }
+                    } else {
+                        notificationViewModel.deleteNotification(
+                            userId.toString(),
+                            notification.notificationId
+                        )
+                    }
                 }
             ) {
                 Icon(
@@ -219,6 +244,7 @@ fun NotificationItem(
                     notification.notificationId,
                     notification.data as NotificationType.FriendRequest,
                     userId,
+                    visibility = cardVisibility,
                     onProfileClick = onProfileClick
                 )
                 // Add more notification types here
@@ -233,13 +259,15 @@ fun FriendRequestNotification(
     notificationId: String,
     data: NotificationType.FriendRequest,
     userId: String?,
+    visibility: Float = 1f,
     onProfileClick: (String) -> Unit
 ) {
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp),
+            .padding(5.dp)
+            .graphicsLayer(alpha = visibility),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -319,7 +347,13 @@ fun FriendRequestNotification(
                 // If user hasn't responded to the friend request display the buttons
                 IconButton(
                     onClick = {
-                        notificationViewModel.deleteNotification(userId.toString(), notificationId)
+                        notificationViewModel.declineInvite(userId.toString(), data.userId) {
+                            if (it) {
+                                Log.d("NotificationItem", "Invite declined")
+                            } else {
+                                Log.d("NotificationItem", "Error declining invite")
+                            }
+                        }
                         notificationViewModel.friendRequestResponse(
                             userId.toString(),
                             notificationId

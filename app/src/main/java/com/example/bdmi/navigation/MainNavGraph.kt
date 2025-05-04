@@ -58,7 +58,7 @@ sealed class MainRoutes(val route: String) {
         return when (route) {
             "home" -> Icons.Default.Home
             "search" -> Icons.Default.Search
-            "bookmarks" -> Icons.Default.Bookmark
+            "watchlists" -> Icons.Default.Bookmark
             "profile" -> Icons.Default.AccountCircle
             "notifications" -> Icons.Default.Notifications
             else -> {

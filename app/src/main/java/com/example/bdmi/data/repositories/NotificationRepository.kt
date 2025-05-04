@@ -26,6 +26,7 @@ class NotificationRepository @Inject constructor(
             .addOnSuccessListener { notifications: QuerySnapshot ->
                 for (notificationDoc in notifications) {
                     val notificationInfo = docToNotification(notificationDoc)
+                    Log.d("$TAG$dbFunction", "Notification found: $notificationInfo")
                     notificationList.add(notificationInfo)
                 }
                 Log.d("$TAG$dbFunction", "Number of notifications found: ${notificationList.size}")
@@ -109,7 +110,6 @@ class NotificationRepository @Inject constructor(
 
     private fun docToNotification(doc: DocumentSnapshot): Notification {
         val type = doc.getString("type") ?: ""
-        Log.d("NotificationRepository", "Notification data: ${doc.get("data")}")
         val dataMap = doc.get("data") as? Map<*, *>
 
         val data = when (type) {
@@ -121,14 +121,13 @@ class NotificationRepository @Inject constructor(
                     friendCount = (dataMap?.get("friendCount") as? Long) ?: 0,
                     listCount = (dataMap?.get("listCount") as? Long) ?: 0,
                     reviewCount = (dataMap?.get("reviewCount") as? Long) ?: 0,
-                    isPublic = dataMap?.get("isPublic") as? Boolean == true
+                    isPublic = dataMap?.get("isPublic") as? Boolean == true,
+                    responded = dataMap?.get("responded") as? Boolean == true
                 )
             }
 
             else -> NotificationType.FriendRequest() // Add other types later
         }
-        Log.d("NotificationRepository", "New Notification data: $data")
-
         return Notification(
             notificationId = doc.id,
             type = type,

@@ -67,7 +67,7 @@ class UserRepository @Inject constructor(
 
                         val profileInfo = UserInfo(
                             userId = userId,
-                            displayName =  userInformation["displayName"] as? String
+                            displayName =  userInformation["displayName"] as String
                         )
 
                         createPublicProfile(userId, profileInfo) {

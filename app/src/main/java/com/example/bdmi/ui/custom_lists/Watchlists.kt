@@ -44,6 +44,7 @@ fun WatchlistsScreen(sessionViewModel: SessionViewModel, onListClick: (Pair<Stri
     val watchlistViewModel : WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
 
+    // TODO: Use cached lists instead of retrieving them again
     LaunchedEffect(userId) {
         if (userId != null) {
             watchlistViewModel.getLists(userId.toString())
@@ -143,7 +144,6 @@ fun AddListButton(onClick: (CustomList) -> Unit) {
                         value = description,
                         onValueChange = { description = it },
                     )
-                    // TODO: Add switch for public/private
                     Text("Public:")
                     Switch(
                         checked = isPublic,

@@ -21,23 +21,15 @@ class NotificationViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
     private val friendRepository: FriendRepository
 ) : ViewModel() {
-    private val _notificationList = MutableStateFlow<MutableList<Notification>>(mutableListOf())
-    val notificationList: StateFlow<MutableList<Notification>> = _notificationList.asStateFlow()
-
-    private val _numOfNotifications = MutableStateFlow(0)
-    var numOfNotifications: StateFlow<Int> = _numOfNotifications.asStateFlow()
+    private val _notificationList = MutableStateFlow<List<Notification>>(emptyList())
+    val notificationList: StateFlow<List<Notification>> = _notificationList.asStateFlow()
 
     fun getNotifications(userId: String) {
         Log.d(TAG, "Loading notifications for user: $userId")
 
         viewModelScope.launch {
             notificationRepository.getNotifications(userId) { notifications ->
-                _notificationList.value = notifications as MutableList<Notification>
-                for (notification in notifications) {
-                    if (!notification.read) {
-                        _numOfNotifications.value++
-                    }
-                }
+                _notificationList.value = notifications
             }
         }
     }
@@ -50,7 +42,7 @@ class NotificationViewModel @Inject constructor(
             } else {
                 notification
             }
-        } as MutableList<Notification>
+        }
 
         viewModelScope.launch {
             notificationRepository.readNotification(userId, notificationId) {
@@ -65,7 +57,7 @@ class NotificationViewModel @Inject constructor(
         Log.d(TAG, "Deleting notification: $notificationId")
         _notificationList.value = _notificationList.value.filter { notification ->
             notification.notificationId != notificationId
-        } as MutableList<Notification>
+        }
         viewModelScope.launch {
             notificationRepository.deleteNotification(userId, notificationId) {
                 if (it) {
@@ -78,7 +70,7 @@ class NotificationViewModel @Inject constructor(
 
     fun deleteAllNotifications(userId: String) {
         Log.d(TAG, "Deleting all notifications for user: $userId")
-        _notificationList.value = mutableListOf()
+        _notificationList.value = emptyList()
         viewModelScope.launch {
             notificationRepository.deleteAllNotifications(userId) {
                 if (it) {
@@ -93,9 +85,9 @@ class NotificationViewModel @Inject constructor(
         Log.d(TAG, "Adding friend with ID: $friendId")
 
         viewModelScope.launch {
-            friendRepository.acceptFriendInvite(userId, friendId) { newFriend ->
-                if (newFriend != null) {
-                    Log.d(TAG, "New friend added: ${newFriend.displayName}")
+            friendRepository.acceptFriendInvite(userId, friendId) {
+                if (it) {
+                    Log.d(TAG, "New friend added success")
                     onComplete(true)
                 } else {
                     onComplete(false)
@@ -118,13 +110,13 @@ class NotificationViewModel @Inject constructor(
     fun friendRequestResponse(userId: String, notificationId: String) {
         Log.d(TAG, "Responding to friend request")
         _notificationList.value = _notificationList.value.map { notification ->
-            val friendRequest = notification.data as? NotificationType.FriendRequest
-            if (friendRequest != null) {
+            if (notificationId == notification.notificationId) {
+                val friendRequest = notification.data as NotificationType.FriendRequest
                 notification.copy(data = friendRequest.copy(responded = true))
             } else {
                 notification
             }
-        } as MutableList<Notification>
+        }
 
         viewModelScope.launch {
             notificationRepository.respondFriendRequest(userId, notificationId) {
@@ -133,5 +125,4 @@ class NotificationViewModel @Inject constructor(
             }
         }
     }
-
 }

@@ -1,15 +1,18 @@
 package com.example.bdmi.data.repositories
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 
 data class UserInfo(
     val userId: String = "", // Provide a default value
-    val displayName: String? = "",
-    val profilePicture: String? = "https://res.cloudinary.com/dle98umos/image/upload/v1744005666/default_hm4pfx.jpg",
-    val friendCount: Long? = 0,
-    val listCount: Long? = 0,
-    val reviewCount: Long? = 0,
-    val isPublic: Boolean? = true,
+    val displayName: String = "",
+    val profilePicture: String = "https://res.cloudinary.com/dle98umos/image/upload/v1744005666/default_hm4pfx.jpg",
+    val friendCount: Long = 0,
+    val listCount: Long = 0,
+    val reviewCount: Long = 0,
+    @get:PropertyName("isPublic")
+    @set:PropertyName("isPublic")
+    var isPublic: Boolean = true,
 )
 
 /* Used in Review Journey */
@@ -73,7 +76,10 @@ data class CustomList(
     val description: String = "",
     val numOfItems: Int = 0,
     val timestamp: Timestamp = Timestamp.now(),
-    val isPublic: Boolean = true
+
+    @get:PropertyName("isPublic")
+    @set:PropertyName("isPublic")
+    var isPublic: Boolean = true
 )
 
 data class MediaItem(
@@ -82,7 +88,9 @@ data class MediaItem(
     val posterPath: String = "",
     val releaseDate: String = "",
     val timestamp: Timestamp = Timestamp.now(),
-    val isWatched: Boolean = false
+    @get:PropertyName("isWatched")
+    @set:PropertyName("isWatched")
+    var isWatched: Boolean = false
 )
 
 // Used in Notification Journey
@@ -102,7 +110,9 @@ sealed class NotificationType {
         val friendCount: Long? = 0,
         val listCount: Long? = 0,
         val reviewCount: Long? = 0,
-        val isPublic: Boolean? = true,
+        @get:PropertyName("isPublic")
+        @set:PropertyName("isPublic")
+        var isPublic: Boolean? = true,
         val responded: Boolean = false
     ) : NotificationType()
     object Message : NotificationType()
@@ -116,7 +126,9 @@ data class ProfileBanner(
     val friendCount: Long? = 0,
     val listCount: Long? = 0,
     val reviewCount: Long? = 0,
-    val isPublic: Boolean? = true
+    @get:PropertyName("isPublic")
+    @set:PropertyName("isPublic")
+    var isPublic: Boolean = true
 )
 
 enum class FriendStatus {
