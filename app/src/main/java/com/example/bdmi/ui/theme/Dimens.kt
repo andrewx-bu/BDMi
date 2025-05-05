@@ -59,7 +59,11 @@ data class Dimens(
     val movieRowWidth: Dp,
     val movieRowHeight: Dp,
     val placeholderWidth: TextUnit,
-    val placeholderHeight: TextUnit
+    val placeholderHeight: TextUnit,
+
+    // Detailed screens
+    val studioLogoSize: Dp,
+    val parentLogoSize: Dp
 )
 
 val MediumDimens = Dimens(
@@ -116,7 +120,11 @@ val MediumDimens = Dimens(
     movieRowWidth = 100.dp,
     movieRowHeight = 150.dp,
     placeholderWidth = 15.sp,
-    placeholderHeight = 18.sp
+    placeholderHeight = 18.sp,
+
+    // Detailed screens
+    studioLogoSize = 150.dp,
+    parentLogoSize = 50.dp
 )
 
 // TODO: Add dimens for Expanded devices in portrait
@@ -161,7 +169,9 @@ val LargeDimens = Dimens(
     movieRowWidth = 0.dp,
     movieRowHeight = 0.dp,
     placeholderWidth = 0.sp,
-    placeholderHeight = 0.sp
+    placeholderHeight = 0.sp,
+    studioLogoSize = 150.dp,
+    parentLogoSize = 50.dp
 )
 
 // TODO: Add dimens for Expanded devices in landscape
@@ -206,5 +216,7 @@ val ExpandedDimens = Dimens(
     movieRowWidth = 0.dp,
     movieRowHeight = 0.dp,
     placeholderWidth = 0.sp,
-    placeholderHeight = 0.sp
+    placeholderHeight = 0.sp,
+    studioLogoSize = 150.dp,
+    parentLogoSize = 50.dp
 )

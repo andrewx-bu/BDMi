@@ -6,7 +6,6 @@ import com.squareup.moshi.JsonClass
 // Company details endpoint
 @JsonClass(generateAdapter = true)
 data class Company(
-    @Json(name = "description") val description: String,
     @Json(name = "headquarters") val headquarters: String,
     @Json(name = "homepage") val homepage: String?,
     @Json(name = "id") val id: Int,
