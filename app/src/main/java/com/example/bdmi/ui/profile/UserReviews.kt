@@ -1,18 +1,10 @@
 package com.example.bdmi.ui.profile
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
-import com.example.bdmi.data.repositories.MovieReview
-import com.example.bdmi.ui.composables.movie_detail.middle.ReviewCard
 import com.example.bdmi.ui.home.movie_details.ReviewViewModel
 
 // TODO: Implement screen

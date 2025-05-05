@@ -4,12 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bdmi.data.api.APIError
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.FriendStatus
 import com.example.bdmi.data.repositories.ProfileRepository
 import com.example.bdmi.data.repositories.UserInfo
-import com.example.bdmi.data.repositories.UserRepository
 import com.example.bdmi.data.repositories.UserReview
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -112,26 +112,25 @@ fun ReviewCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimens.small2)
+                .padding(horizontal = 0.dp)
                 .height(140.dp),
             shape = RoundedCornerShape(dimens.medium1),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
-            Column(modifier = Modifier.padding(dimens.medium1)) {
-                Text(
-                    text = review.reviewTitle,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(Modifier.height(dimens.small2))
-                Text(
-                    text = review.reviewText,
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = uiConstants.reviewMaxLines,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = review.reviewTitle,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(dimens.small3)
+            )
+
+            Text(
+                text = review.reviewText,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(dimens.small3)
+            )
         }
     }
 }
