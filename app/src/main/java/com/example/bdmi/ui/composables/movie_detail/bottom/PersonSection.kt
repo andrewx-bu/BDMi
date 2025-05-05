@@ -3,6 +3,7 @@ package com.example.bdmi.ui.composables.movie_detail.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -153,7 +154,8 @@ fun PersonSection(
                             placeholder = rememberVectorPainter(Icons.Default.Person),
                             error = rememberVectorPainter(Icons.Default.Person),
                             contentDescription = null,
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 },

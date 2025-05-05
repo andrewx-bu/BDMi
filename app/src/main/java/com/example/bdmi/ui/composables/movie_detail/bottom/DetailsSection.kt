@@ -1,14 +1,24 @@
 package com.example.bdmi.ui.composables.movie_detail.bottom
 
+import android.content.Intent
+import android.graphics.Paint.Align
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -50,14 +61,51 @@ fun DetailsSection(
                 modifier = Modifier.padding(vertical = dimens.small2),
                 color = MaterialTheme.colorScheme.inverseSurface
             )
-            Text(
-                text = "Budget: ${formatAmount(details.budget.toLong())}",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = "Revenue: ${formatAmount(details.revenue)}",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "Budget: ${formatAmount(details.budget.toLong())}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Revenue: ${formatAmount(details.revenue)}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                details.imdbid?.let { id ->
+                    val context = LocalContext.current
+                    Button(
+                        modifier = Modifier
+                            .size(
+                                width = dimens.buttonWidthSmall,
+                                height = dimens.buttonHeightSmall
+                            ),
+                        onClick = {
+                            val intent =
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    "https://www.imdb.com/title/$id".toUri()
+                                )
+                            context.startActivity(intent)
+                        },
+                        shape = RoundedCornerShape(dimens.small3),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Text(
+                            text = "IMDb",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
+            }
             Text(
                 text = "Spoken Languages: " + details.spokenLanguages.joinToString { it.englishName },
                 style = MaterialTheme.typography.bodyLarge
