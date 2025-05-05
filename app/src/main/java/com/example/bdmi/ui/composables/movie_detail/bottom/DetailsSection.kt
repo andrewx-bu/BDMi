@@ -76,7 +76,7 @@ fun DetailsSection(
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             ListItemRow(
-                onClick = { onCountryClick(country.name) },
+                onClick = { onCountryClick(country.iso31661) },
                 leading = {
                     Text(
                         country.iso31661.toFlagEmoji(),

@@ -9,7 +9,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface APIService {
-    // Search Screen
+    // Details Screens
     @GET("discover/movie")
     suspend fun discoverMovies(
         @Query("page") page: Int = 1,
@@ -17,6 +17,8 @@ interface APIService {
         @Query("sort_by") sortBy: String = "popularity.desc",
         @Query("with_genres") genres: String? = null,
         @Query("with_people") people: String? = null,
+        @Query("with_companies") companies: String? = null,
+        @Query("with_origin_country") country: String? = null,
         @Query("vote_count.gte") voteCountGte: Float? = null,
         @Query("vote_count.lte") voteCountLte: Float? = null,
         @Query("vote_average.gte") voteAverageGte: Float? = null,
