@@ -1,6 +1,5 @@
 package com.example.bdmi.navigation
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.AccountCircle
@@ -26,7 +25,7 @@ import com.example.bdmi.ui.home.SearchScreen
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen
 import com.example.bdmi.ui.home.movie_details.AllReviews
-import com.example.bdmi.ui.home.movie_details.CountryDetailScreen
+import com.example.bdmi.ui.home.movie_details.CountryMovies
 import com.example.bdmi.ui.home.movie_details.PersonDetails
 import com.example.bdmi.ui.home.movie_details.GenreMovies
 import com.example.bdmi.ui.home.movie_details.StudioDetails
@@ -227,15 +226,16 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("country/{countryName}") { backStackEntry ->
-            val countryName = backStackEntry.arguments?.getString("countryName") ?: ""
-            CountryDetailScreen(
+        composable("country/{countryCode}") {
+            CountryMovies(
+                navController,
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
                 },
-                countryName = countryName
+                showFilters = showFilters,
+                onShowFiltersChanged = onShowFiltersChanged
             )
         }
 
