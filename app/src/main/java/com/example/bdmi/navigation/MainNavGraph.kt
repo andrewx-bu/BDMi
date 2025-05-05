@@ -191,7 +191,6 @@ fun MainNestedNavGraph(
         composable("person/{personId}") { backStackEntry ->
             val personId = backStackEntry.arguments?.getString("personId")?.toIntOrNull() ?: 0
             PersonDetails(
-                onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
@@ -204,7 +203,6 @@ fun MainNestedNavGraph(
         composable("genre/{genreId}") { backStackEntry ->
             val genreId = backStackEntry.arguments?.getString("genreId")?.toIntOrNull() ?: 0
             GenreMovies(
-                onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
@@ -217,7 +215,6 @@ fun MainNestedNavGraph(
         composable("studio/{studioId}") { backStackEntry ->
             val studioId = backStackEntry.arguments?.getString("studioId")?.toIntOrNull() ?: 0
             StudioDetails(
-                onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
@@ -230,7 +227,6 @@ fun MainNestedNavGraph(
         composable("country/{countryName}") { backStackEntry ->
             val countryName = backStackEntry.arguments?.getString("countryName") ?: ""
             CountryDetailScreen(
-                onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true

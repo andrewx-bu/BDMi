@@ -76,7 +76,6 @@ fun SearchScreen(
     var showFilters by remember { mutableStateOf(false) }
     val state by voiceToTextParser.state.collectAsState()
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(state.spokenText) {
         if (state.spokenText.isNotEmpty() && state.spokenText != searchText) {
@@ -171,7 +170,11 @@ fun SearchScreen(
         FloatingActionButton(
             onClick = {
                 val permission = android.Manifest.permission.RECORD_AUDIO
-                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        permission
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     if (state.isSpeaking) {
                         voiceToTextParser.stopListening()
                     } else {

@@ -5,11 +5,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun PersonDetails(
+fun CountryDetailScreen(
     onMovieClick: (Int) -> Unit,
-    personID: Int
+    countryName: String
 ) {
     LazyColumn {
-        item { Text("$personID") }
+        item { Text(countryName) }
     }
 }
