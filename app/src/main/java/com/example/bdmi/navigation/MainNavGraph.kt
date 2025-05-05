@@ -201,15 +201,16 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("genre/{genreId}") { backStackEntry ->
-            val genreId = backStackEntry.arguments?.getString("genreId")?.toIntOrNull() ?: 0
+        composable("genre/{genreId}") {
             GenreMovies(
+                navController,
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
                 },
-                genreId = genreId
+                showFilters = showFilters,
+                onShowFiltersChanged = onShowFiltersChanged
             )
         }
 
