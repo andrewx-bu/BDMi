@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MediaItem
 import com.example.bdmi.ui.composables.ErrorMessage

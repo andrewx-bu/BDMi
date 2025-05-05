@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import com.example.bdmi.data.repositories.CustomList
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.repositories.MovieReview
-import com.example.bdmi.data.repositories.Notification
 import com.example.bdmi.data.repositories.NotificationRepository
 import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.WatchlistRepository
