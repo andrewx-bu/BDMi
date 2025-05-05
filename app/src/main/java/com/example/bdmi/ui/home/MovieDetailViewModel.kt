@@ -17,7 +17,6 @@ import com.example.bdmi.data.repositories.WatchlistRepository
 import com.example.bdmi.data.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,6 +38,7 @@ class MovieDetailViewModel @Inject constructor(
         val providers: WatchProvidersResponse? = null,
         override val error: APIError? = null
     ) : UIState
+
     private val _detailUIState = MutableStateFlow(DetailUIState())
     val detailUIState = _detailUIState.asStateFlow()
 
@@ -60,9 +60,6 @@ class MovieDetailViewModel @Inject constructor(
     private fun loadMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _detailUIState.update { it.copy(isLoading = true, error = null) }
-            // Simulate Network Delay
-            delay(1000)
-
             // Start API calls in parallel
             val detailsDeferred = async { movieRepo.getMovieDetails(movieId) }
             val providersDeferred = async { movieRepo.getWatchProviders(movieId) }
@@ -128,7 +125,7 @@ class MovieDetailViewModel @Inject constructor(
                     _userReview.value = review
                 } else
                     _userReview.value = null
-                    Log.d(TAG, "User review not found")
+                Log.d(TAG, "User review not found")
             }
         }
     }

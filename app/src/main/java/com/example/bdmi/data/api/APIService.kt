@@ -1,6 +1,7 @@
 package com.example.bdmi.data.api
 
 import com.example.bdmi.BuildConfig
+import com.example.bdmi.data.api.models.Company
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.MoviesResponse
 import com.example.bdmi.data.api.models.WatchProvidersResponse
@@ -25,6 +26,12 @@ interface APIService {
         @Query("vote_average.lte") voteAverageLte: Float? = null,
         @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
     ): MoviesResponse
+
+    @GET("company/{company_id}")
+    suspend fun getCompanyDetails(
+        @Path("company_id") companyId: Int,
+        @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
+    ): Company
 
     // Search Screen
     @GET("search/movie")

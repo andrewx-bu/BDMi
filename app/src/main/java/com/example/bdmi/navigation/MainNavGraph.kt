@@ -212,15 +212,13 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("studio/{studioId}") { backStackEntry ->
-            val studioId = backStackEntry.arguments?.getString("studioId")?.toIntOrNull() ?: 0
+        composable("studio/{studioId}") {
             StudioDetails(
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
-                },
-                studioId = studioId
+                }
             )
         }
 
