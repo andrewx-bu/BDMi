@@ -76,7 +76,6 @@ fun HomeScreen(onMovieClick: (Int) -> Unit = {}) {
                                 viewModel.setCategory(category)
                                 showMenu = false
                             })
-
                     }
                 }
             }

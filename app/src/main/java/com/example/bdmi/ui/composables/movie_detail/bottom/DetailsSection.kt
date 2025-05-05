@@ -31,7 +31,11 @@ import com.example.bdmi.data.utils.toFlagEmoji
 import com.example.bdmi.ui.theme.dimens
 
 @Composable
-fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
+fun DetailsSection(
+    details: MovieDetails,
+    providers: WatchProvidersResponse?,
+    onStudioClick: (Int) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +103,7 @@ fun DetailsSection(details: MovieDetails, providers: WatchProvidersResponse?) {
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             ListItemRow(
-                onClick = { /* TODO: Move to Studio Screen */ },
+                onClick = { onStudioClick(studio.id) },
                 leading = {
                     val logoURL = ImageURLHelper.getURL(studio.logoPath, width = 200)
                     Box(

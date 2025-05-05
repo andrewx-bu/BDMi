@@ -67,7 +67,9 @@ fun MovieDetailScreen(
     movieId: Int,
     onMovieClick: (Int) -> Unit,
     onProfileClick: (String) -> Unit,
-    onActorClick: () -> Unit,
+    onPersonClick: (Int) -> Unit,
+    onGenreClick: (Int) -> Unit,
+    onStudioClick: (Int) -> Unit,
     onAllReviewsClick: (Int) -> Unit
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
@@ -83,7 +85,10 @@ fun MovieDetailScreen(
         launch {
             if (sessionViewModel.userInfo.value != null) {
 
-                viewModel.loadUserReview(sessionViewModel.userInfo.value!!.userId.toString(), movieId)
+                viewModel.loadUserReview(
+                    sessionViewModel.userInfo.value!!.userId,
+                    movieId
+                )
             }
         }
         launch { viewModel.reviewCarousel(movieId) }
@@ -159,11 +164,23 @@ fun MovieDetailScreen(
                 }
 
                 item {
-                    MiddleSection(details, carouselReviews, movieData, onProfileClick, onAllReviewsClick)
+                    MiddleSection(
+                        details,
+                        carouselReviews,
+                        movieData,
+                        onProfileClick,
+                        onAllReviewsClick
+                    )
                 }
 
                 item {
-                    BottomSection(details = details, providers = providers, onMovieClick = onMovieClick)
+                    BottomSection(
+                        details = details,
+                        providers = providers,
+                        onMovieClick = onMovieClick,
+                        onPersonClick = onPersonClick,
+                        onStudioClick = onStudioClick
+                    )
                 }
             }
         }
@@ -302,7 +319,13 @@ fun MiddleSection(
 }
 
 @Composable
-fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?, onMovieClick: (Int) -> Unit) {
+fun BottomSection(
+    details: MovieDetails,
+    providers: WatchProvidersResponse?,
+    onMovieClick: (Int) -> Unit,
+    onPersonClick: (Int) -> Unit,
+    onStudioClick: (Int) -> Unit
+) {
     val tabs = listOf("CAST", "CREW", "DETAILS", "EXPLORE")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
@@ -340,10 +363,9 @@ fun BottomSection(details: MovieDetails, providers: WatchProvidersResponse?, onM
         }
     }
     when (selectedTab) {
-        0 -> CastSection(details.credits.cast)
-        1 -> CrewSection(details.credits.crew)
-        2 -> DetailsSection(details, providers)
-        // TODO: implement onclick
+        0 -> CastSection(details.credits.cast, onPersonClick)
+        1 -> CrewSection(details.credits.crew, onPersonClick)
+        2 -> DetailsSection(details, providers, onStudioClick)
         3 -> ExploreSection(details.similar, details.recommendations, onMovieClick)
     }
 }

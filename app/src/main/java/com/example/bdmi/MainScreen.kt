@@ -72,7 +72,17 @@ fun MainScreen(
 ) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     // TODO: More elegant route checking
-    val showOuterBar = currentRoute != null && (!currentRoute.startsWith("movie_detail/") && !currentRoute.startsWith("reviews/"))
+    val showOuterBar =
+        currentRoute != null
+                && (!currentRoute.startsWith("movie_detail/"))
+                && (!currentRoute.startsWith("reviews/"))
+                && (!currentRoute.startsWith("studio"))
+                && (!currentRoute.startsWith("genre"))
+                && (!currentRoute.startsWith("person"))
+    val isDetail = currentRoute != null
+            && ((currentRoute.startsWith("studio"))
+            || (currentRoute.startsWith("genre"))
+            || (currentRoute.startsWith("person")))
     // TODO: Separate scroll state for top bars
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val darkTheme = sessionViewModel.darkMode.collectAsState()
@@ -134,7 +144,7 @@ fun MainScreen(
                     exit = fadeOut() + slideOutVertically { -it }
                 ) {
                     MovieDetailTopAppBar(
-                        title = titleState.value,
+                        title = if (isDetail) "" else titleState.value,
                         onBackClick = { navController.popBackStack() },
                         scrollBehavior = scrollBehavior,
                         sessionViewModel = sessionViewModel

@@ -162,12 +162,14 @@ fun MainNestedNavGraph(
                     }
                 },
                 // TODO: What does an actor route need
-                onActorClick = { navController.navigate("person") },
                 onAllReviewsClick = { movieId ->
                     navController.navigate("reviews/$movieId") {
                         restoreState = true
                     }
-                }
+                },
+                onPersonClick = { personID -> navController.navigate("person/$personID") },
+                onGenreClick = { genreID -> navController.navigate("genre/$genreID") },
+                onStudioClick = { studioID -> navController.navigate("studio/$studioID") }
             )
         }
 
@@ -206,14 +208,16 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("studio/{studioId}") {
+        composable("studio/{studioId}") { backStackEntry ->
+            val studioId = backStackEntry.arguments?.getString("studioId")?.toIntOrNull() ?: 0
             StudioDetails(
                 onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
-                }
+                },
+                studioId = studioId
             )
         }
 
