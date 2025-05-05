@@ -56,6 +56,7 @@ import com.example.bdmi.ui.composables.movie_detail.top.DetailColumn
 import com.example.bdmi.ui.composables.movie_detail.bottom.DetailsSection
 import com.example.bdmi.ui.composables.movie_detail.bottom.ExploreSection
 import com.example.bdmi.ui.theme.dimens
+import com.example.bdmi.ui.theme.onErrorContainerDark
 import com.example.bdmi.ui.theme.uiConstants
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -70,7 +71,8 @@ fun MovieDetailScreen(
     onPersonClick: (Int) -> Unit,
     onGenreClick: (Int) -> Unit,
     onStudioClick: (Int) -> Unit,
-    onAllReviewsClick: (Int) -> Unit
+    onAllReviewsClick: (Int) -> Unit,
+    onCountryClick: (String) -> Unit
 ) {
     val viewModel: MovieDetailViewModel = hiltViewModel()
     val uiState by viewModel.detailUIState.collectAsState()
@@ -159,7 +161,8 @@ fun MovieDetailScreen(
                         hasBackdrop = hasBackdrop,
                         directors = directors,
                         trailerKey = trailerKey,
-                        certification = certification
+                        certification = certification,
+                        onGenreClick = onGenreClick
                     )
                 }
 
@@ -179,7 +182,8 @@ fun MovieDetailScreen(
                         providers = providers,
                         onMovieClick = onMovieClick,
                         onPersonClick = onPersonClick,
-                        onStudioClick = onStudioClick
+                        onStudioClick = onStudioClick,
+                        onCountryClick = onCountryClick
                     )
                 }
             }
@@ -206,7 +210,8 @@ fun TopSection(
     hasBackdrop: Boolean,
     directors: String,
     trailerKey: String?,
-    certification: String
+    certification: String,
+    onGenreClick: (Int) -> Unit
 ) {
     val backdropURL = ImageURLHelper.getBackdropURL(details.backdropPath)
 
@@ -248,7 +253,7 @@ fun TopSection(
 
             Spacer(modifier = Modifier.width(dimens.small3))
 
-            DetailColumn(details, directors, trailerKey, certification)
+            DetailColumn(details, directors, trailerKey, certification, onGenreClick)
         }
     }
 }
@@ -324,7 +329,8 @@ fun BottomSection(
     providers: WatchProvidersResponse?,
     onMovieClick: (Int) -> Unit,
     onPersonClick: (Int) -> Unit,
-    onStudioClick: (Int) -> Unit
+    onStudioClick: (Int) -> Unit,
+    onCountryClick: (String) -> Unit
 ) {
     val tabs = listOf("CAST", "CREW", "DETAILS", "EXPLORE")
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
@@ -365,7 +371,7 @@ fun BottomSection(
     when (selectedTab) {
         0 -> CastSection(details.credits.cast, onPersonClick)
         1 -> CrewSection(details.credits.crew, onPersonClick)
-        2 -> DetailsSection(details, providers, onStudioClick)
+        2 -> DetailsSection(details, providers, onStudioClick, onCountryClick)
         3 -> ExploreSection(details.similar, details.recommendations, onMovieClick)
     }
 }

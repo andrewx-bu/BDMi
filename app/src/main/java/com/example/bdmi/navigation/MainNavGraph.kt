@@ -26,6 +26,7 @@ import com.example.bdmi.ui.home.SearchScreen
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen
 import com.example.bdmi.ui.home.movie_details.AllReviews
+import com.example.bdmi.ui.home.movie_details.CountryDetailScreen
 import com.example.bdmi.ui.home.movie_details.PersonDetails
 import com.example.bdmi.ui.home.movie_details.GenreMovies
 import com.example.bdmi.ui.home.movie_details.StudioDetails
@@ -169,7 +170,8 @@ fun MainNestedNavGraph(
                 },
                 onPersonClick = { personID -> navController.navigate("person/$personID") },
                 onGenreClick = { genreID -> navController.navigate("genre/$genreID") },
-                onStudioClick = { studioID -> navController.navigate("studio/$studioID") }
+                onStudioClick = { studioID -> navController.navigate("studio/$studioID") },
+                onCountryClick = { countryName -> navController.navigate("country/$countryName") }
             )
         }
 
@@ -187,24 +189,28 @@ fun MainNestedNavGraph(
         }
 
         composable("person/{personId}") { backStackEntry ->
+            val personId = backStackEntry.arguments?.getString("personId")?.toIntOrNull() ?: 0
             PersonDetails(
                 onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
-                }
+                },
+                personId
             )
         }
 
-        composable("genre/{genreId}") {
+        composable("genre/{genreId}") { backStackEntry ->
+            val genreId = backStackEntry.arguments?.getString("genreId")?.toIntOrNull() ?: 0
             GenreMovies(
                 onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
-                }
+                },
+                genreId = genreId
             )
         }
 
@@ -218,6 +224,19 @@ fun MainNestedNavGraph(
                     }
                 },
                 studioId = studioId
+            )
+        }
+
+        composable("country/{countryName}") { backStackEntry ->
+            val countryName = backStackEntry.arguments?.getString("countryName") ?: ""
+            CountryDetailScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                },
+                countryName = countryName
             )
         }
 

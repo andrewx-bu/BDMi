@@ -79,10 +79,12 @@ fun MainScreen(
                 && (!currentRoute.startsWith("studio"))
                 && (!currentRoute.startsWith("genre"))
                 && (!currentRoute.startsWith("person"))
+                && (!currentRoute.startsWith("country"))
     val isDetail = currentRoute != null
             && ((currentRoute.startsWith("studio"))
             || (currentRoute.startsWith("genre"))
-            || (currentRoute.startsWith("person")))
+            || (currentRoute.startsWith("person"))
+            || (currentRoute.startsWith("country")))
     // TODO: Separate scroll state for top bars
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val darkTheme = sessionViewModel.darkMode.collectAsState()
@@ -147,7 +149,8 @@ fun MainScreen(
                         title = if (isDetail) "" else titleState.value,
                         onBackClick = { navController.popBackStack() },
                         scrollBehavior = scrollBehavior,
-                        sessionViewModel = sessionViewModel
+                        sessionViewModel = sessionViewModel,
+                        isDetail = isDetail
                     )
                 }
             }
@@ -267,7 +270,8 @@ fun MovieDetailTopAppBar(
     title: String,
     onBackClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    sessionViewModel: SessionViewModel
+    sessionViewModel: SessionViewModel,
+    isDetail: Boolean
 ) {
     TopAppBar(
         title = {
@@ -297,7 +301,9 @@ fun MovieDetailTopAppBar(
             }
         },
         actions = {
-            MenuButton(sessionViewModel)
+            if (!isDetail) {
+                MenuButton(sessionViewModel)
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,

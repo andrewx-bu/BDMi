@@ -40,7 +40,8 @@ fun DetailColumn(
     details: MovieDetails,
     directors: String,
     trailerKey: String?,
-    certification: String
+    certification: String,
+    onGenreClick: (Int) -> Unit
 ) {
     // Column fades upwards into the backdrop
     val topFadeBrush = Brush.verticalGradient(
@@ -73,7 +74,7 @@ fun DetailColumn(
             horizontalArrangement = Arrangement.spacedBy(dimens.small2)
         ) {
             items(details.genres) { genre ->
-                GenreChip(name = genre.name, onClick = { /* TODO: Implement */ })
+                GenreChip(name = genre.name, onClick = { onGenreClick(genre.id) })
             }
         }
 

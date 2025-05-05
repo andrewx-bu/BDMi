@@ -50,7 +50,7 @@ fun CastSection(cast: List<CastMember>, onPersonClick: (Int) -> Unit) {
             name = member.name,
             character = member.character,
             imageUrl = ImageURLHelper.getURL(member.profilePath),
-            onClick = { /* TODO: navigate to Person Screen */ }
+            onClick = { onPersonClick(member.id) }
         )
     }
 
@@ -80,7 +80,7 @@ fun CrewSection(crew: List<CrewMember>, onPersonClick: (Int) -> Unit) {
             name = person.name,
             character = jobs.joinToString(", "),
             imageUrl = ImageURLHelper.getURL(person.profilePath),
-            onClick = { /* TODO: navigate to Person Screen */ }
+            onClick = { onPersonClick(id) }
         )
     }
 

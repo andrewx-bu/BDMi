@@ -34,7 +34,8 @@ import com.example.bdmi.ui.theme.dimens
 fun DetailsSection(
     details: MovieDetails,
     providers: WatchProvidersResponse?,
-    onStudioClick: (Int) -> Unit
+    onStudioClick: (Int) -> Unit,
+    onCountryClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -75,7 +76,7 @@ fun DetailsSection(
                 color = MaterialTheme.colorScheme.inverseSurface
             )
             ListItemRow(
-                onClick = { /* TODO: Move to Country Screen */ },
+                onClick = { onCountryClick(country.name) },
                 leading = {
                     Text(
                         country.iso31661.toFlagEmoji(),
