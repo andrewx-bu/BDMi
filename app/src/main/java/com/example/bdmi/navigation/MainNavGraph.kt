@@ -188,15 +188,16 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("person/{personId}") { backStackEntry ->
-            val personId = backStackEntry.arguments?.getString("personId")?.toIntOrNull() ?: 0
+        composable("person/{personId}") {
             PersonDetails(
+                navController,
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
                 },
-                personId
+                showFilters = showFilters,
+                onShowFiltersChanged = onShowFiltersChanged
             )
         }
 

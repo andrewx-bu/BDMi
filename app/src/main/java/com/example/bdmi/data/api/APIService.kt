@@ -4,6 +4,7 @@ import com.example.bdmi.BuildConfig
 import com.example.bdmi.data.api.models.Company
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.MoviesResponse
+import com.example.bdmi.data.api.models.PersonDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -32,6 +33,14 @@ interface APIService {
         @Path("company_id") companyId: Int,
         @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY
     ): Company
+
+    @GET("person/{person_id}")
+    suspend fun getPersonDetails(
+        @Path("person_id") personId: Int,
+        @Query("api_key") apiKey: String = BuildConfig.TMDB_API_KEY,
+        @Query("append_to_response") appendToResponse: String = "combined_credits",
+        @Query("language") language: String = "en-US"
+    ): PersonDetails
 
     // Search Screen
     @GET("search/movie")

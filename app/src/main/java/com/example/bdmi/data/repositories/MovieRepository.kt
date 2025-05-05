@@ -4,6 +4,7 @@ import com.example.bdmi.data.api.APIService
 import com.example.bdmi.data.api.models.Company
 import com.example.bdmi.data.api.models.MovieDetails
 import com.example.bdmi.data.api.models.MoviesResponse
+import com.example.bdmi.data.api.models.PersonDetails
 import com.example.bdmi.data.api.models.WatchProvidersResponse
 import javax.inject.Inject
 
@@ -54,6 +55,18 @@ class MovieRepository @Inject constructor(
 
     suspend fun getCompanyDetails(companyId: Int): Result<Company> = runCatching {
         apiService.getCompanyDetails(companyId = companyId)
+    }
+
+    suspend fun getPersonDetails(
+        personId: Int,
+        appendToResponse: String = "combined_credits",
+        language: String = "en-US"
+    ): Result<PersonDetails> = runCatching {
+        apiService.getPersonDetails(
+            personId = personId,
+            appendToResponse = appendToResponse,
+            language = language
+        )
     }
 
     suspend fun searchMovies(
