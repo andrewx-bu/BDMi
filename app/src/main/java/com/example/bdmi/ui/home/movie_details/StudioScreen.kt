@@ -125,6 +125,7 @@ fun StudioDetails(
                 verticalArrangement = Arrangement.spacedBy(dimens.small3),
                 horizontalArrangement = Arrangement.spacedBy(dimens.small3),
                 state = gridState,
+                modifier = Modifier.padding(horizontal = dimens.medium2)
             ) {
                 uiState.company?.let { company ->
                     // company info header

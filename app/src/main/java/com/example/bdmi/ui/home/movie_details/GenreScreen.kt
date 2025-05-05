@@ -3,6 +3,7 @@ package com.example.bdmi.ui.home.movie_details
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -88,6 +89,7 @@ fun GenreMovies(
                 verticalArrangement = Arrangement.spacedBy(dimens.small3),
                 horizontalArrangement = Arrangement.spacedBy(dimens.small3),
                 state = gridState,
+                modifier = Modifier.padding(horizontal = dimens.medium2)
             ) {
                 items(uiState.movies) { movie ->
                     MoviePoster(

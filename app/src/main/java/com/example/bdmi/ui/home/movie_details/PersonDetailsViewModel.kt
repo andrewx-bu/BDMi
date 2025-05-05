@@ -23,7 +23,6 @@ class PersonDetailsViewModel @Inject constructor(
     private val movieRepo: MovieRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     data class PersonUIState(
         override val isLoading: Boolean = false,
         val movies: List<Movie> = emptyList(),

@@ -112,18 +112,20 @@ fun PersonDetails(
                 verticalArrangement = Arrangement.spacedBy(dimens.small3),
                 horizontalArrangement = Arrangement.spacedBy(dimens.small3),
                 state = gridState,
+                modifier = Modifier.padding(horizontal = dimens.medium2)
             ) {
                 uiState.person?.let { person ->
-                    // company info header
+                    // person info header
                     item(span = { GridItemSpan(maxCurrentLineSpan) }) {
                         Column(
                             modifier = Modifier.padding(horizontal = dimens.small2)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                val logoUrl = ImageURLHelper.getURL(person.profilePath, width = 200)
+                                val personUrl =
+                                    ImageURLHelper.getURL(person.profilePath, width = 200)
                                 AsyncImage(
-                                    model = logoUrl,
-                                    contentDescription = "${person.name} logo",
+                                    model = personUrl,
+                                    contentDescription = "${person.name} picture",
                                     modifier = Modifier
                                         .size(dimens.studioLogoSize)
                                         .clip(RoundedCornerShape(dimens.medium2))
