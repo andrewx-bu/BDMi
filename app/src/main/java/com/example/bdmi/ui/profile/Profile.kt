@@ -65,22 +65,12 @@ fun ProfileScreen(
     val userInfo by profileViewModel.userInfo.collectAsState()
     val tempImageURI by profileViewModel.tempImageURI.collectAsState()
 
-    LaunchedEffect(userInfo) {
-        if (isLoggedIn) {
-            val currentUser = sessionViewModel.userInfo.value
-            if (currentUser != null) {
-                profileViewModel.setUserInfo(currentUser) {
-                    profileViewModel.reviewCarousel()
-                }
-            }
-        }
-    }
 
     if (isLoggedIn) {
         // Followed android docs for this
         val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null) {
-                profileViewModel.changeProfilePicture(userInfo?.userId.toString(), uri) {}
+                profileViewModel.changeProfilePicture(userInfo?.userId.toString(), uri)
             }
         }
 
@@ -89,9 +79,6 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            ProfilePicture(userInfo?.profilePicture.toString(), tempImageURI) {
-                pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
-            }
             Text(
                 text = userInfo?.displayName.toString()
             )
@@ -153,84 +140,6 @@ fun ProfileScreen(
                 text = "Profile",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-    }
-}
-
-@Composable
-
-fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, onEditClick: () -> Unit) {
-    val value by rememberInfiniteTransition().animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 3000,
-                easing = LinearEasing
-            )
-        )
-    )
-
-    // Animation from
-    // https://rodrigomartind.medium.com/the-art-of-small-animations-in-android-with-jetpack-compose-566caa94deba
-    // TODO: Modify Colors
-    val colors = listOf(
-        Color(0xFF405DE6),
-        Color(0xFFC13584),
-        Color(0xFFFD1D1D),
-        Color(0xFFFFDC80)
-    )
-    val gradientBrush by remember {
-        mutableStateOf(
-            Brush.horizontalGradient(
-                colors = colors,
-                startX = -10.0f,
-                endX = 400.0f,
-                tileMode = TileMode.Repeated
-            )
-        )
-    }
-    Box(
-        modifier = Modifier.size(300.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Log.d("ProfilePicture", "Loading profileImageUrl: $profileImageUrl")
-
-        // Profile Picture
-        Box(
-            modifier = Modifier
-                .drawBehind {
-                    rotate(value) {
-                        drawCircle(
-                            gradientBrush, style = Stroke(width = 12.dp.value)
-                        )
-                    }
-                }
-                .size(250.dp)
-        )
-        AsyncImage(
-            model = tempImageUri ?: profileImageUrl,
-            contentDescription = "Profile Picture",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(250.dp)
-                .clip(CircleShape)
-        )
-
-        // Edit Icon in Bottom-Right
-        IconButton(
-            onClick = { onEditClick() },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.Black)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit Profile Picture",
-                tint = Color.White // Icon color
             )
         }
     }

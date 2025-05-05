@@ -19,6 +19,29 @@ class ProfileRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val mediaManager: MediaManager
 ) {
+    fun loadUser(
+        userId: String,
+        onComplete: (UserInfo?) -> Unit
+    ) {
+        val dbFunction = "loadProfile"
+        db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+            .get()
+            .addOnSuccessListener { profileDoc ->
+                if (profileDoc.exists()) {
+                    val profileInfo = profileDoc.toObject(UserInfo::class.java)
+                    Log.d("$TAG$dbFunction", "Profile found")
+                    onComplete(profileInfo)
+                } else {
+                    Log.d("$TAG$dbFunction", "No profile found")
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("$TAG$dbFunction", "Error loading profile", e)
+                onComplete(null)
+            }
+    }
+
     /*
     * Changes a user's profile picture
     * Call function to upload image to Cloudinary then updates

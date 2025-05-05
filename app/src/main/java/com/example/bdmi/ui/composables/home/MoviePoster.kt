@@ -20,19 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
 import com.example.bdmi.data.utils.ImageURLHelper
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
-fun MoviePoster(title: String, posterPath: String?, onClick: () -> Unit) {
+fun MoviePoster(title: String, posterPath: String?, roundCorner: Dp = dimens.medium3, onClick: () -> Unit) {
     val imageUrl = ImageURLHelper.getURL(posterPath)
 
     Box(
         modifier = Modifier
             .aspectRatio(uiConstants.posterAspectRatio)
-            .clip(RoundedCornerShape(dimens.medium3))
+            .clip(RoundedCornerShape(roundCorner))
     ) {
         if (imageUrl.isNotEmpty()) {
             Box(

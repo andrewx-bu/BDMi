@@ -27,7 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.theme.dimens
@@ -110,15 +112,17 @@ fun ReviewCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimens.small2),
-            shape = RoundedCornerShape(dimens.medium3),
+                .padding(horizontal = dimens.small2)
+                .height(140.dp),
+            shape = RoundedCornerShape(dimens.medium1),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
             Column(modifier = Modifier.padding(dimens.medium1)) {
                 Text(
                     text = review.reviewTitle,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(dimens.small2))
                 Text(

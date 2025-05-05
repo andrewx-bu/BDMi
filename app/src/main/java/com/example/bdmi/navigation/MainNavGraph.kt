@@ -16,9 +16,8 @@ import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.ui.friends.FriendListScreen
 import com.example.bdmi.ui.friends.FriendSearch
-import com.example.bdmi.ui.friends.UserProfile
+import com.example.bdmi.ui.profile.UserProfile
 import com.example.bdmi.ui.notifications.NotificationsScreen
-import com.example.bdmi.ui.profile.ProfileScreen
 import com.example.bdmi.ui.home.HomeScreen
 import com.example.bdmi.ui.home.MovieDetailScreen
 import com.example.bdmi.ui.home.SearchScreen
@@ -49,7 +48,7 @@ sealed class MainRoutes(val route: String) {
     data object Watchlists : MainRoutes(route = "watchlists")
 
     @Serializable
-    data object Profile : MainRoutes(route = "profile")
+    data object Profile : MainRoutes(route = "user_profile")
 
     @Serializable
     data object Notifications : MainRoutes(route = "notifications")
@@ -60,7 +59,7 @@ sealed class MainRoutes(val route: String) {
             "home" -> Icons.Default.Home
             "search" -> Icons.Default.Search
             "watchlists" -> Icons.Default.Bookmark
-            "profile" -> Icons.Default.AccountCircle
+            "user_profile" -> Icons.Default.AccountCircle
             "notifications" -> Icons.Default.Notifications
             else -> {
                 Icons.Default.Accessibility
@@ -84,6 +83,23 @@ fun MainNestedNavGraph(
         route = MainRoutes.Root.route
     ) {
         // Main routes
+        composable(MainRoutes.Notifications.route) {
+            NotificationsScreen(
+                sessionViewModel = sessionViewModel,
+                onNavigateBack = { navController.navigateUp() },
+                onProfileClick = { userId ->
+                    navController.navigate("user_profile/$userId") {
+                        restoreState = true
+                    }
+                },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
         composable(MainRoutes.Search.route) {
             SearchScreen(
                 voiceToTextParser = voiceToTextParser,
@@ -96,7 +112,7 @@ fun MainNestedNavGraph(
         }
 
         composable(MainRoutes.Profile.route) {
-            ProfileScreen(
+            UserProfile(
                 sessionViewModel = sessionViewModel,
                 onLogoutClick = {
                     rootNavController.navigate(OnboardingRoutes.Root.route) {
@@ -106,22 +122,36 @@ fun MainNestedNavGraph(
                 navigateToUserSearch = {
                     navController.navigate("friend_search")
                 },
-                navigateToFriends = { userId ->
+                onNavigateToFriendList = { userId ->
                     navController.navigate("friends/$userId")
                 },
-                navigateToReviews = { userId ->
+                onNavigateToWatchlists = { userId ->
+                    navController.navigate("watchlists/$userId")
+                },
+                onNavigateToReviews = { userId ->
                     navController.navigate("user_reviews/$userId")
+                },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
                 }
             )
         }
-        composable(MainRoutes.Notifications.route) {
-            NotificationsScreen(
+
+        composable("user_profile/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            UserProfile(
+                profileUserId = userId,
                 sessionViewModel = sessionViewModel,
-                onNavigateBack = { navController.navigateUp() },
-                onProfileClick = { userId ->
-                    navController.navigate("user_profile/$userId") {
-                        restoreState = true
-                    }
+                onNavigateToWatchlists = {
+                    navController.navigate("watchlists/$userId")
+                },
+                onNavigateToFriendList = {
+                    navController.navigate("friends/$userId")
+                },
+                onNavigateToReviews = {
+                    navController.navigate("user_reviews/$userId")
                 },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
@@ -263,19 +293,6 @@ fun MainNestedNavGraph(
                     }
                 },
                 currentUserId = sessionViewModel.userInfo.value?.userId ?: ""
-            )
-        }
-
-        composable("user_profile/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            UserProfile(
-                profileUserId = userId,
-                sessionViewModel = sessionViewModel,
-                onNavigateToWatchlists = { navController.navigate("watchlists/$userId") },
-                onNavigateToFriendList = { navController.navigate("friends/$userId") },
-                onNavigateToReviews = {
-                    //navController.navigate("user_reviews/$userId")
-                }
             )
         }
 

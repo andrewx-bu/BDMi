@@ -35,24 +35,6 @@ fun DotsIndicator(numDots: Int, currentIndex: Int, onDotClick: (Int) -> Unit) {
                 }
             }
         }
-
-//        Button(
-//            onClick = { /* TODO: Move to Reviews Screen */ },
-//            modifier = Modifier
-//                .align(Alignment.CenterEnd)
-//                .width(dimens.buttonWidthSmall)
-//                .height(dimens.buttonHeightSmall),
-//            contentPadding = PaddingValues(horizontal = dimens.small1),
-//            shape = RoundedCornerShape(dimens.medium2),
-//            colors = ButtonColors(
-//                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-//                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-//                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-//                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
-//            )
-//        ) {
-//            Text(text = "See More")
-//        }
     }
 }
 
