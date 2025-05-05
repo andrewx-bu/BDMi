@@ -23,6 +23,7 @@ class StudioViewModel @Inject constructor(
     private val movieRepo: MovieRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     data class StudioUIState(
         override val isLoading: Boolean = false,
         val movies: List<Movie> = emptyList(),
@@ -38,12 +39,28 @@ class StudioViewModel @Inject constructor(
     private val studioId: String = savedStateHandle.get<String>("studioId") ?: ""
 
     init {
+        loadInitialData()
+    }
+
+    fun refresh() {
+        loadInitialData()
+    }
+
+    private fun loadInitialData() {
         viewModelScope.launch {
-            // start both requests in parallel
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    error = null,
+                    page = 1,
+                    totalPages = Int.MAX_VALUE,
+                    movies = emptyList()
+                )
+            }
 
             val id = studioId.toIntOrNull()
 
+            // fetch company + first page in parallel
             val companyDeferred = id?.let { async { movieRepo.getCompanyDetails(it) } }
             val moviesDeferred = async { movieRepo.discoverMovies(companies = studioId) }
 
@@ -67,7 +84,6 @@ class StudioViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                page = 1,
                                 movies = response.results,
                                 totalPages = response.totalPages
                             )

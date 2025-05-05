@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.bdmi.ui.composables.ErrorMessage
+import com.example.bdmi.ui.composables.LoadingIndicator
 import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
@@ -39,45 +41,60 @@ fun StudioDetails(
         }
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(uiConstants.movieColumns),
-        verticalArrangement = Arrangement.spacedBy(dimens.small3),
-        horizontalArrangement = Arrangement.spacedBy(dimens.small3),
-        state = gridState,
-    ) {
-        uiState.company?.let { company ->
-            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                Text(
-                    text = company.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                )
-            }
-        }
-
-        items(uiState.movies) { movie ->
-            MoviePoster(
-                title = movie.title,
-                posterPath = movie.posterPath,
-                onClick = { onMovieClick(movie.id) }
+    when {
+        uiState.error != null -> {
+            ErrorMessage(
+                message = uiState.error.toString(),
+                onRetry = { viewModel.refresh() }
             )
         }
-    }
 
-    // From ChatGPT: Used for pagination.
-    // When within 3 items of the end, fire loadNextPage()
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            lastVisible >= uiState.movies.lastIndex - 2 &&
-                    !uiState.isLoading &&
-                    uiState.page < uiState.totalPages
+        uiState.isLoading -> {
+            LoadingIndicator()
         }
-    }
 
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
-            viewModel.loadNextPage()
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(uiConstants.movieColumns),
+                verticalArrangement = Arrangement.spacedBy(dimens.small3),
+                horizontalArrangement = Arrangement.spacedBy(dimens.small3),
+                state = gridState,
+            ) {
+                uiState.company?.let { company ->
+                    item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                        Text(
+                            text = company.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                        )
+                    }
+                }
+
+                items(uiState.movies) { movie ->
+                    MoviePoster(
+                        title = movie.title,
+                        posterPath = movie.posterPath,
+                        onClick = { onMovieClick(movie.id) }
+                    )
+                }
+            }
+
+            // From ChatGPT: Used for pagination.
+            // When within 3 items of the end, fire loadNextPage()
+            val shouldLoadMore by remember {
+                derivedStateOf {
+                    val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                    lastVisible >= uiState.movies.lastIndex - 2 &&
+                            !uiState.isLoading &&
+                            uiState.page < uiState.totalPages
+                }
+            }
+
+            LaunchedEffect(shouldLoadMore) {
+                if (shouldLoadMore) {
+                    viewModel.loadNextPage()
+                }
+            }
         }
     }
 }
