@@ -214,6 +214,7 @@ fun MainNestedNavGraph(
 
         composable("studio/{studioId}") {
             StudioDetails(
+                navController,
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true

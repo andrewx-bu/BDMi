@@ -50,8 +50,8 @@ class StudioViewModel @Inject constructor(
             companyDeferred
                 ?.await()
                 ?.fold(
-                    onSuccess = { comp ->
-                        _uiState.update { it.copy(company = comp) }
+                    onSuccess = { company ->
+                        _uiState.update { it.copy(company = company) }
                     },
                     onFailure = { e ->
                         _uiState.update {
@@ -63,13 +63,13 @@ class StudioViewModel @Inject constructor(
             moviesDeferred
                 .await()
                 .fold(
-                    onSuccess = { resp ->
+                    onSuccess = { response ->
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 page = 1,
-                                movies = resp.results,
-                                totalPages = resp.totalPages
+                                movies = response.results,
+                                totalPages = response.totalPages
                             )
                         }
                     },
@@ -93,11 +93,10 @@ class StudioViewModel @Inject constructor(
         val s = _uiState.value
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-
             movieRepo
                 .discoverMovies(
                     page = s.page,
-                    companies = studioId.takeIf { it.isNotBlank() }
+                    companies = studioId
                 )
                 .fold(
                     onSuccess = { response ->

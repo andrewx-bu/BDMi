@@ -146,7 +146,7 @@ fun MainScreen(
                     exit = fadeOut() + slideOutVertically { -it }
                 ) {
                     MovieDetailTopAppBar(
-                        title = if (isDetail) "" else titleState.value,
+                        title = titleState.value,
                         onBackClick = { navController.popBackStack() },
                         scrollBehavior = scrollBehavior,
                         sessionViewModel = sessionViewModel,
@@ -303,6 +303,8 @@ fun MovieDetailTopAppBar(
         actions = {
             if (!isDetail) {
                 MenuButton(sessionViewModel)
+            } else {
+                Spacer(modifier = Modifier.size(dimens.iconLarge))
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

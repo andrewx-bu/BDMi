@@ -1,7 +1,6 @@
 package com.example.bdmi.ui.home.movie_details
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,24 +16,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
 fun StudioDetails(
+    navController: NavController,
     onMovieClick: (Int) -> Unit
 ) {
     val viewModel: StudioViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val gridState = rememberLazyGridState()
 
-    uiState.company?.let {
-        Text(
-            text = it.name,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
+    LaunchedEffect(uiState.company) {
+        uiState.company?.name?.let { name ->
+            navController
+                .currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("movie_title", name)
+        }
     }
 
     LazyVerticalGrid(
@@ -43,6 +45,16 @@ fun StudioDetails(
         horizontalArrangement = Arrangement.spacedBy(dimens.small3),
         state = gridState,
     ) {
+        uiState.company?.let { company ->
+            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                Text(
+                    text = company.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                )
+            }
+        }
+
         items(uiState.movies) { movie ->
             MoviePoster(
                 title = movie.title,
