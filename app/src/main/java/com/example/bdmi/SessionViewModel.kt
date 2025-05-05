@@ -216,4 +216,8 @@ class SessionViewModel @Inject constructor(
     fun loadNumOfUnreadNotifications(numUnreadNotifications: Int) {
         _numUnreadNotifications.value = numUnreadNotifications
     }
+
+    fun updateWatchlists(watchlists: List<CustomList>) {
+        _watchlists.value = watchlists
+    }
 }

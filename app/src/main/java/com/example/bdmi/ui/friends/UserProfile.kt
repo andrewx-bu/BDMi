@@ -1,22 +1,29 @@
 package com.example.bdmi.ui.friends
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,25 +37,35 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.FriendStatus
-import com.example.bdmi.data.repositories.ProfileBanner
 import com.example.bdmi.data.repositories.UserInfo
+import com.example.bdmi.data.utils.formatReviewCount
+import com.example.bdmi.ui.composables.LoadingIndicator
+import kotlinx.coroutines.launch
 
 private const val TAG = "ProfileScreen"
 
-// TODO: Error adding friends. Originates here I believe.
 @Composable
-fun UserProfile(profileUserId: String = "", sessionViewModel: SessionViewModel) {
+fun UserProfile(
+    profileUserId: String,
+    sessionViewModel: SessionViewModel,
+    onNavigateToFriendList: (String) -> Unit,
+    onNavigateToWatchlists: (String) -> Unit,
+    onNavigateToReviews: (String) -> Unit
+    ) {
     val friendViewModel: FriendViewModel = hiltViewModel()
-    var currentUser = sessionViewModel.userInfo.collectAsState()
-    var profileInfo = friendViewModel.friendProfile.collectAsState()
-    var friendButtonState = friendViewModel.friendState.collectAsState()
+    val currentUserId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val profileInfo = friendViewModel.friendProfile.collectAsState().value
+    val friendStatus = friendViewModel.friendState.collectAsState().value
+
     LaunchedEffect(profileUserId) {
-        friendViewModel.loadProfile(profileUserId) {}
-        friendViewModel.getFriendStatus(currentUser.value?.userId.toString(), profileUserId)
+        launch {
+            if (currentUserId != profileUserId)
+                friendViewModel.getFriendStatus(currentUserId.toString(), profileUserId)
+        }
+        launch { friendViewModel.loadProfile(profileUserId) {} }
     }
 
-
-    if (profileInfo.value == null) {
+    if (profileInfo == null) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -56,29 +73,52 @@ fun UserProfile(profileUserId: String = "", sessionViewModel: SessionViewModel) 
         ) {
             CircularProgressIndicator()
         }
-    } else {
+    } else if (currentUserId != profileUserId && !profileInfo.isPublic && friendStatus != FriendStatus.FRIEND) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = "Profile is private",
+                tint = MaterialTheme.colorScheme.background
+            )
+        }
+    }
+    else {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            ProfilePicture(profileInfo.value?.profilePicture.toString())
+            ProfilePicture(profileInfo.profilePicture.toString())
             Text(
-                text = profileInfo.value?.displayName.toString()
+                text = profileInfo.displayName.toString()
+            )
+            ProfileStatsRow(
+                friendCount = profileInfo.friendCount,
+                listCount = profileInfo.listCount,
+                reviewCount = profileInfo.reviewCount,
+                onFriendClick = { onNavigateToFriendList(profileUserId) },
+                onListClick = { onNavigateToWatchlists(profileUserId) },
+                onReviewClick = { onNavigateToReviews(profileUserId) }
             )
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = profileInfo.value?.friendCount.toString() + " Friends"
+                    text = profileInfo.friendCount.toString() + " Friends"
                 )
-                FriendButton(
-                    friendButtonState.value,
-                    profileUserId,
-                    currentUser.value,
-                    friendViewModel
-                )
+                if (currentUserId != profileUserId) {
+                    FriendButton(
+                        friendStatus,
+                        profileUserId,
+                        sessionViewModel.userInfo.collectAsState().value,
+                        friendViewModel
+                    )
+                }
             }
         }
     }
@@ -134,21 +174,15 @@ fun FriendButton(
         FriendStatus.NOT_FRIENDS -> {
             IconButton(
                 onClick = {
-                    friendViewModel.sendFriendInvite(
-                        senderInfo = ProfileBanner(
-                            userId = currentUser?.userId.toString(),
-                            displayName = currentUser?.displayName.toString(),
-                            profilePicture = currentUser?.profilePicture.toString(),
-                            friendCount = currentUser?.friendCount,
-                            listCount = currentUser?.listCount,
-                            reviewCount = currentUser?.reviewCount,
-                            isPublic = currentUser?.isPublic == true
-                        ),
-                        recipientId = profileUserId,
-                        onComplete = {
-                            Log.d(TAG, "Friend invite sent: $it")
-                        }
-                    )
+                    if (currentUser != null) {
+                        friendViewModel.sendFriendInvite(
+                            senderInfo = currentUser,
+                            recipientId = profileUserId,
+                            onComplete = {
+                                Log.d(TAG, "Friend invite sent: $it")
+                            }
+                        )
+                    }
                 },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color(0xFF00BCD4),
@@ -161,7 +195,7 @@ fun FriendButton(
         }
 
         else -> {
-            Text(text = "Loading...")
+            LoadingIndicator()
         }
     }
 }
@@ -183,5 +217,47 @@ fun ProfilePicture(profileImageUrl: String) {
                 .size(250.dp)
                 .clip(CircleShape)
         )
+    }
+}
+
+@Composable
+fun ProfileStatsRow(
+    friendCount: Long,
+    listCount: Long,
+    reviewCount: Long,
+    onFriendClick: () -> Unit,
+    onListClick: () -> Unit,
+    onReviewClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        StatItem(count = friendCount, label = "Friends", onClick = onFriendClick)
+
+        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = 2.dp, color = Color.Gray)
+
+        StatItem(count = listCount, label = "Lists", onClick = onListClick)
+
+        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = 2.dp, color = Color.Gray)
+
+        StatItem(count = reviewCount, label = "Reviews", onClick = onReviewClick)
+    }
+}
+
+@Composable
+fun StatItem(count: Long, label: String, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp)
+            .fillMaxHeight(.1f),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = formatReviewCount(count.toInt()), style = MaterialTheme.typography.titleMedium)
+        Text(text = label, style = MaterialTheme.typography.labelMedium)
     }
 }

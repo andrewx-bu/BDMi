@@ -17,23 +17,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.SessionViewModel
-import com.example.bdmi.data.repositories.ProfileBanner
 
-// TODO: Abstract friend list screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendListScreen(
-    sessionViewModel: SessionViewModel,
     userId: String,
     onNavigateBack: () -> Unit,
     onProfileClick: (String) -> Unit
 ) {
     val friendViewModel: FriendViewModel = hiltViewModel()
-    val friendList = friendViewModel.friends.collectAsState().value as MutableList<ProfileBanner>
-    val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+    val friendList = friendViewModel.friends.collectAsState().value
     LaunchedEffect(userId) {
-        friendViewModel.loadFriends(userId!!)
+        friendViewModel.loadFriends(userId)
     }
 
     Scaffold(

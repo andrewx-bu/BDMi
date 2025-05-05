@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,15 +41,33 @@ import com.example.bdmi.data.repositories.CustomList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WatchlistsScreen(sessionViewModel: SessionViewModel, onListClick: (Pair<String, String>) -> Unit) {
-    val userId = sessionViewModel.userInfo.collectAsState().value?.userId
+fun WatchlistsScreen(
+    sessionViewModel: SessionViewModel? = null,
+    userId: String? = null,
+    onListClick: (Pair<String, String>) -> Unit,
+    onNavigateBack: () -> Unit = {}
+) {
+    val currentUserId =
+        if (sessionViewModel != null) sessionViewModel.userInfo.collectAsState().value?.userId
+        else userId
     val watchlistViewModel : WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
+//    val editPrivileges = userId != null
 
-    // TODO: Use cached lists instead of retrieving them again
-    LaunchedEffect(userId) {
-        if (userId != null) {
-            watchlistViewModel.getLists(userId.toString())
+    if (sessionViewModel != null) {
+        LaunchedEffect(currentUserId) {
+            if (currentUserId != null) {
+                watchlistViewModel.loadLists(sessionViewModel.watchlists.value)
+            }
+        }
+        LaunchedEffect(lists) {
+            sessionViewModel.updateWatchlists(lists.value)
+        }
+    } else {
+        LaunchedEffect(currentUserId) {
+            if (currentUserId != null) {
+                watchlistViewModel.getLists(currentUserId)
+            }
         }
     }
 
@@ -56,15 +76,25 @@ fun WatchlistsScreen(sessionViewModel: SessionViewModel, onListClick: (Pair<Stri
             TopAppBar(
                 title = { Text("Watchlists") },
                 actions = {
-                    AddListButton { list: CustomList ->
-                        watchlistViewModel.createList(userId.toString(), list)
+                    if (sessionViewModel != null) {
+                        AddListButton { list: CustomList ->
+                            watchlistViewModel.createList(currentUserId.toString(), list)
+                        }
+                    }
+                },
+                // Only display if visiting a user's watchlist page
+                navigationIcon = {
+                    if (userId != null) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
                 }
             )
         }
     ) { innerPadding ->
         WatchlistList(
-            userId.toString(),
+            currentUserId.toString(),
             modifier = Modifier.padding(innerPadding),
             lists.value,
             onListClick
@@ -113,7 +143,6 @@ fun WatchlistItem(list: CustomList, onListClick: () -> Unit) {
         }
     }
 }
-
 
 @Composable
 fun AddListButton(onClick: (CustomList) -> Unit) {

@@ -119,18 +119,6 @@ sealed class NotificationType {
     object Review0 : NotificationType()
 }
 
-data class ProfileBanner(
-    val userId: String = "",
-    val displayName: String = "",
-    val profilePicture: String = "",
-    val friendCount: Long? = 0,
-    val listCount: Long? = 0,
-    val reviewCount: Long? = 0,
-    @get:PropertyName("isPublic")
-    @set:PropertyName("isPublic")
-    var isPublic: Boolean = true
-)
-
 enum class FriendStatus {
     NOT_FRIENDS,
     PENDING,

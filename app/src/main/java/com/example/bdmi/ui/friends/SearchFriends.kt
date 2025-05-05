@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.bdmi.data.repositories.ProfileBanner
+import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.ui.notifications.UserStats
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -51,23 +52,21 @@ import kotlinx.coroutines.flow.map
 @Composable
 fun FriendSearch(
     onNavigateBack: () -> Unit,
-    onProfileClick: (String) -> Unit
+    onProfileClick: (String) -> Unit,
+    currentUserId: String
 ) {
     val friendViewModel: FriendViewModel = hiltViewModel()
     var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf<List<ProfileBanner>>(emptyList()) }
+    val searchResults = friendViewModel.searchResults.collectAsState().value
 
     // ChatGPT assisted with this for debouncing
     LaunchedEffect(searchQuery) {
         snapshotFlow { searchQuery }
             .map { it.trim() }
             .distinctUntilChanged()
-            .debounce(500)
+            .debounce(1000)
             .collect { query ->
-                friendViewModel.searchUsers(query) { users ->
-                    searchResults = users
-                    Log.d("FriendSearch", "Search results: $searchResults")
-                }
+                friendViewModel.searchUsers(currentUserId,query)
             }
     }
 
@@ -97,10 +96,8 @@ fun FriendSearch(
                     .padding(16.dp),
                 placeholder = { Text("Enter display name") },
                 singleLine = true,
-                // keyboardOptions ,
             )
 
-            // LazyColumn for search results.
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -113,7 +110,7 @@ fun FriendSearch(
 }
 
 @Composable
-fun ProfileCard(user: ProfileBanner, onProfileClick: (String) -> Unit) {
+fun ProfileCard(user: UserInfo, onProfileClick: (String) -> Unit) {
     Log.d("ProfileCard", "Displaying user: $user")
     Row(
         modifier = Modifier

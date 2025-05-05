@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.repositories.FriendRepository
 import com.example.bdmi.data.repositories.FriendStatus
-import com.example.bdmi.data.repositories.ProfileBanner
 import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,38 +22,37 @@ class FriendViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
     // List of friends for the current user
-    private val _friends = MutableStateFlow<MutableList<ProfileBanner>>(mutableListOf())
-    val friends: StateFlow<MutableList<ProfileBanner>?> = _friends.asStateFlow()
+    private val _friends = MutableStateFlow<List<UserInfo>>(emptyList())
+    val friends: StateFlow<List<UserInfo>> = _friends.asStateFlow()
 
     // Current Profile Visiting. Takes in a UserInfo object retrieved from Profile Collection
     private val _friendProfile = MutableStateFlow<UserInfo?>(null)
     val friendProfile: StateFlow<UserInfo?> = _friendProfile.asStateFlow()
 
-    private val _friendState = MutableStateFlow<FriendStatus?>(null)
-    val friendState: StateFlow<FriendStatus?> = _friendState.asStateFlow()
+    private val _friendState = MutableStateFlow<FriendStatus>(FriendStatus.NOT_FRIENDS)
+    val friendState: StateFlow<FriendStatus> = _friendState.asStateFlow()
 
-    private val _searchResults = MutableStateFlow<List<ProfileBanner>>(emptyList())
-    val searchResults: StateFlow<List<ProfileBanner>> = _searchResults.asStateFlow()
+    private val _searchResults = MutableStateFlow<List<UserInfo>>(emptyList())
+    val searchResults: StateFlow<List<UserInfo>> = _searchResults.asStateFlow()
 
-    // Load initial friends list. Done onLogin and onRegister (maybe)
     fun loadFriends(userId: String) {
         Log.d(TAG, "Loading friends for user: $userId")
 
         viewModelScope.launch {
             friendRepository.getFriends(userId) { friendsList ->
-                _friends.value = friendsList as MutableList<ProfileBanner>
+                _friends.value = friendsList
             }
         }
     }
 
     // Add friend journey
     // Step 1: Search for users by display name
-    fun searchUsers(displayName: String, onComplete: (List<ProfileBanner>) -> Unit) {
+    fun searchUsers(currentUserId: String, displayName: String) {
         Log.d(TAG, "Searching for users with display name: $displayName")
 
         viewModelScope.launch {
             friendRepository.searchUsers(displayName) { users ->
-                onComplete(users)
+                _searchResults.value = users.filter { it.userId != currentUserId }
             }
         }
     }
@@ -62,7 +60,7 @@ class FriendViewModel @Inject constructor(
     // Step 2: Send friend invite
     // Takes in the userId of the person you want to send the invite to and the userInfo of the person who sent the invite
     fun sendFriendInvite(
-        senderInfo: ProfileBanner,
+        senderInfo: UserInfo,
         recipientId: String,
         onComplete: (Boolean) -> Unit
     ) {

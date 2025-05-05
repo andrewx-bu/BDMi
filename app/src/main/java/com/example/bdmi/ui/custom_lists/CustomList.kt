@@ -68,13 +68,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomListScreen(
-    sessionViewModel: SessionViewModel,
-    listId: String,
+    currentUserId: String,
     userId: String,
+    listId: String,
     onMovieClick: (Int) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val currentUserId = sessionViewModel.userInfo.collectAsState().value?.userId
     val customListViewModel: CustomListViewModel = hiltViewModel()
     val uiState = customListViewModel.listUIState.collectAsState().value
     val listItems = customListViewModel.listItems.collectAsState().value
@@ -85,9 +84,7 @@ fun CustomListScreen(
     LaunchedEffect(listId) {
         launch { customListViewModel.loadList(userId, listId) }
         launch { customListViewModel.loadListInfo(userId, listId) }
-        if (currentUserId != null) {
-            launch { customListViewModel.setEditPrivileges(currentUserId, userId) }
-        }
+        launch { customListViewModel.setEditPrivileges(currentUserId, userId) }
     }
 
     Scaffold(
@@ -167,6 +164,9 @@ fun CustomListScreen(
 @Composable
 fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimens.medium2),
         columns = GridCells.Fixed(uiConstants.movieColumns),
         verticalArrangement = Arrangement.spacedBy(dimens.small3),
         horizontalArrangement = Arrangement.spacedBy(dimens.small3)

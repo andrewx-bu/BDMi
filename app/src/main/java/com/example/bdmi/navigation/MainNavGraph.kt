@@ -76,8 +76,6 @@ fun MainNestedNavGraph(
     sessionViewModel: SessionViewModel,
     voiceToTextParser: VoiceToTextParser
 ) {
-    Log.d("MainNestedNavGraph", "Reached MainNestedNavGraph")
-
     NavHost(
         navController = navController,
         startDestination = MainRoutes.Home.route,
@@ -94,6 +92,7 @@ fun MainNestedNavGraph(
                 }
             )
         }
+
         composable(MainRoutes.Profile.route) {
             ProfileScreen(
                 sessionViewModel = sessionViewModel,
@@ -144,7 +143,7 @@ fun MainNestedNavGraph(
             )
         }
 
-            // Movie detail route
+        // Movie detail route
         composable("movie_detail/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull() ?: 0
             MovieDetailScreen(
@@ -170,7 +169,7 @@ fun MainNestedNavGraph(
                 }
             )
         }
-        // Movie detail route
+
         composable("reviews/{movieId}") { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")?.toInt()
             AllReviews(
@@ -194,7 +193,6 @@ fun MainNestedNavGraph(
         composable("friends/{userId}") {
             val userId = it.arguments?.getString("userId").toString()
             FriendListScreen(
-                sessionViewModel = sessionViewModel,
                 userId = userId,
                 onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
@@ -212,31 +210,49 @@ fun MainNestedNavGraph(
                     navController.navigate("user_profile/$userId") {
                         restoreState = true
                     }
-                }
+                },
+                currentUserId = sessionViewModel.userInfo.value?.userId ?: ""
             )
         }
 
         composable("user_profile/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
-            UserProfile(userId, sessionViewModel)
+            UserProfile(
+                profileUserId = userId,
+                sessionViewModel = sessionViewModel,
+                onNavigateToWatchlists = { navController.navigate("watchlists/$userId") },
+                onNavigateToFriendList = { navController.navigate("friends/$userId") },
+                onNavigateToReviews = {
+                    //navController.navigate("user_reviews/$userId")
+                }
+            )
         }
 
         // Watchlist journey
         composable(MainRoutes.Watchlists.route) {
-            WatchlistsScreen(sessionViewModel) { (userId, listId) ->
-                Log.d(
-                    "WatchlistScreen",
-                    "Clicked on watchlist with userId: $userId, listId: $listId"
-                )
-                navController.navigate("watchlist/$userId/$listId")
-            }
+            WatchlistsScreen(
+                sessionViewModel,
+                onListClick = { (userId, listId) ->
+                    navController.navigate("watchlist/$userId/$listId")
+                }
+            )
+        }
+
+        composable("watchlists/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            WatchlistsScreen(
+                userId = userId,
+                onListClick = { (userId, listId) ->
+                    navController.navigate("watchlist/$userId/$listId")
+                },
+                onNavigateBack = { navController.navigateUp() })
         }
 
         composable("watchlist/{userId}/{listId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             val listId = backStackEntry.arguments?.getString("listId") ?: ""
             CustomListScreen(
-                sessionViewModel = sessionViewModel,
+                currentUserId = sessionViewModel.userInfo.value?.userId ?: "",
                 listId = listId,
                 userId = userId,
                 onMovieClick = { movieId ->
@@ -248,6 +264,7 @@ fun MainNestedNavGraph(
             )
         }
 
+        // User Reviews
         composable("user_reviews/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             UserReviews(

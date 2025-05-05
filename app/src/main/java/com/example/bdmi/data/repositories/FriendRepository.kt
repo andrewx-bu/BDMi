@@ -21,15 +21,15 @@ class FriendRepository @Inject constructor(
     // Returns a list of friendInfo objects for a given user
     fun getFriends(
         userId: String,
-        onComplete: (List<ProfileBanner>) -> Unit
+        onComplete: (List<UserInfo>) -> Unit
     ) {
         val dbFunction = "getFriends"
-        val friendList = mutableListOf<ProfileBanner>()
+        val friendList = mutableListOf<UserInfo>()
         db.collection(USERS_COLLECTION).document(userId).collection(FRIENDS_SUBCOLLECTION)
             .get()
             .addOnSuccessListener { friends: QuerySnapshot ->
                 for (friendDoc in friends) {
-                    val friendInfo = friendDoc.toObject(ProfileBanner::class.java)
+                    val friendInfo = friendDoc.toObject(UserInfo::class.java)
                     Log.d("$TAG$dbFunction", "Friend found")
                     friendList.add(friendInfo)
                 }
@@ -41,17 +41,17 @@ class FriendRepository @Inject constructor(
     // Returns a list of friendInfo objects for users with a specified displayName
     fun searchUsers(
         displayName: String,
-        onComplete: (List<ProfileBanner>) -> Unit
+        onComplete: (List<UserInfo>) -> Unit
     ) {
         val dbFunction = "sendFriendInvite"
-        val userList = mutableListOf<ProfileBanner>()
+        val userList = mutableListOf<UserInfo>()
         db.collection(PUBLIC_PROFILES_COLLECTION)
             .whereEqualTo("displayName", displayName)
             .get()
             .addOnSuccessListener { users: QuerySnapshot ->
                 for (userDoc in users) {
                     val userInfo = userDoc.toObject(UserInfo::class.java)
-                    userList.add(userToProfileBanner(userInfo))
+                    userList.add(userInfo)
                 }
                 Log.d("$TAG$dbFunction", "Number of users found: ${userList.size}")
                 onComplete(userList)
@@ -64,7 +64,7 @@ class FriendRepository @Inject constructor(
     * Also stores an outgoing request in the senders 'outgoing_requests' subcollection
     * */
     fun sendFriendInvite(
-        sender: ProfileBanner,
+        sender: UserInfo,
         recipientId: String,
         onComplete: (Boolean) -> Unit
     ) {
@@ -138,8 +138,8 @@ class FriendRepository @Inject constructor(
             }
 
             // Extract user and friend info
-            val userInfo = userDoc.toObject(ProfileBanner::class.java)
-            val friendInfo = friendDoc.toObject(ProfileBanner::class.java)
+            val userInfo = userDoc.toObject(UserInfo::class.java)
+            val friendInfo = friendDoc.toObject(UserInfo::class.java)
 
             if (userInfo != null && friendInfo != null) {
                 // Add friend to user's 'friends' subcollection
@@ -160,18 +160,7 @@ class FriendRepository @Inject constructor(
 
         }.addOnSuccessListener {
             Log.d("$TAG$dbFunction", "Friend relationship added successfully")
-            userFriendsRef.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w("$TAG$dbFunction", "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d("$TAG$dbFunction", "Snapshot Listener added")
-                } else {
-                    Log.d("$TAG$dbFunction", "Issue not adding Snapshot Listener")
-                }
-                onComplete(true)
-            }
+            onComplete(true)
         }.addOnFailureListener { e ->
             Log.e("$TAG$dbFunction", "Error adding friend", e)
             onComplete(false)
@@ -339,18 +328,5 @@ class FriendRepository @Inject constructor(
                 Log.e("$TAG$dbFunction", "Error cancelling friend request", e)
                 onComplete(false)
             }
-    }
-
-    private fun userToProfileBanner(userInfo: UserInfo): ProfileBanner {
-        val friendInfo = ProfileBanner(
-            userId = userInfo.userId,
-            displayName = userInfo.displayName.toString(),
-            profilePicture = userInfo.profilePicture.toString(),
-            friendCount = userInfo.friendCount,
-            listCount = userInfo.listCount,
-            reviewCount = userInfo.reviewCount,
-            isPublic = userInfo.isPublic
-        )
-        return friendInfo
     }
 }
