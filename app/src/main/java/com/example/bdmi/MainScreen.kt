@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Badge
@@ -43,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +63,12 @@ import com.example.bdmi.navigation.MainNestedNavGraph
 import com.example.bdmi.navigation.MainRoutes
 import com.example.bdmi.ui.composables.movie_detail.MenuButton
 import com.example.bdmi.ui.theme.dimens
+
+data class FilterState(
+    val sortBy: String,
+    val voteCountRange: Pair<Float?, Float?>,
+    val voteAvgRange: Pair<Float?, Float?>
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,6 +121,8 @@ fun MainScreen(
         }
     }
 
+    var showFilters by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -150,7 +160,8 @@ fun MainScreen(
                         onBackClick = { navController.popBackStack() },
                         scrollBehavior = scrollBehavior,
                         sessionViewModel = sessionViewModel,
-                        isDetail = isDetail
+                        isDetail = isDetail,
+                        onShowFiltersChanged = { newValue -> showFilters = newValue }
                     )
                 }
             }
@@ -183,7 +194,9 @@ fun MainScreen(
                 rootNavController = rootNavController,
                 navController = navController,
                 sessionViewModel = sessionViewModel,
-                voiceToTextParser = voiceToTextParser
+                voiceToTextParser = voiceToTextParser,
+                showFilters = showFilters,
+                onShowFiltersChanged = { newValue -> showFilters = newValue }
             )
         }
     }
@@ -271,7 +284,8 @@ fun MovieDetailTopAppBar(
     onBackClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     sessionViewModel: SessionViewModel,
-    isDetail: Boolean
+    isDetail: Boolean,
+    onShowFiltersChanged: (Boolean) -> Unit
 ) {
     TopAppBar(
         title = {
@@ -304,7 +318,9 @@ fun MovieDetailTopAppBar(
             if (!isDetail) {
                 MenuButton(sessionViewModel)
             } else {
-                Spacer(modifier = Modifier.size(dimens.iconLarge))
+                IconButton(onClick = { onShowFiltersChanged(true) }) {
+                    Icon(Icons.Default.FilterList, contentDescription = "Filters")
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

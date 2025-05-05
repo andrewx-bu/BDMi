@@ -30,6 +30,12 @@ class StudioViewModel @Inject constructor(
         val page: Int = 1,
         val totalPages: Int = Int.MAX_VALUE,
         val company: Company? = null,
+        // filter fields
+        val sortBy: String = "popularity.desc",
+        val voteCountGte: Float? = null,
+        val voteCountLte: Float? = null,
+        val voteAverageGte: Float? = null,
+        val voteAverageLte: Float? = null,
         override val error: APIError? = null
     ) : UIState
 
@@ -42,8 +48,35 @@ class StudioViewModel @Inject constructor(
         loadInitialData()
     }
 
-    fun refresh() {
-        loadInitialData()
+    fun refresh() = loadInitialData()
+
+    fun setSortBy(sort: String) {
+        _uiState.update { it.copy(sortBy = sort, page = 1, movies = emptyList()) }
+        loadMovies()
+    }
+
+    fun setVoteCountRange(min: Float?, max: Float?) {
+        _uiState.update {
+            it.copy(
+                voteCountGte = min,
+                voteCountLte = max,
+                page = 1,
+                movies = emptyList()
+            )
+        }
+        loadMovies()
+    }
+
+    fun setVoteAverageRange(min: Float?, max: Float?) {
+        _uiState.update {
+            it.copy(
+                voteAverageGte = min,
+                voteAverageLte = max,
+                page = 1,
+                movies = emptyList()
+            )
+        }
+        loadMovies()
     }
 
     private fun loadInitialData() {
@@ -53,48 +86,46 @@ class StudioViewModel @Inject constructor(
                     isLoading = true,
                     error = null,
                     page = 1,
-                    totalPages = Int.MAX_VALUE,
                     movies = emptyList()
                 )
             }
-
             val id = studioId.toIntOrNull()
 
             // fetch company + first page in parallel
             val companyDeferred = id?.let { async { movieRepo.getCompanyDetails(it) } }
-            val moviesDeferred = async { movieRepo.discoverMovies(companies = studioId) }
-
-            companyDeferred
-                ?.await()
-                ?.fold(
-                    onSuccess = { company ->
-                        _uiState.update { it.copy(company = company) }
-                    },
-                    onFailure = { e ->
-                        _uiState.update {
-                            it.copy(isLoading = false, error = e.toAPIError())
-                        }
-                    }
+            val moviesDeferred = async {
+                movieRepo.discoverMovies(
+                    page = 1,
+                    companies = studioId.takeIf { it.isNotBlank() },
+                    sortBy = _uiState.value.sortBy,
+                    voteCountGte = _uiState.value.voteCountGte,
+                    voteCountLte = _uiState.value.voteCountLte,
+                    voteAverageGte = _uiState.value.voteAverageGte,
+                    voteAverageLte = _uiState.value.voteAverageLte
                 )
+            }
 
-            moviesDeferred
-                .await()
-                .fold(
-                    onSuccess = { response ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                movies = response.results,
-                                totalPages = response.totalPages
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        _uiState.update {
-                            it.copy(isLoading = false, error = e.toAPIError())
-                        }
+            companyDeferred?.await()?.fold(
+                onSuccess = { company -> _uiState.update { it.copy(company = company) } },
+                onFailure = { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
+                }
+            )
+
+            moviesDeferred.await().fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            movies = response.results,
+                            totalPages = response.totalPages
+                        )
                     }
-                )
+                },
+                onFailure = { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
+                }
+            )
         }
     }
 
@@ -109,25 +140,28 @@ class StudioViewModel @Inject constructor(
         val s = _uiState.value
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            movieRepo
-                .discoverMovies(
-                    page = s.page,
-                    companies = studioId
-                )
-                .fold(
-                    onSuccess = { response ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                movies = if (s.page == 1) response.results else s.movies + response.results,
-                                totalPages = response.totalPages
-                            )
-                        }
-                    },
-                    onFailure = { e ->
-                        _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
+            movieRepo.discoverMovies(
+                page = s.page,
+                companies = studioId,
+                sortBy = s.sortBy,
+                voteCountGte = s.voteCountGte,
+                voteCountLte = s.voteCountLte,
+                voteAverageGte = s.voteAverageGte,
+                voteAverageLte = s.voteAverageLte
+            ).fold(
+                onSuccess = { response ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            movies = if (s.page == 1) response.results else s.movies + response.results,
+                            totalPages = response.totalPages
+                        )
                     }
-                )
+                },
+                onFailure = { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
+                }
+            )
         }
     }
 }

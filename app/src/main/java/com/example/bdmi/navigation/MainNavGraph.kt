@@ -70,13 +70,14 @@ sealed class MainRoutes(val route: String) {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MainNestedNavGraph(
     rootNavController: NavHostController,
     navController: NavHostController,
     sessionViewModel: SessionViewModel,
-    voiceToTextParser: VoiceToTextParser
+    voiceToTextParser: VoiceToTextParser,
+    showFilters: Boolean,
+    onShowFiltersChanged: (Boolean) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -219,7 +220,9 @@ fun MainNestedNavGraph(
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
                     }
-                }
+                },
+                showFilters = showFilters,
+                onShowFiltersChanged = onShowFiltersChanged
             )
         }
 

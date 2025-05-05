@@ -61,7 +61,11 @@ fun Modifier.fadingEdge(brush: Brush) = this
         drawRect(brush = brush, blendMode = BlendMode.DstIn)
     }
 
-fun createReviewObjects(userInfo: UserInfo, movieDetails: MovieDetails, review: Review) : Pair<UserReview, MovieReview> {
+fun createReviewObjects(
+    userInfo: UserInfo,
+    movieDetails: MovieDetails,
+    review: Review
+): Pair<UserReview, MovieReview> {
     val userReview = UserReview(
         movieId = movieDetails.id,
         movieTitle = movieDetails.title,
@@ -74,8 +78,8 @@ fun createReviewObjects(userInfo: UserInfo, movieDetails: MovieDetails, review: 
     )
     val movieReview = MovieReview(
         userId = userInfo.userId,
-        displayName = userInfo.displayName.toString(),
-        userProfilePicture = userInfo.profilePicture.toString(),
+        displayName = userInfo.displayName,
+        userProfilePicture = userInfo.profilePicture,
         reviewTitle = review.reviewTitle,
         reviewText = review.reviewText,
         rating = review.rating,
