@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bdmi.data.api.APIError
-import com.example.bdmi.data.api.models.Company
 import com.example.bdmi.data.api.models.Movie
+import com.example.bdmi.data.api.models.PersonDetails
 import com.example.bdmi.data.api.toAPIError
 import com.example.bdmi.data.repositories.MovieRepository
 import com.example.bdmi.data.utils.UIState
@@ -19,16 +19,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StudioViewModel @Inject constructor(
+class PersonDetailsViewModel @Inject constructor(
     private val movieRepo: MovieRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    data class StudioUIState(
+
+    data class PersonUIState(
         override val isLoading: Boolean = false,
         val movies: List<Movie> = emptyList(),
         val page: Int = 1,
         val totalPages: Int = Int.MAX_VALUE,
-        val company: Company? = null,
+        val person: PersonDetails? = null,
         // filter fields
         val sortBy: String = "popularity.desc",
         val voteCountGte: Float? = null,
@@ -38,10 +39,10 @@ class StudioViewModel @Inject constructor(
         override val error: APIError? = null
     ) : UIState
 
-    private val _uiState = MutableStateFlow(StudioUIState())
-    val uiState: StateFlow<StudioUIState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PersonUIState())
+    val uiState: StateFlow<PersonUIState> = _uiState.asStateFlow()
 
-    private val studioId: String = savedStateHandle.get<String>("studioId") ?: ""
+    private val personId: String = savedStateHandle.get<String>("personId") ?: ""
 
     init {
         loadInitialData()
@@ -85,17 +86,20 @@ class StudioViewModel @Inject constructor(
                     isLoading = true,
                     error = null,
                     page = 1,
-                    movies = emptyList()
+                    movies = emptyList(),
+                    totalPages = Int.MAX_VALUE,
+                    person = null
                 )
             }
-            val id = studioId.toIntOrNull()
 
-            // fetch company + first page in parallel
-            val companyDeferred = id?.let { async { movieRepo.getCompanyDetails(it) } }
+            val id = personId.toIntOrNull()
+
+            // fetch person details + first page of movies in parallel
+            val personDeferred = id?.let { async { movieRepo.getPersonDetails(it) } }
             val moviesDeferred = async {
                 movieRepo.discoverMovies(
                     page = 1,
-                    companies = studioId.takeIf { it.isNotBlank() },
+                    people = personId.takeIf { it.isNotBlank() },
                     sortBy = _uiState.value.sortBy,
                     voteCountGte = _uiState.value.voteCountGte,
                     voteCountLte = _uiState.value.voteCountLte,
@@ -104,27 +108,37 @@ class StudioViewModel @Inject constructor(
                 )
             }
 
-            companyDeferred?.await()?.fold(
-                onSuccess = { company -> _uiState.update { it.copy(company = company) } },
-                onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
-                }
-            )
-
-            moviesDeferred.await().fold(
-                onSuccess = { response ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            movies = response.results,
-                            totalPages = response.totalPages
-                        )
+            personDeferred
+                ?.await()
+                ?.fold(
+                    onSuccess = { details ->
+                        _uiState.update { it.copy(person = details) }
+                    },
+                    onFailure = { e ->
+                        _uiState.update {
+                            it.copy(isLoading = false, error = e.toAPIError())
+                        }
                     }
-                },
-                onFailure = { e ->
-                    _uiState.update { it.copy(isLoading = false, error = e.toAPIError()) }
-                }
-            )
+                )
+
+            moviesDeferred
+                .await()
+                .fold(
+                    onSuccess = { response ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                movies = response.results,
+                                totalPages = response.totalPages
+                            )
+                        }
+                    },
+                    onFailure = { e ->
+                        _uiState.update {
+                            it.copy(isLoading = false, error = e.toAPIError())
+                        }
+                    }
+                )
         }
     }
 
@@ -141,7 +155,7 @@ class StudioViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
             movieRepo.discoverMovies(
                 page = s.page,
-                companies = studioId,
+                people = personId.takeIf { it.isNotBlank() },
                 sortBy = s.sortBy,
                 voteCountGte = s.voteCountGte,
                 voteCountLte = s.voteCountLte,
