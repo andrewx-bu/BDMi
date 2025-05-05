@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -159,7 +161,7 @@ fun StudioDetails(
                                     )
                                     Spacer(Modifier.height(dimens.small2))
                                     Text(
-                                        text = "Headquarters: ${company.headquarters}",
+                                        text = "HQ: ${company.headquarters}",
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                     Spacer(Modifier.height(dimens.small3))
@@ -168,21 +170,35 @@ fun StudioDetails(
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                     // link to company homepage if exists
-                                    company.homepage?.takeIf { it.isNotBlank() }?.let { url ->
-                                        Spacer(Modifier.height(dimens.small3))
-                                        val context = LocalContext.current
-                                        Text(
-                                            text = url,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.clickable {
-                                                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                                context.startActivity(intent)
-                                            },
-                                            style = MaterialTheme.typography.bodyMedium.copy(
-                                                textDecoration = TextDecoration.Underline
-                                            )
-                                        )
-                                    }
+                                    company.homepage
+                                        ?.takeIf { it.isNotBlank() }
+                                        ?.let { url ->
+                                            Spacer(Modifier.height(dimens.small3))
+                                            val context = LocalContext.current
+
+                                            Button(
+                                                modifier = Modifier
+                                                    .size(
+                                                        width = dimens.buttonWidthSmall,
+                                                        height = dimens.buttonHeightSmall
+                                                    ),
+                                                onClick = {
+                                                    val intent =
+                                                        Intent(Intent.ACTION_VIEW, url.toUri())
+                                                    context.startActivity(intent)
+                                                },
+                                                shape = RoundedCornerShape(dimens.small3),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                                )
+                                            ) {
+                                                Text(
+                                                    text = "Website",
+                                                    style = MaterialTheme.typography.labelLarge
+                                                )
+                                            }
+                                        }
                                     Spacer(Modifier.height(dimens.small3))
                                     // parent company logo and name if exists
                                     company.parentCompany?.let { parent ->
