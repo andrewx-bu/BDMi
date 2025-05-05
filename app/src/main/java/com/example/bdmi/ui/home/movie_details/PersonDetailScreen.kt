@@ -2,10 +2,10 @@ package com.example.bdmi.ui.home.movie_details
 
 import androidx.compose.runtime.Composable
 
-// TODO: What to do here
 @Composable
-fun ActorDetails(
+fun PersonDetails(
     onNavigateBack: () -> Unit,
+    onMovieClick: (Int) -> Unit
 ) {
 
 }

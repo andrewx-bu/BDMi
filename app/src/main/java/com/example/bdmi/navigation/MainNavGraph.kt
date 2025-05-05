@@ -1,6 +1,5 @@
 package com.example.bdmi.navigation
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
@@ -26,8 +25,10 @@ import com.example.bdmi.ui.home.MovieDetailScreen
 import com.example.bdmi.ui.home.SearchScreen
 import com.example.bdmi.ui.custom_lists.CustomListScreen
 import com.example.bdmi.ui.custom_lists.WatchlistsScreen
-import com.example.bdmi.ui.home.movie_details.ActorDetails
 import com.example.bdmi.ui.home.movie_details.AllReviews
+import com.example.bdmi.ui.home.movie_details.PersonDetails
+import com.example.bdmi.ui.home.movie_details.GenreMovies
+import com.example.bdmi.ui.home.movie_details.StudioDetails
 import com.example.bdmi.ui.profile.UserReviews
 import kotlinx.serialization.Serializable
 
@@ -161,7 +162,7 @@ fun MainNestedNavGraph(
                     }
                 },
                 // TODO: What does an actor route need
-                onActorClick = { navController.navigate("actor_detail") },
+                onActorClick = { navController.navigate("person") },
                 onAllReviewsClick = { movieId ->
                     navController.navigate("reviews/$movieId") {
                         restoreState = true
@@ -183,9 +184,36 @@ fun MainNestedNavGraph(
             )
         }
 
-        composable("actor_detail") {
-            ActorDetails(
-                onNavigateBack = { navController.navigateUp() }
+        composable("person/{personId}") { backStackEntry ->
+            PersonDetails(
+                onNavigateBack = { navController.navigateUp() },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable("genre/{genreId}") {
+            GenreMovies(
+                onNavigateBack = { navController.navigateUp() },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable("studio/{studioId}") {
+            StudioDetails(
+                onNavigateBack = { navController.navigateUp() },
+                onMovieClick = { movieId ->
+                    navController.navigate("movie_detail/$movieId") {
+                        restoreState = true
+                    }
+                }
             )
         }
 
