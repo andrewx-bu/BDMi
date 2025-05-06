@@ -43,8 +43,8 @@ val LargeUIConstants = UIConstants(
 
 // TODO: Add constants for Expanded devices in landscape
 val ExpandedUIConstants = UIConstants(
-    movieColumns = 3,
-    moviesShown = 18,
+    movieColumns = 4,
+    moviesShown = 20,
     posterAspectRatio = 2f / 3f,
     backdropAspectRatio = 3f / 2f,
     descriptionMaxLines = 3,

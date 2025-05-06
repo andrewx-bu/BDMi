@@ -211,69 +211,69 @@ val LargeDimens = Dimens(
 )
 
 val ExpandedDimens = Dimens(
-    // Spacing (1.5x scale)
-    small1 = 3.dp,
-    small2 = 6.dp,
-    small3 = 12.dp,
-    medium1 = 15.dp,
-    medium2 = 18.dp,
-    medium3 = 24.dp,
-    large1 = 30.dp,
-    large2 = 36.dp,
-    large3 = 48.dp,
+    // Spacing (1.25x scale)
+    small1 = 2.5.dp,
+    small2 = 5.dp,
+    small3 = 10.dp,
+    medium1 = 12.5.dp,
+    medium2 = 15.dp,
+    medium3 = 20.dp,
+    large1 = 25.dp,
+    large2 = 30.dp,
+    large3 = 40.dp,
 
     // Icon sizes
-    iconTiny = 21.dp,
-    iconSmall = 30.dp,
-    iconMedium = 45.dp,
-    iconLarge = 60.dp,
-    iconHuge = 75.dp,
+    iconTiny = 17.5.dp,
+    iconSmall = 25.dp,
+    iconMedium = 37.5.dp,
+    iconLarge = 50.dp,
+    iconHuge = 62.5.dp,
 
     // Button dimensions
-    buttonHeightSmall = 45.dp,
-    buttonHeightMedium = 60.dp,
-    buttonHeightLarge = 84.dp,
-    buttonWidthSmall = 150.dp,
-    buttonWidthMedium = 225.dp,
-    buttonWidthLarge = 300.dp,
+    buttonHeightSmall = 37.5.dp,
+    buttonHeightMedium = 50.dp,
+    buttonHeightLarge = 70.dp,
+    buttonWidthSmall = 125.dp,
+    buttonWidthMedium = 187.5.dp,
+    buttonWidthLarge = 250.dp,
 
     // Logo and images
-    logoSizeSmall = 63.dp,
-    logoSizeMedium = 112.5.dp,
-    logoSizeLarge = 180.dp,
-    posterSize = 337.5.dp,
-    noPosterIconSize = 75.dp,
-    backdropHeight = 270.dp,
+    logoSizeSmall = 52.5.dp,
+    logoSizeMedium = 93.75.dp,
+    logoSizeLarge = 150.dp,
+    posterSize = 325.dp,
+    noPosterIconSize = 62.5.dp,
+    backdropHeight = 225.dp,
 
     // Specific UI components
-    topBarHeight = 150.dp,
-    bottomBarHeight = 112.5.dp,
-    topBarIconSize = 45.dp,
-    notificationBadgeSize = 27.dp,
+    topBarHeight = 125.dp,
+    bottomBarHeight = 93.75.dp,
+    topBarIconSize = 37.5.dp,
+    notificationBadgeSize = 22.5.dp,
 
     // Movie Detail
-    topBoxHeight = 630.dp,
-    reviewHeight = 150.dp,
-    carouselDotSize = 15.dp,
-    personRowHeight = 112.5.dp,
-    bottomColumnHeight = 825.dp,
-    countryRowHeight = 37.5.dp,
-    exploreRowHeight = 300.dp,
+    topBoxHeight = 640.dp,
+    reviewHeight = 125.dp,
+    carouselDotSize = 12.5.dp,
+    personRowHeight = 93.75.dp,
+    bottomColumnHeight = 687.5.dp,
+    countryRowHeight = 31.25.dp,
+    exploreRowHeight = 250.dp,
 
     // Ratings stuff
-    movieRowWidth = 150.dp,
-    movieRowHeight = 225.dp,
-    placeholderWidth = 22.5.sp,
-    placeholderHeight = 27.sp,
+    movieRowWidth = 125.dp,
+    movieRowHeight = 187.5.dp,
+    placeholderWidth = 18.75.sp,
+    placeholderHeight = 22.5.sp,
 
     // Detailed screens
-    studioLogoSize = 225.dp,
-    parentLogoSize = 75.dp,
+    studioLogoSize = 187.5.dp,
+    parentLogoSize = 62.5.dp,
 
     // Misc
-    friendProfileSize = 135.dp,
-    reviewCardHeight = 210.dp,
-    profileSize = 375.dp,
-    profileBorder = 450.dp,
-    wahteverDaHellThisIsRowHeight = 97.5.dp
+    friendProfileSize = 112.5.dp,
+    reviewCardHeight = 175.dp,
+    profileSize = 312.5.dp,
+    profileBorder = 375.dp,
+    wahteverDaHellThisIsRowHeight = 81.25.dp
 )

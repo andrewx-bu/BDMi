@@ -27,7 +27,12 @@ import com.example.bdmi.ui.theme.dimens
 import com.example.bdmi.ui.theme.uiConstants
 
 @Composable
-fun MoviePoster(title: String, posterPath: String?, roundCorner: Dp = dimens.medium3, onClick: () -> Unit) {
+fun MoviePoster(
+    title: String,
+    posterPath: String?,
+    roundCorner: Dp = dimens.medium3,
+    onClick: () -> Unit
+) {
     val imageUrl = ImageURLHelper.getURL(posterPath)
 
     Box(
@@ -45,7 +50,10 @@ fun MoviePoster(title: String, posterPath: String?, roundCorner: Dp = dimens.med
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(roundCorner))
                 )
             }
         } else {
