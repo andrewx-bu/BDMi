@@ -20,10 +20,10 @@ fun AllReviews(
     movieId: Int,
     onProfileClick: (String) -> Unit,
 ) {
-    val reviewViewModel : ReviewViewModel = hiltViewModel()
-    val reviews = reviewViewModel.reviews.collectAsState().value
-    val timeFilter = reviewViewModel.timeFilter.collectAsState().value
-    val ratingFilter = reviewViewModel.ratingFilter.collectAsState().value
+    val movieReviewViewModel : MovieReviewViewModel = hiltViewModel()
+    val reviews = movieReviewViewModel.reviews.collectAsState().value
+    val timeFilter = movieReviewViewModel.timeFilter.collectAsState().value
+    val ratingFilter = movieReviewViewModel.ratingFilter.collectAsState().value
     val scrollState = rememberLazyListState()
 
     LaunchedEffect(movieId) {
@@ -32,7 +32,7 @@ fun AllReviews(
     }
 
     LaunchedEffect(timeFilter, ratingFilter) {
-        reviewViewModel.loadNextPage(
+        movieReviewViewModel.loadNextPage(
             movieId = movieId,
             newRatingFilter = ratingFilter,
             newTimeFilter = timeFilter
@@ -54,7 +54,7 @@ fun AllReviews(
         snapshotFlow { scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleItem ->
                 if (lastVisibleItem != null && lastVisibleItem >= reviews.size - 1) {
-                    reviewViewModel.loadNextPage(
+                    movieReviewViewModel.loadNextPage(
                         movieId = movieId,
                         newRatingFilter = ratingFilter,
                         newTimeFilter = timeFilter

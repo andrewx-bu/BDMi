@@ -134,11 +134,3 @@ fun ReviewCard(
         }
     }
 }
-
-
-/*Icon(
-    imageVector = Icons.Default.Group,
-    contentDescription = "Friend",
-    tint = MaterialTheme.colorScheme.secondary,
-    modifier = Modifier.size(dimens.iconSmall)
-)*/

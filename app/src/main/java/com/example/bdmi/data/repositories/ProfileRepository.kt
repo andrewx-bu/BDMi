@@ -104,22 +104,34 @@ class ProfileRepository @Inject constructor(
 
     fun getReviews(
         userId: String,
+        rating: Float? = null,
+        timeFilter: TimeFilter = TimeFilter.DESCENDING,
         lastVisible: DocumentSnapshot? = null,
-        pageSize: Int = 20,
+        pageSize: Int = 10,
         onComplete: (List<UserReview>, DocumentSnapshot?) -> Unit
     ) {
         val dbFunction = "GetReviews"
         Log.d("$TAG$dbFunction", "Getting reviews for user $userId")
 
+        val queryDirection = when (timeFilter) {
+            TimeFilter.ASCENDING -> Query.Direction.ASCENDING
+            TimeFilter.DESCENDING -> Query.Direction.DESCENDING
+        }
+
         val reviewQuery = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
             .collection(REVIEWS_COLLECTION)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .orderBy("timestamp", queryDirection)
             .limit(pageSize.toLong())
 
-        val paginatedQuery = if (lastVisible != null) {
-            reviewQuery.startAfter(lastVisible)
-        } else {
+        val ratingQuery = if (rating != null) {
+            reviewQuery.whereEqualTo("rating", rating)
+        } else
             reviewQuery
+
+        val paginatedQuery = if (lastVisible != null) {
+            ratingQuery.startAfter(lastVisible)
+        } else {
+            ratingQuery
         }
 
         paginatedQuery.get().addOnSuccessListener { querySnapshot ->

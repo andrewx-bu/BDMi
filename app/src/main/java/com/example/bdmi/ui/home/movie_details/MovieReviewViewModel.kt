@@ -15,7 +15,7 @@ import javax.inject.Inject
 private const val TAG = "ReviewViewModel"
 
 @HiltViewModel
-class ReviewViewModel @Inject constructor(private val reviewRepository: ReviewRepository
+class MovieReviewViewModel @Inject constructor(private val reviewRepository: ReviewRepository
 ): ViewModel() {
     private val _reviews = MutableStateFlow<List<MovieReview>>(emptyList())
     val reviews = _reviews.asStateFlow()
