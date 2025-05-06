@@ -1,5 +1,6 @@
 package com.example.bdmi.ui.home
 
+import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,12 +9,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -34,9 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
@@ -79,6 +83,9 @@ fun MovieDetailScreen(
     val movieData by viewModel.movieData.collectAsState()
     val carouselReviews by viewModel.carouselReviews.collectAsState()
     val userReview by viewModel.userReview.collectAsState()
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     LaunchedEffect(movieId) {
         sessionViewModel.clearSelectedMovie()
@@ -154,37 +161,87 @@ fun MovieDetailScreen(
                 us?.releaseDates?.firstOrNull()?.certification.takeUnless { it?.isBlank() == true }
                     ?: "NR"
 
-            LazyColumn {
-                item {
-                    TopSection(
-                        details = details,
-                        hasBackdrop = hasBackdrop,
-                        directors = directors,
-                        trailerKey = trailerKey,
-                        certification = certification,
-                        onGenreClick = onGenreClick
-                    )
-                }
+            if (isLandscape) {
+                Row(Modifier.fillMaxSize()) {
+                    // Left pane (top + middle)
+                    Box(
+                        Modifier
+                            .weight(0.63f)
+                    ) {
+                        LazyColumn {
+                            item {
+                                TopSection(
+                                    details = details,
+                                    hasBackdrop = hasBackdrop,
+                                    directors = directors,
+                                    trailerKey = trailerKey,
+                                    certification = certification,
+                                    onGenreClick = onGenreClick
+                                )
+                            }
+                            item {
+                                MiddleSection(
+                                    details = details,
+                                    carouselReviews,
+                                    movieData = movieData,
+                                    onProfileClick = onProfileClick,
+                                    onAllReviewsClick = onAllReviewsClick
+                                )
+                            }
+                        }
+                    }
 
-                item {
-                    MiddleSection(
-                        details,
-                        carouselReviews,
-                        movieData,
-                        onProfileClick,
-                        onAllReviewsClick
-                    )
+                    // Right pane (bottom)
+                    Box(
+                        Modifier
+                            .weight(0.37f)
+                    ) {
+                        LazyColumn {
+                            item {
+                                BottomSection(
+                                    details = details,
+                                    providers = providers,
+                                    onMovieClick = onMovieClick,
+                                    onPersonClick = onPersonClick,
+                                    onStudioClick = onStudioClick,
+                                    onCountryClick = onCountryClick
+                                )
+                            }
+                        }
+                    }
                 }
-
-                item {
-                    BottomSection(
-                        details = details,
-                        providers = providers,
-                        onMovieClick = onMovieClick,
-                        onPersonClick = onPersonClick,
-                        onStudioClick = onStudioClick,
-                        onCountryClick = onCountryClick
-                    )
+            } else {
+                // Portrait
+                LazyColumn {
+                    item {
+                        TopSection(
+                            details = details,
+                            hasBackdrop = hasBackdrop,
+                            directors = directors,
+                            trailerKey = trailerKey,
+                            certification = certification,
+                            onGenreClick = onGenreClick
+                        )
+                    }
+                    item {
+                        MiddleSection(
+                            details = details,
+                            carouselReviews,
+                            movieData = movieData,
+                            onProfileClick = onProfileClick,
+                            onAllReviewsClick = onAllReviewsClick
+                        )
+                    }
+                    item {
+                        BottomSection(
+                            details = details,
+                            providers = providers,
+                            onMovieClick = onMovieClick,
+                            onPersonClick = onPersonClick,
+                            onStudioClick = onStudioClick,
+                            onCountryClick = onCountryClick
+                        )
+                    }
                 }
             }
         }
