@@ -1,6 +1,5 @@
 package com.example.bdmi.ui.notifications
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,26 +37,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.Notification
 import com.example.bdmi.data.repositories.NotificationType
+import com.example.bdmi.ui.theme.dimens
 
 // TODO: Improve notification screen and add more notification types
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +90,7 @@ fun NotificationsScreen(
                 },
                 actions = {
                     ElevatedButton(
-                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 10.dp),
+                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = dimens.medium1),
                         onClick = {
                             notificationViewModel.deleteAllNotifications(userId.toString())
                         }
@@ -113,7 +107,8 @@ fun NotificationsScreen(
             modifier = Modifier.padding(padding),
             userId = userId,
             notifications = notifications,
-            onProfileClick = onProfileClick,)
+            onProfileClick = onProfileClick,
+        )
     }
 }
 
@@ -167,12 +162,12 @@ fun NotificationItem(
     val notificationViewModel: NotificationViewModel = hiltViewModel()
     val cardVisibility = if (notification.read) 0.5f else 1f
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
-        shape = RoundedCornerShape(5.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = dimens.medium1),
+        shape = RoundedCornerShape(dimens.small2),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(dimens.medium1)
             .clickable {
                 notificationViewModel.readNotification(
                     userId.toString(),
@@ -194,7 +189,7 @@ fun NotificationItem(
                 text = notificationType,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = modifier.padding(horizontal = 10.dp)
+                modifier = modifier.padding(horizontal = dimens.medium1)
             )
             // Delete a notification
             IconButton(
@@ -202,7 +197,7 @@ fun NotificationItem(
                     if (notification.type == "friend_request") {
                         val friendData = notification.data as NotificationType.FriendRequest
                         if (!friendData.responded) {
-                            notificationViewModel.declineInvite (
+                            notificationViewModel.declineInvite(
                                 userId.toString(),
                                 friendData.userId
                             ) {
@@ -234,8 +229,8 @@ fun NotificationItem(
 
         HorizontalDivider(
             color = Color.LightGray,
-            thickness = 1.dp,
-            modifier = modifier.padding(horizontal = 10.dp)
+            thickness = dimens.small1,
+            modifier = modifier.padding(horizontal = dimens.medium1)
         )
 
         Column {
@@ -266,7 +261,7 @@ fun FriendRequestNotification(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(dimens.small2)
             .graphicsLayer(alpha = visibility),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -276,9 +271,9 @@ fun FriendRequestNotification(
         ) {
             Box(
                 modifier = Modifier
-                    .size(88.dp)
-                    .border(2.dp, Color.Black, CircleShape)
-                    .padding(4.dp)
+                    .size(dimens.friendProfileSize)
+                    .border(dimens.small1, Color.Black, CircleShape)
+                    .padding(dimens.small2)
                     .clip(CircleShape)
                     .clickable {
                         onProfileClick(data.userId)
@@ -294,7 +289,7 @@ fun FriendRequestNotification(
                 )
             }
             Column(
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier.padding(start = dimens.medium1),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -336,14 +331,14 @@ fun FriendRequestNotification(
                     ),
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(30.dp)
+                        .size(dimens.iconMedium)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Accept Friend Request"
                     )
                 }
-                Spacer(modifier = Modifier.padding(2.dp))
+                Spacer(modifier = Modifier.padding(dimens.small1))
                 // If user hasn't responded to the friend request display the buttons
                 IconButton(
                     onClick = {
@@ -365,7 +360,7 @@ fun FriendRequestNotification(
                     ),
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(30.dp)
+                        .size(dimens.iconMedium)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -380,7 +375,7 @@ fun FriendRequestNotification(
 @Composable
 fun UserStats(text: String, stat: String) {
     Column(
-        modifier = Modifier.padding(end = 10.dp),
+        modifier = Modifier.padding(end = dimens.medium1),
         horizontalAlignment = Alignment.Start
     ) {
         Text(text = stat, color = MaterialTheme.colorScheme.primary)

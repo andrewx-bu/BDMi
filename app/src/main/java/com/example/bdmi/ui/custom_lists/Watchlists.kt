@@ -33,10 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.CustomList
+import com.example.bdmi.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +49,7 @@ fun WatchlistsScreen(
     val currentUserId =
         if (sessionViewModel != null) sessionViewModel.userInfo.collectAsState().value?.userId
         else userId
-    val watchlistViewModel : WatchlistViewModel = hiltViewModel()
+    val watchlistViewModel: WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
 //    val editPrivileges = userId != null
 
@@ -124,12 +124,12 @@ fun WatchlistList(
 fun WatchlistItem(list: CustomList, onListClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(dimens.medium3)
             .clickable {
                 onListClick()
             }
             .fillMaxWidth()
-            .height(150.dp)
+            .height(dimens.movieRowHeight)
     ) {
         Column(
             modifier = Modifier.weight(1f)

@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.example.bdmi.data.repositories.UserReview
 import com.example.bdmi.ui.composables.home.MoviePoster
 import com.example.bdmi.ui.theme.dimens
@@ -42,7 +41,9 @@ fun UserReviewCard(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().height(65.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dimens.wahteverDaHellThisIsRowHeight)
         ) {
             Row(
                 modifier = Modifier.weight(.6f),
@@ -52,7 +53,7 @@ fun UserReviewCard(
                 MoviePoster(
                     review.movieTitle,
                     review.posterPath,
-                    3.dp
+                    dimens.small2
                 ) { onMovieClick(review.movieId) }
 
                 Text(
@@ -98,8 +99,7 @@ fun UserReviewCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-                .height(140.dp),
+                .height(dimens.reviewCardHeight),
             shape = RoundedCornerShape(dimens.medium1),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {

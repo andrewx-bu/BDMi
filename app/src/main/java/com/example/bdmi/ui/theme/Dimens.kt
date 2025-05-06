@@ -63,7 +63,14 @@ data class Dimens(
 
     // Detailed screens
     val studioLogoSize: Dp,
-    val parentLogoSize: Dp
+    val parentLogoSize: Dp,
+
+    // Misc
+    val friendProfileSize: Dp,
+    val reviewCardHeight: Dp,
+    val profileSize: Dp,
+    val profileBorder: Dp,
+    val wahteverDaHellThisIsRowHeight: Dp
 )
 
 val MediumDimens = Dimens(
@@ -124,7 +131,14 @@ val MediumDimens = Dimens(
 
     // Detailed screens
     studioLogoSize = 150.dp,
-    parentLogoSize = 50.dp
+    parentLogoSize = 50.dp,
+
+    // Misc
+    friendProfileSize = 90.dp,
+    reviewCardHeight = 140.dp,
+    profileSize = 250.dp,
+    profileBorder = 300.dp,
+    wahteverDaHellThisIsRowHeight = 65.dp
 )
 
 // TODO: Add dimens for Expanded devices in portrait
@@ -171,7 +185,12 @@ val LargeDimens = Dimens(
     placeholderWidth = 0.sp,
     placeholderHeight = 0.sp,
     studioLogoSize = 150.dp,
-    parentLogoSize = 50.dp
+    parentLogoSize = 50.dp,
+    friendProfileSize = 90.dp,
+    reviewCardHeight = 140.dp,
+    profileSize = 250.dp,
+    profileBorder = 300.dp,
+    wahteverDaHellThisIsRowHeight = 65.dp
 )
 
 // TODO: Add dimens for Expanded devices in landscape
@@ -218,5 +237,10 @@ val ExpandedDimens = Dimens(
     placeholderWidth = 0.sp,
     placeholderHeight = 0.sp,
     studioLogoSize = 150.dp,
-    parentLogoSize = 50.dp
+    parentLogoSize = 50.dp,
+    friendProfileSize = 90.dp,
+    reviewCardHeight = 140.dp,
+    profileSize = 250.dp,
+    profileBorder = 300.dp,
+    wahteverDaHellThisIsRowHeight = 65.dp
 )

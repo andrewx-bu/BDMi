@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,9 +32,15 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.bdmi.ui.theme.dimens
 
 @Composable
-fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, editPrivileges: Boolean, onEditClick: () -> Unit) {
+fun ProfilePicture(
+    profileImageUrl: String,
+    tempImageUri: Uri?,
+    editPrivileges: Boolean,
+    onEditClick: () -> Unit
+) {
     val value by rememberInfiniteTransition().animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -65,7 +72,7 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, editPrivileges: 
         )
     }
     Box(
-        modifier = Modifier.size(300.dp),
+        modifier = Modifier.size(dimens.profileBorder),
         contentAlignment = Alignment.Center
     ) {
         Log.d("ProfilePicture", "Loading profileImageUrl: $profileImageUrl")
@@ -80,14 +87,14 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, editPrivileges: 
                         )
                     }
                 }
-                .size(250.dp)
+                .size(dimens.profileSize)
         )
         AsyncImage(
             model = tempImageUri ?: profileImageUrl,
             contentDescription = "Profile Picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(250.dp)
+                .size(dimens.profileSize)
                 .clip(CircleShape)
         )
 
@@ -97,14 +104,14 @@ fun ProfilePicture(profileImageUrl: String, tempImageUri: Uri?, editPrivileges: 
                 onClick = { onEditClick() },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(40.dp)
+                    .size(dimens.iconLarge)
                     .clip(CircleShape)
                     .background(Color.Black)
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit Profile Picture",
-                    tint = Color.White // Icon color
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }

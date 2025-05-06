@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.UserReview
 import com.example.bdmi.ui.composables.profile.UserReviewCard
+import com.example.bdmi.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +30,7 @@ fun UserReviews(
     onNavigateBack: () -> Unit,
     onMovieClick: (Int) -> Unit
 ) {
-    val userReviewsViewModel : UserReviewsViewModel = hiltViewModel()
+    val userReviewsViewModel: UserReviewsViewModel = hiltViewModel()
     val reviews = userReviewsViewModel.reviews.collectAsState().value
     val timeFilter = userReviewsViewModel.timeFilter.collectAsState().value
     val ratingFilter = userReviewsViewModel.ratingFilter.collectAsState().value
@@ -57,12 +58,12 @@ fun UserReviews(
             )
         }
     ) { padding ->
-        LazyColumn (
+        LazyColumn(
             state = scrollState,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(dimens.medium3),
             contentPadding = padding
         ) {
-            items(reviews) { review : UserReview ->
+            items(reviews) { review: UserReview ->
                 UserReviewCard(
                     review = review,
                     onMovieClick = onMovieClick,

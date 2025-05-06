@@ -17,8 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import com.example.bdmi.SessionViewModel
+import com.example.bdmi.ui.theme.dimens
 
 private const val TAG = "LoginScreen"
 
@@ -34,21 +34,21 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(dimens.medium1)
     ) {
         TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(5.dp)
+            shape = RoundedCornerShape(dimens.medium1),
+            modifier = Modifier.padding(dimens.small2)
         )
         TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(5.dp),
+            shape = RoundedCornerShape(dimens.medium1),
+            modifier = Modifier.padding(dimens.small2),
             visualTransformation = PasswordVisualTransformation()
         )
         Button(

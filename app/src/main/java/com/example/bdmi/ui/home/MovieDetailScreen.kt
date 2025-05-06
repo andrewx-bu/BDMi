@@ -56,7 +56,6 @@ import com.example.bdmi.ui.composables.movie_detail.top.DetailColumn
 import com.example.bdmi.ui.composables.movie_detail.bottom.DetailsSection
 import com.example.bdmi.ui.composables.movie_detail.bottom.ExploreSection
 import com.example.bdmi.ui.theme.dimens
-import com.example.bdmi.ui.theme.onErrorContainerDark
 import com.example.bdmi.ui.theme.uiConstants
 import kotlinx.coroutines.launch
 import java.util.Locale

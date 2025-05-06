@@ -50,11 +50,9 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.bdmi.data.api.models.Movie
 import com.example.bdmi.data.utils.GenreMappings
 import com.example.bdmi.data.utils.VoiceToTextParser
@@ -190,7 +188,7 @@ fun SearchScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(dimens.medium3),
             containerColor = if (state.isSpeaking) {
                 MaterialTheme.colorScheme.tertiaryContainer
             } else {

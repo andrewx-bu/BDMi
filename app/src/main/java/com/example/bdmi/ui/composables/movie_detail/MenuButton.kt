@@ -39,7 +39,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.api.models.MovieDetails
@@ -145,7 +144,9 @@ fun MenuButton(
     }
 
     if (showWatchlists && movieDetails != null) {
-        WatchlistDropdown(userId.toString(), watchlists.value, movieDetails) { showWatchlists = false }
+        WatchlistDropdown(userId.toString(), watchlists.value, movieDetails) {
+            showWatchlists = false
+        }
     }
 
     if (showWriteReviewSheet && movieDetails != null && userInfo != null) {
@@ -157,11 +158,15 @@ fun MenuButton(
                 onConfirm = { review ->
                     Log.d("WriteReview", "Create view button clicked")
                     showWriteReviewSheet = false
-                    val (userReview, movieReview) = createReviewObjects(userInfo = userInfo, movieDetails = movieDetails, review = review)
+                    val (uReview, movieReview) = createReviewObjects(
+                        userInfo = userInfo,
+                        movieDetails = movieDetails,
+                        review = review
+                    )
                     movieDetailViewModel.createReview(
                         userId.toString(),
                         movieDetails.id,
-                        userReview = userReview,
+                        userReview = uReview,
                         movieReview = movieReview
                     ) {
                         if (it) {
@@ -215,7 +220,7 @@ fun WatchlistDropdown(
                 text = { Text(list.name) },
                 onClick = {
                     movieDetailViewModel.addToWatchlist(
-                        userId.toString(),
+                        userId,
                         list.listId,
                         MediaItem(
                             id = movieDetails.id,
@@ -243,13 +248,16 @@ fun WriteReview(
     }
     val review = remember {
         if (userReview != null) mutableStateOf(userReview.reviewText)
-        else mutableStateOf("") }
+        else mutableStateOf("")
+    }
     val rating = remember {
         if (userReview != null) mutableFloatStateOf(userReview.rating)
-        else mutableFloatStateOf(0f) }
+        else mutableFloatStateOf(0f)
+    }
     val spoiler = remember {
         if (userReview != null) mutableStateOf(userReview.spoiler)
-        else mutableStateOf(false) }
+        else mutableStateOf(false)
+    }
     val isReviewValid = review.value.length >= 2
     val isTitleValid = title.value.isNotBlank()
     val isRatingValid = rating.floatValue > 0
@@ -257,12 +265,12 @@ fun WriteReview(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(dimens.medium3),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Write a Review", style = MaterialTheme.typography.titleMedium)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.medium3))
 
         TextField(
             value = title.value,
@@ -275,7 +283,7 @@ fun WriteReview(
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.medium3))
 
         TextField(
             value = review.value,
@@ -283,7 +291,7 @@ fun WriteReview(
             label = { Text("Review (2+ characters)") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp),
+                .height(dimens.movieRowHeight),
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
@@ -297,10 +305,10 @@ fun WriteReview(
             textAlign = TextAlign.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp)
+                .padding(top = dimens.small2)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.medium3))
 
         Text("Rating: ${rating.floatValue}")
 
@@ -315,7 +323,7 @@ fun WriteReview(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = dimens.small3)
         ) {
             Text("Spoiler?", modifier = Modifier.weight(1f))
             Switch(
@@ -324,7 +332,7 @@ fun WriteReview(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.medium3))
 
         Button(
             onClick = {
@@ -356,11 +364,11 @@ fun WriteRating(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(dimens.medium3),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Write a Rating", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.medium3))
         Text("Rating: ${rating.floatValue}")
         StarRating(
             rating = 0f,

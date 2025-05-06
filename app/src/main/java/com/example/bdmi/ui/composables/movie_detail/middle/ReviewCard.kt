@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.theme.dimens
@@ -114,8 +113,7 @@ fun ReviewCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-                .height(140.dp),
+                .height(dimens.reviewCardHeight),
             shape = RoundedCornerShape(dimens.medium1),
             elevation = CardDefaults.cardElevation(dimens.medium2)
         ) {
@@ -129,7 +127,7 @@ fun ReviewCard(
             Text(
                 text = review.reviewText,
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 4,
+                maxLines = uiConstants.reviewMaxLines,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(dimens.small3)
             )

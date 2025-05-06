@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.bdmi.ui.theme.dimens
 import kotlin.math.roundToInt
 
 // Written by ChatGPT
@@ -83,12 +84,13 @@ fun StarRating(
                 imageVector = icon,
                 contentDescription = null,
                 tint = Color.Yellow,
-                modifier = Modifier.padding(2.dp).size(starSize.dp)
+                modifier = Modifier
+                    .padding(dimens.small1)
+                    .size(starSize.dp)
             )
         }
     }
 }
-
 
 
 @Preview

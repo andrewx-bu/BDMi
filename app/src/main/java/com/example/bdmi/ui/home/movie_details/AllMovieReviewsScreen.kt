@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.MovieReview
 import com.example.bdmi.ui.composables.movie_detail.middle.ReviewCard
+import com.example.bdmi.ui.theme.dimens
 
 @Composable
 fun AllReviews(
@@ -20,7 +20,7 @@ fun AllReviews(
     movieId: Int,
     onProfileClick: (String) -> Unit,
 ) {
-    val movieReviewViewModel : MovieReviewViewModel = hiltViewModel()
+    val movieReviewViewModel: MovieReviewViewModel = hiltViewModel()
     val reviews = movieReviewViewModel.reviews.collectAsState().value
     val timeFilter = movieReviewViewModel.timeFilter.collectAsState().value
     val ratingFilter = movieReviewViewModel.ratingFilter.collectAsState().value
@@ -39,11 +39,11 @@ fun AllReviews(
         )
     }
 
-    LazyColumn (
+    LazyColumn(
         state = scrollState,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(dimens.medium3)
     ) {
-        items(reviews) { review : MovieReview ->
+        items(reviews) { review: MovieReview ->
             ReviewCard(
                 review = review,
                 onProfileClick = onProfileClick,

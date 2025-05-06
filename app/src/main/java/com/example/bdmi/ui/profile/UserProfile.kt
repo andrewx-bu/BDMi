@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.FriendStatus
@@ -121,8 +120,7 @@ fun UserProfile(
                     tint = MaterialTheme.colorScheme.background
                 )
             }
-        }
-        else { // Display profile
+        } else { // Display profile
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,7 +131,11 @@ fun UserProfile(
                     )
             ) {
                 // Profile Picture
-                ProfilePicture(profileInfo.profilePicture.toString(), tempImageURI.value, editPrivileges) {
+                ProfilePicture(
+                    profileInfo.profilePicture.toString(),
+                    tempImageURI.value,
+                    editPrivileges
+                ) {
                     if (editPrivileges)
                         pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 }
@@ -214,9 +216,12 @@ fun FriendButton(
                     containerColor = Color.Black,
                     contentColor = Color.White
                 ),
-                border = BorderStroke(1.dp, Color.White),
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth(.5f).fillMaxHeight(.1f).padding(vertical = 15.dp)
+                border = BorderStroke(dimens.small1, Color.White),
+                shape = RoundedCornerShape(dimens.medium1),
+                modifier = Modifier
+                    .fillMaxWidth(.5f)
+                    .fillMaxHeight(.1f)
+                    .padding(vertical = dimens.medium3)
             ) {
                 Text(text = "Unfriend")
             }
@@ -234,9 +239,12 @@ fun FriendButton(
                     containerColor = Color.Black,
                     contentColor = Color.White
                 ),
-                border = BorderStroke(1.dp, Color.White),
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth(.5f).fillMaxHeight(.1f).padding(vertical = 15.dp)
+                border = BorderStroke(dimens.small1, Color.White),
+                shape = RoundedCornerShape(dimens.medium1),
+                modifier = Modifier
+                    .fillMaxWidth(.5f)
+                    .fillMaxHeight(.1f)
+                    .padding(vertical = dimens.medium3)
             ) {
                 Text(text = "Requested")
             }
@@ -257,8 +265,11 @@ fun FriendButton(
                     containerColor = Color(0xFF0293A7),
                     contentColor = Color.White
                 ),
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth(.5f).fillMaxHeight(.1f).padding(vertical = 15.dp)
+                shape = RoundedCornerShape(dimens.medium1),
+                modifier = Modifier
+                    .fillMaxWidth(.5f)
+                    .fillMaxHeight(.1f)
+                    .padding(vertical = dimens.medium3)
             ) {
                 Text(text = "Add Friend")
             }
@@ -282,17 +293,17 @@ fun ProfileStatsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = dimens.medium3),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         StatItem(count = friendCount, label = "Friends", onClick = onFriendClick)
 
-        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = 2.dp, color = Color.White)
+        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = dimens.small1, color = Color.White)
 
         StatItem(count = listCount, label = "Lists", onClick = onListClick)
 
-        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = 2.dp, color = Color.White)
+        VerticalDivider(Modifier.fillMaxHeight(.1f), thickness = dimens.small1, color = Color.White)
 
         StatItem(count = reviewCount, label = "Reviews", onClick = onReviewClick)
     }
@@ -303,7 +314,7 @@ fun StatItem(count: Long, label: String, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = dimens.medium2)
             .fillMaxHeight(.1f),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

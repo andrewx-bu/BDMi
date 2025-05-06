@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,13 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.bdmi.data.repositories.UserInfo
 import com.example.bdmi.ui.notifications.UserStats
+import com.example.bdmi.ui.theme.dimens
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,7 +65,7 @@ fun FriendSearch(
             .distinctUntilChanged()
             .debounce(1000)
             .collect { query ->
-                friendViewModel.searchUsers(currentUserId,query)
+                friendViewModel.searchUsers(currentUserId, query)
             }
     }
 
@@ -93,7 +92,7 @@ fun FriendSearch(
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(dimens.medium3),
                 placeholder = { Text("Enter display name") },
                 singleLine = true,
             )
@@ -115,7 +114,7 @@ fun ProfileCard(user: UserInfo, onProfileClick: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(dimens.small2)
             .clickable {
                 onProfileClick(user.userId)
             },
@@ -127,9 +126,9 @@ fun ProfileCard(user: UserInfo, onProfileClick: (String) -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(88.dp)
-                    .border(2.dp, Color.Black, CircleShape)
-                    .padding(4.dp)
+                    .size(dimens.friendProfileSize)
+                    .border(dimens.small1, Color.Black, CircleShape)
+                    .padding(dimens.small2)
                     .clip(CircleShape)
             ) {
                 AsyncImage(
@@ -142,14 +141,13 @@ fun ProfileCard(user: UserInfo, onProfileClick: (String) -> Unit) {
                 )
             }
             Column(
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier.padding(start = dimens.medium1),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = user.displayName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp,
-                    color = Color.White
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Row {
                     UserStats("Friends", user.friendCount.toString())
