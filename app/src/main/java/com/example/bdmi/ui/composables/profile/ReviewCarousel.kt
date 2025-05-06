@@ -1,6 +1,5 @@
 package com.example.bdmi.ui.composables.profile
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import com.example.bdmi.ui.composables.movie_detail.middle.DotsIndicator
 import com.example.bdmi.ui.theme.dimens
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserReviewCarousel(
     reviews: List<UserReview>,
@@ -74,5 +72,5 @@ fun UserReviewCarousel(
                 )
             }
         }
-   }
+    }
 }

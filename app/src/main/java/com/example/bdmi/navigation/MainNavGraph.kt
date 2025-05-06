@@ -336,7 +336,6 @@ fun MainNestedNavGraph(
         composable("user_reviews/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             UserReviews(
-                sessionViewModel = sessionViewModel,
                 userId = userId,
                 onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
