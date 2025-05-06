@@ -110,7 +110,7 @@ class MovieDetailViewModel @Inject constructor(
     fun reviewCarousel(movieId: Int) {
         viewModelScope.launch {
             reviewRepository.getReviews(movieId, pageSize = 5) { reviews, _ ->
-                _carouselReviews.value = _carouselReviews.value + reviews
+                _carouselReviews.value += reviews
             }
         }
     }
@@ -139,7 +139,7 @@ class MovieDetailViewModel @Inject constructor(
         Log.d(TAG, "Creating review: $movieReview")
         if (_userReview.value != null)
             _carouselReviews.value = _carouselReviews.value.drop(1)
-        _carouselReviews.value = _carouselReviews.value + movieReview
+        _carouselReviews.value += movieReview
         _userReview.value = movieReview
 
         viewModelScope.launch {

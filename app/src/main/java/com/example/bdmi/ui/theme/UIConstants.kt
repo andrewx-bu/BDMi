@@ -51,5 +51,5 @@ val ExpandedUIConstants = UIConstants(
     reviewMaxLines = 4,
     reviewScrollDelay = 8000L,
     movieRows = 1,
-    personDescMaxLines = 6
+    personDescMaxLines = 9
 )
