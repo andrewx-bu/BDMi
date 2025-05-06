@@ -173,7 +173,7 @@ val LargeDimens = Dimens(
     logoSizeSmall = 52.5.dp,
     logoSizeMedium = 93.75.dp,
     logoSizeLarge = 150.dp,
-    posterSize = 281.25.dp,
+    posterSize = 325.dp,
     noPosterIconSize = 62.5.dp,
     backdropHeight = 225.dp,
 
@@ -184,7 +184,7 @@ val LargeDimens = Dimens(
     notificationBadgeSize = 22.5.dp,
 
     // Movie Detail
-    topBoxHeight = 525.dp,
+    topBoxHeight = 640.dp,
     reviewHeight = 125.dp,
     carouselDotSize = 12.5.dp,
     personRowHeight = 93.75.dp,
