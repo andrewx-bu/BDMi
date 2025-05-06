@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,32 @@ fun ReviewCard(
                 .padding(horizontal = dimens.small2),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // User Info (Display Name + Profile Picture)
+            Box(
+                modifier = Modifier
+                    .size(dimens.iconLarge)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .clickable { onProfileClick(review.userId) }
+            ) {
+                AsyncImage(
+                    model = review.userProfilePicture,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            Spacer(Modifier.width(dimens.small2))
+
+            Text(
+                text = review.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+
+            Spacer(Modifier.weight(1f))
+
             // Stars
             val fullStars = review.rating.toInt()
             val hasHalf = (review.rating - fullStars) >= 0.5f
@@ -77,31 +104,6 @@ fun ReviewCard(
                     contentDescription = "Liked",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(dimens.iconMedium)
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            // User Info (Display Name + Profile Picture)
-            Text(
-                text = review.displayName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
-
-            Spacer(Modifier.width(dimens.small2))
-
-            Box(
-                modifier = Modifier
-                    .size(dimens.iconLarge)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .clickable { onProfileClick(review.userId) }
-            ) {
-                AsyncImage(
-                    model = review.userProfilePicture,
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier.fillMaxSize()
                 )
             }
         }

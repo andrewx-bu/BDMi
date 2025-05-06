@@ -45,8 +45,6 @@ import com.example.bdmi.ui.composables.profile.UserReviewCarousel
 import com.example.bdmi.ui.theme.dimens
 import kotlinx.coroutines.launch
 
-private const val TAG = "ProfileScreen"
-
 @Composable
 fun UserProfile(
     profileUserId: String? = null,

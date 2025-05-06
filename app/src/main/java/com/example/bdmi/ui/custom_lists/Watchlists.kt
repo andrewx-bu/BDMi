@@ -60,7 +60,8 @@ fun WatchlistsScreen(
             }
         }
         LaunchedEffect(lists) {
-            sessionViewModel.updateWatchlists(lists.value)
+            if (lists.value.isNotEmpty())
+                sessionViewModel.updateWatchlists(lists.value)
         }
     } else {
         LaunchedEffect(currentUserId) {

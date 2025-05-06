@@ -25,7 +25,6 @@ import com.example.bdmi.ui.composables.profile.UserReviewCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserReviews(
-    sessionViewModel: SessionViewModel,
     userId: String,
     onNavigateBack: () -> Unit,
     onMovieClick: (Int) -> Unit
