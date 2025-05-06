@@ -16,9 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.UserReview
 import com.example.bdmi.ui.composables.profile.UserReviewCard
 import com.example.bdmi.ui.theme.dimens

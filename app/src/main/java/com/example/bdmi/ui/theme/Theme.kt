@@ -133,14 +133,13 @@ fun AppTheme(
     // Depending on screen size class, set typography, app dimensions, and UI constant vals
     val window = calculateWindowSizeClass(activity = activity)
     val config = LocalConfiguration.current
+    val isMediumSize = config.screenWidthDp <= 725
 
     SideEffect {
-        activity.requestedOrientation = when (window.widthSizeClass) {
-            WindowWidthSizeClass.Expanded ->
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
-            else ->
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        activity.requestedOrientation = if (isMediumSize) {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT // Lock portrait for medium
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED // Allow rotation for others
         }
     }
 
