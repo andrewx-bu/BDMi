@@ -294,6 +294,7 @@ fun MainNestedNavGraph(
         composable(MainRoutes.Watchlists.route) {
             WatchlistsScreen(
                 sessionViewModel,
+                loggedInUserId = sessionViewModel.userInfo.value?.userId ?: "",
                 onListClick = { (userId, listId) ->
                     navController.navigate("watchlist/$userId/$listId")
                 }
@@ -304,6 +305,7 @@ fun MainNestedNavGraph(
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             WatchlistsScreen(
                 userId = userId,
+                loggedInUserId = sessionViewModel.userInfo.value?.userId ?: "",
                 onListClick = { (userId, listId) ->
                     navController.navigate("watchlist/$userId/$listId")
                 }
@@ -321,7 +323,8 @@ fun MainNestedNavGraph(
                     navController.navigate("movie_detail/$movieId") {
                         launchSingleTop = true
                     }
-                }
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

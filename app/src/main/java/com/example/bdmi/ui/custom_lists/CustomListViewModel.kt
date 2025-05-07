@@ -103,4 +103,14 @@ class CustomListViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteList(userId: String, listId: String) {
+        Log.d(TAG, "Removing list for user: $userId")
+        viewModelScope.launch {
+            watchlistRepository.deleteList(userId, listId) { success ->
+                Log.d(TAG, "List removed successfully")
+
+            }
+        }
+    }
 }

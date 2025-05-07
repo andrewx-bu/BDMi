@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,6 +70,7 @@ fun CustomListScreen(
     userId: String,
     listId: String,
     onMovieClick: (Int) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val customListViewModel: CustomListViewModel = hiltViewModel()
     val uiState = customListViewModel.listUIState.collectAsState().value
@@ -101,6 +103,10 @@ fun CustomListScreen(
                     currentInfo = listInfo,
                     onClick = { newList: CustomList ->
                         customListViewModel.updateListInfo(userId, listId, newList)
+                    },
+                    onDelete = {
+                        customListViewModel.deleteList(userId, listId)
+                        onNavigateBack()
                     }
                 )
             }
@@ -218,7 +224,7 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
 
 // Edit button for changing list information
 @Composable
-fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
+fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit, onDelete: () -> Unit) {
     var name by remember { mutableStateOf(currentInfo.name) }
     var description by remember { mutableStateOf(currentInfo.description) }
     var isPublic by remember { mutableStateOf(currentInfo.isPublic) }
@@ -244,7 +250,6 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
                         value = description,
                         onValueChange = { description = it },
                     )
-                    // TODO: Add switch for public/private
                     Text("Public:")
                     Switch(
                         checked = isPublic,
@@ -253,20 +258,39 @@ fun EditButton(currentInfo: CustomList, onClick: (CustomList) -> Unit) {
                 }
             },
             confirmButton = {
-                Button(onClick = {
-                    val newInfo = CustomList(
-                        listId = currentInfo.listId,
-                        name = name,
-                        description = description,
-                        numOfItems = currentInfo.numOfItems,
-                        timestamp = currentInfo.timestamp,
-                        isPublic = isPublic
-                    )
-                    onClick(newInfo)
-                    showDialog = false
-                }) {
-                    Text("Confirm")
+                Row(
+
+                ) {
+                    Button(
+                        onClick = {
+                            onDelete()
+                            showDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red, contentColor = Color.Black)
+                    ) {
+                        Text("Delete")
+                    }
+
+                    Spacer(modifier = Modifier.width(dimens.small3))
+
+                    Button(
+                        enabled = name != currentInfo.name || description != currentInfo.description || isPublic != currentInfo.isPublic,
+                        onClick = {
+                        val newInfo = CustomList(
+                            listId = currentInfo.listId,
+                            name = name,
+                            description = description,
+                            numOfItems = currentInfo.numOfItems,
+                            timestamp = currentInfo.timestamp,
+                            isPublic = isPublic
+                        )
+                        onClick(newInfo)
+                        showDialog = false
+                    }) {
+                        Text("Confirm")
+                    }
                 }
+
             },
             dismissButton = {
                 TextButton(onClick = {

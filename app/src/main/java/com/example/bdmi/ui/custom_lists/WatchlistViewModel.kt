@@ -22,13 +22,13 @@ class WatchlistViewModel @Inject constructor(
     val lists: StateFlow<List<CustomList>> = _lists.asStateFlow()
 
     // Should only be called if visiting another user's watchlist page
-    fun getLists(userId: String) {
+    fun getLists(userId: String, publicOnly: Boolean = false) {
         Log.d(TAG, "Getting lists for user: $userId")
 
         viewModelScope.launch {
-            watchlistRepository.getLists(userId) { lists ->
+            watchlistRepository.getLists(userId, publicOnly) { lists ->
                 Log.d(TAG, "Lists retrieved: $lists")
-                _lists.value = lists.filter { it.isPublic }
+                _lists.value = lists
             }
         }
     }
@@ -46,21 +46,5 @@ class WatchlistViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun deleteList(userId: String, listId: String) {
-        Log.d(TAG, "Removing list for user: $userId")
-        _lists.value = _lists.value.filter { it.listId != listId }
-
-        viewModelScope.launch {
-            watchlistRepository.deleteList(userId, listId) { success ->
-                Log.d(TAG, "List removed successfully")
-
-            }
-        }
-    }
-
-    fun loadLists(lists: List<CustomList>) {
-        _lists.value = lists
     }
 }

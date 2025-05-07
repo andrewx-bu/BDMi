@@ -42,6 +42,7 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun WatchlistsScreen(
     sessionViewModel: SessionViewModel? = null,
+    loggedInUserId: String,
     userId: String? = null,
     onListClick: (Pair<String, String>) -> Unit,
 ) {
@@ -50,23 +51,19 @@ fun WatchlistsScreen(
         else userId
     val watchlistViewModel: WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
-//    val editPrivileges = userId != null
 
-    if (sessionViewModel != null) {
-        LaunchedEffect(currentUserId) {
-            if (currentUserId != null) {
-                watchlistViewModel.loadLists(sessionViewModel.watchlists.value)
-            }
+    LaunchedEffect(currentUserId) {
+        if (currentUserId != null) {
+            if (sessionViewModel == null && loggedInUserId != userId)
+                watchlistViewModel.getLists(currentUserId, publicOnly = true)
+            else
+                watchlistViewModel.getLists(currentUserId)
         }
+    }
+    if (sessionViewModel != null) {
         LaunchedEffect(lists) {
             if (lists.value.isNotEmpty())
                 sessionViewModel.updateWatchlists(lists.value)
-        }
-    } else {
-        LaunchedEffect(currentUserId) {
-            if (currentUserId != null) {
-                watchlistViewModel.getLists(currentUserId)
-            }
         }
     }
 
@@ -83,7 +80,7 @@ fun WatchlistsScreen(
                 style = MaterialTheme.typography.displaySmall,
                 modifier = Modifier.weight(1f)
             )
-            if (sessionViewModel != null) {
+            if (sessionViewModel != null || currentUserId == loggedInUserId) {
                 AddListButton { list: CustomList ->
                     watchlistViewModel.createList(currentUserId.toString(), list)
                 }

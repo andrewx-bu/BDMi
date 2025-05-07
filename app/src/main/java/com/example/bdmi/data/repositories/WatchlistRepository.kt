@@ -185,19 +185,36 @@ class WatchlistRepository @Inject constructor(
 
     fun deleteList(userId: String, listId: String, onComplete: (Boolean) -> Unit) {
         val dbFunction = "DeleteList"
-
-        db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+        val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
             .collection(LISTS_COLLECTION).document(listId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("$TAG$dbFunction", "List deleted successfully")
-                onComplete(true)
+        val itemsRef = listRef.collection(ITEMS_COLLECTION)
+
+        itemsRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = db.batch()
+                querySnapshot.documents.forEach { doc ->
+                    batch.delete(doc.reference)
+                }
+
+                // Delete the list document after deleting all items
+                batch.delete(listRef)
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d("$TAG$dbFunction", "List and items deleted successfully")
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("$TAG$dbFunction", "Batch deletion failed", e)
+                        onComplete(false)
+                    }
             }
             .addOnFailureListener { e ->
-                Log.w("$TAG$dbFunction", "Error deleting list", e)
+                Log.w("$TAG$dbFunction", "Failed to fetch list items", e)
                 onComplete(false)
             }
     }
+
 
     fun updateListInfo(
         userId: String,
