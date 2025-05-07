@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -146,12 +147,20 @@ fun CustomListScreen(
                 if (displayGridView) {
                     MediaGrid(
                         mediaItems = listItems,
+                        editPrivileges = editPrivileges,
                         onMovieClick = onMovieClick,
+                        onDeleteClick = { itemId: Int ->
+                            customListViewModel.removeItemFromList(currentUserId, listId, itemId)
+                        }
                     )
                 } else {
                     MediaList(
                         mediaItems = listItems,
+                        editPrivileges = editPrivileges,
                         onMovieClick = onMovieClick,
+                        onDeleteClick = { itemId: Int ->
+                            customListViewModel.removeItemFromList(currentUserId, listId, itemId)
+                        }
                     )
                 }
             }
@@ -160,7 +169,38 @@ fun CustomListScreen(
 }
 
 @Composable
-fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
+fun MediaGrid(
+    mediaItems: List<MediaItem>,
+    editPrivileges: Boolean = false,
+    onMovieClick: (Int) -> Unit,
+    onDeleteClick: (Int) -> Unit
+) {
+    var selectedMedia by remember { mutableStateOf<MediaItem?>(null) }
+    println(selectedMedia)
+    if (editPrivileges && selectedMedia != null) {
+        AlertDialog(
+            onDismissRequest = { selectedMedia = null },
+            title = { Text("Delete Movie") },
+            text = { Text("Are you sure you want to delete this movie?") },
+            confirmButton = {
+                if (selectedMedia != null) {
+                    TextButton(onClick = {
+                        onDeleteClick(selectedMedia?.id!!)
+                        selectedMedia = null
+                    }) {
+                        Text("Delete")
+                    }
+                }
+
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedMedia = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(uiConstants.movieColumns),
         verticalArrangement = Arrangement.spacedBy(dimens.small3),
@@ -170,35 +210,79 @@ fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
             MoviePoster(
                 title = movie.title,
                 posterPath = movie.posterPath,
-                onClick = { onMovieClick(movie.id) }
+                onClick = { onMovieClick(movie.id) },
+                onLongPress = {
+                    if (editPrivileges)
+                        selectedMedia = movie
+                }
             )
         }
     }
 }
 
+
 @Composable
-fun MediaList(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
+fun MediaList(
+    mediaItems: List<MediaItem>,
+    onMovieClick: (Int) -> Unit,
+    editPrivileges: Boolean = false,
+    onDeleteClick: (Int) -> Unit
+) {
+    var selectedMedia by remember { mutableStateOf<MediaItem?>(null) }
+
+    if (editPrivileges && selectedMedia != null) {
+        AlertDialog(
+            onDismissRequest = { selectedMedia = null },
+            title = { Text("Delete Movie") },
+            text = { Text("Are you sure you want to delete this movie?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteClick(selectedMedia?.id!!)
+                    selectedMedia = null
+                }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedMedia = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(dimens.small3),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        items(mediaItems) { movie: MediaItem ->
+        items(mediaItems) { movie ->
             MediaListItem(
                 media = movie,
-                onMovieClick = onMovieClick
+                onMovieClick = onMovieClick,
+                onLongPress = {
+                    if (editPrivileges)
+                        selectedMedia = it
+                }
             )
         }
     }
 }
 
 @Composable
-fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
+fun MediaListItem(
+    media: MediaItem,
+    onMovieClick: (Int) -> Unit,
+    onLongPress: (MediaItem) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
-            .clickable { onMovieClick(media.id) }
+            .combinedClickable(
+                onClick = { onMovieClick(media.id) },
+                onLongClick = { onLongPress(media) }
+            )
             .fillMaxWidth()
             .height(75.dp)
     ) {
@@ -221,6 +305,7 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
         )
     }
 }
+
 
 // Edit button for changing list information
 @Composable

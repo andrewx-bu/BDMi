@@ -95,6 +95,7 @@ fun MainScreen(
             || (currentRoute.startsWith("genre"))
             || (currentRoute.startsWith("person"))
             || (currentRoute.startsWith("country")))
+    val isMovieDetail = currentRoute != null && currentRoute.startsWith("movie_detail")
     // TODO: Separate scroll state for top bars
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val darkTheme = sessionViewModel.darkMode.collectAsState()
@@ -166,6 +167,7 @@ fun MainScreen(
                         scrollBehavior = scrollBehavior,
                         sessionViewModel = sessionViewModel,
                         isDetail = isDetail,
+                        isMovieDetail = isMovieDetail,
                         onShowFiltersChanged = { newValue -> showFilters = newValue }
                     )
                 }
@@ -303,6 +305,7 @@ fun MovieDetailTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     sessionViewModel: SessionViewModel,
     isDetail: Boolean,
+    isMovieDetail: Boolean,
     onShowFiltersChanged: (Boolean) -> Unit
 ) {
     TopAppBar(
@@ -333,9 +336,9 @@ fun MovieDetailTopAppBar(
             }
         },
         actions = {
-            if (!isDetail) {
+            if (!isDetail && isMovieDetail) {
                 MenuButton(sessionViewModel)
-            } else {
+            } else if (isDetail) {
                 IconButton(onClick = { onShowFiltersChanged(true) }) {
                     Icon(Icons.Default.FilterList, contentDescription = "Filters")
                 }

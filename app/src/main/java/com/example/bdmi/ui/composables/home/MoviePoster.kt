@@ -1,7 +1,7 @@
 package com.example.bdmi.ui.composables.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -31,6 +31,7 @@ fun MoviePoster(
     title: String,
     posterPath: String?,
     roundCorner: Dp = dimens.medium3,
+    onLongPress: () -> Unit = {},
     onClick: () -> Unit
 ) {
     val imageUrl = ImageURLHelper.getURL(posterPath)
@@ -44,7 +45,10 @@ fun MoviePoster(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable { onClick() },
+                    .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongPress
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
