@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -82,12 +83,13 @@ fun MainScreen(
     // TODO: More elegant route checking
     val showOuterBar =
         currentRoute != null
-                && (!currentRoute.startsWith("movie_detail/"))
-                && (!currentRoute.startsWith("reviews/"))
-                && (!currentRoute.startsWith("studio"))
-                && (!currentRoute.startsWith("genre"))
-                && (!currentRoute.startsWith("person"))
-                && (!currentRoute.startsWith("country"))
+                && (currentRoute.startsWith("root")
+                || currentRoute.startsWith("home")
+                || currentRoute.startsWith("search")
+                || currentRoute.startsWith("watchlists")
+                || currentRoute.startsWith("user_profile")
+                || currentRoute.startsWith("notifications"))
+                && !currentRoute.contains("/")
     val isDetail = currentRoute != null
             && ((currentRoute.startsWith("studio"))
             || (currentRoute.startsWith("genre"))
@@ -140,9 +142,12 @@ fun MainScreen(
                         onThemeClick = sessionViewModel::switchTheme,
                         onNotificationClick = {
                             navController.navigate(MainRoutes.Notifications.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onAddFriendClick = {
+                            navController.navigate("friend_search") {
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -208,6 +213,7 @@ fun TopBar(
     darkTheme: Boolean,
     onThemeClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onAddFriendClick: () -> Unit,
     numUnreadNotifications: Int
 ) {
     val rotation by animateFloatAsState(
@@ -227,6 +233,17 @@ fun TopBar(
             )
         },
         actions = {
+            IconButton(onClick = onAddFriendClick) {
+                Icon(
+                    imageVector = Icons.Default.PersonAdd,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(dimens.iconMedium)
+                )
+            }
+
+            Spacer(Modifier.width(dimens.medium1))
+
             BadgedBox(
                 badge = {
                     if (numUnreadNotifications > 0) {
@@ -255,7 +272,8 @@ fun TopBar(
                     )
                 }
             }
-            Spacer(Modifier.width(dimens.medium3))
+
+            Spacer(Modifier.width(dimens.medium1))
 
             IconButton(onClick = onThemeClick) {
                 Icon(
@@ -268,7 +286,7 @@ fun TopBar(
                 )
             }
 
-            Spacer(Modifier.width(dimens.medium3))
+            Spacer(Modifier.width(dimens.medium1))
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent

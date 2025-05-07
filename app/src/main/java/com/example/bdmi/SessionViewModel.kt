@@ -175,11 +175,24 @@ class SessionViewModel @Inject constructor(
     }
 
     // Needs testing still
-    fun updateUserInfo(userInfo: HashMap<String, Any>, onComplete: (Boolean) -> Unit) {
+    fun updateUserInfo(newDisplayName: String, isPublic: Boolean) {
         Log.d(TAG, "Updating user info: $userInfo")
 
         viewModelScope.launch {
-            userRepository.updateUserInfo(userInfo, onComplete)
+            _userInfo.value = _userInfo.value?.copy(displayName = newDisplayName, isPublic = isPublic)
+            userRepository.updateUserInfo(
+                userId = _userInfo.value?.userId.toString(),
+                userInfo = mapOf(
+                    "displayName" to newDisplayName,
+                    "isPublic" to isPublic
+                ),
+                ) {
+                    if (it) {
+                        Log.d(TAG, "User info updated")
+                    } else {
+                        Log.d(TAG, "User info update failed")
+                    }
+            }
         }
     }
 

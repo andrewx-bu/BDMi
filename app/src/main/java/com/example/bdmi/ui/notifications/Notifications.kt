@@ -18,13 +18,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,7 +55,6 @@ import com.example.bdmi.ui.theme.dimens
 @Composable
 fun NotificationsScreen(
     sessionViewModel: SessionViewModel,
-    onNavigateBack: () -> Unit,
     onProfileClick: (String) -> Unit,
     onMovieClick: (Int) -> Unit
 ) {
@@ -75,36 +71,31 @@ fun NotificationsScreen(
         sessionViewModel.loadNumOfUnreadNotifications(unreadCount)
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Notifications") },
-                navigationIcon = {
-                    IconButton(onClick = { onNavigateBack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    ElevatedButton(
-                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = dimens.medium1),
-                        onClick = {
-                            notificationViewModel.deleteAllNotifications(userId.toString())
-                        }
-                    ) {
-                        Text(
-                            text = "Clear All"
-                        )
-                    }
-                }
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimens.medium2)
+    ) {
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Notifications",
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.weight(1f)
             )
+            ElevatedButton(
+                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = dimens.medium1),
+                onClick = {
+                    notificationViewModel.deleteAllNotifications(userId.toString())
+                }
+            ) {
+                Text(
+                    text = "Clear All"
+                )
+            }
         }
-    ) { padding ->
         NotificationList(
-            modifier = Modifier.padding(padding),
             userId = userId,
             notifications = notifications,
             onProfileClick = onProfileClick,
@@ -119,7 +110,6 @@ fun NotificationList(
     notifications: List<Notification> = emptyList(),
     onProfileClick: (String) -> Unit,
 ) {
-
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -167,7 +157,7 @@ fun NotificationItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = modifier
             .fillMaxWidth()
-            .padding(dimens.medium1)
+            .padding(vertical = dimens.medium1)
             .clickable {
                 notificationViewModel.readNotification(
                     userId.toString(),
@@ -381,22 +371,4 @@ fun UserStats(text: String, stat: String) {
         Text(text = stat, color = MaterialTheme.colorScheme.primary)
         Text(text = text, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
     }
-}
-
-@Preview
-@Composable
-fun NotificationPreview() {
-    val notification = Notification(
-        type = "friend_request",
-        data = NotificationType.FriendRequest(
-            userId = "123",
-            displayName = "John Doe",
-            profilePicture = "https://example.com/profile.jpg",
-            friendCount = 10,
-            listCount = 5,
-            reviewCount = 2,
-            isPublic = true
-        )
-    )
-    //NotificationItem(notification = notification)
 }

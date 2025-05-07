@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material3.AlertDialog
@@ -34,13 +33,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -52,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,7 +69,6 @@ fun CustomListScreen(
     userId: String,
     listId: String,
     onMovieClick: (Int) -> Unit,
-    onNavigateBack: () -> Unit
 ) {
     val customListViewModel: CustomListViewModel = hiltViewModel()
     val uiState = customListViewModel.listUIState.collectAsState().value
@@ -86,74 +83,70 @@ fun CustomListScreen(
         launch { customListViewModel.setEditPrivileges(currentUserId, userId) }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = listInfo?.name ?: "") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    if (editPrivileges && listInfo != null) {
-                        EditButton(
-                            currentInfo = listInfo,
-                            onClick = { newList: CustomList ->
-                                customListViewModel.updateListInfo(userId, listId, newList)
-                            }
-                        )
-                    }
-
-                    MediaDisplaySwitchButton(
-                        isGridView = displayGridView,
-                        onToggle = { customListViewModel.toggleDisplay() }
-                    )
-                }
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier.padding(innerPadding)
-
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimens.medium2)
+    ) {
+        Row (
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Display list description
             Text(
-                text = listInfo?.description ?: "",
-                style = MaterialTheme.typography.headlineMedium
+                text = listInfo?.name ?: "",
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.weight(1f)
             )
-
-            Spacer(Modifier.height(dimens.small3))
-
-            when {
-                uiState.error != null -> {
-                    ErrorMessage(
-                        message = uiState.error.toString(),
-                        onRetry = { customListViewModel.loadList(userId, listId) })
-                }
-
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
+            if (editPrivileges && listInfo != null) {
+                EditButton(
+                    currentInfo = listInfo,
+                    onClick = { newList: CustomList ->
+                        customListViewModel.updateListInfo(userId, listId, newList)
                     }
-                }
+                )
+            }
 
-                else -> {
-                    if (displayGridView) {
-                        MediaGrid(
-                            mediaItems = listItems,
-                            onMovieClick = onMovieClick,
-                        )
-                    } else {
-                        MediaList(
-                            mediaItems = listItems,
-                            onMovieClick = onMovieClick,
-                        )
-                    }
+            MediaDisplaySwitchButton(
+                isGridView = displayGridView,
+                onToggle = { customListViewModel.toggleDisplay() }
+            )
+        }
+            // Display list description
+        Text(
+            text = listInfo?.description ?: "",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(vertical = dimens.small3)
+        )
+
+        Spacer(Modifier.height(dimens.small3))
+
+        when {
+            uiState.error != null -> {
+                ErrorMessage(
+                    message = uiState.error.toString(),
+                    onRetry = { customListViewModel.loadList(userId, listId) })
+            }
+
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BallPulseSyncIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
+
+            else -> {
+                if (displayGridView) {
+                    MediaGrid(
+                        mediaItems = listItems,
+                        onMovieClick = onMovieClick,
+                    )
+                } else {
+                    MediaList(
+                        mediaItems = listItems,
+                        onMovieClick = onMovieClick,
+                    )
                 }
             }
         }
@@ -163,9 +156,6 @@ fun CustomListScreen(
 @Composable
 fun MediaGrid(mediaItems: List<MediaItem>, onMovieClick: (Int) -> Unit) {
     LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(dimens.medium2),
         columns = GridCells.Fixed(uiConstants.movieColumns),
         verticalArrangement = Arrangement.spacedBy(dimens.small3),
         horizontalArrangement = Arrangement.spacedBy(dimens.small3)
@@ -202,7 +192,6 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
-            .padding(dimens.small3)
             .clickable { onMovieClick(media.id) }
             .fillMaxWidth()
             .height(75.dp)
@@ -214,13 +203,15 @@ fun MediaListItem(media: MediaItem, onMovieClick: (Int) -> Unit) {
         )
         Text(
             text = media.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = dimens.small3)
         )
         Text(
             text = media.releaseDate,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(start = dimens.small3)
         )
     }
 }

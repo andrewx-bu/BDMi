@@ -159,13 +159,12 @@ class UserRepository @Inject constructor(
     // Updates a user's information in the users collection
     // Returns true if the update was successful, false otherwise
     fun updateUserInfo(
-        userInfo: HashMap<String, Any>,
+        userId: String,
+        userInfo: Map<String, Any>,
         onComplete: (Boolean) -> Unit
     ) {
         val dbFunction = "updateUserInfo"
-        //Unsure to use this for identifying users or not
-        val userId = userInfo["user_id"] ?: return onComplete(false) //Ensure 'id' exists
-        val userRef = db.collection(USERS_COLLECTION).document(userId.toString())
+        val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
         userRef.update(userInfo) //Update fields in the document
             .addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "User information updated successfully")

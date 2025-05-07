@@ -14,16 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +44,6 @@ import kotlinx.coroutines.flow.map
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun FriendSearch(
-    onNavigateBack: () -> Unit,
     onProfileClick: (String) -> Unit,
     currentUserId: String
 ) {
@@ -69,40 +62,37 @@ fun FriendSearch(
             }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Friend Search") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
-                    }
-                }
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimens.medium2)
+    ) {
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "User Search",
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.weight(1f)
             )
         }
-    ) { paddingValues ->
-        Column(
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimens.medium3),
-                placeholder = { Text("Enter display name") },
-                singleLine = true,
-            )
+                .fillMaxWidth()
+                .padding(top = dimens.medium1),
+            placeholder = { Text("Enter display name") },
+            singleLine = true,
+        )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(searchResults) { user ->
-                    ProfileCard(user, onProfileClick)
-                }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(searchResults) { user ->
+                ProfileCard(user, onProfileClick)
             }
         }
     }
@@ -114,7 +104,7 @@ fun ProfileCard(user: UserInfo, onProfileClick: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimens.small2)
+            .padding(dimens.small3)
             .clickable {
                 onProfileClick(user.userId)
             },

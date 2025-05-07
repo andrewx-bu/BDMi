@@ -13,25 +13,38 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.FriendStatus
@@ -49,7 +62,6 @@ fun UserProfile(
     profileUserId: String? = null,
     sessionViewModel: SessionViewModel,
     onLogoutClick: () -> Unit = {},
-    navigateToUserSearch: () -> Unit = {},
     onNavigateToFriendList: (String) -> Unit,
     onNavigateToWatchlists: (String) -> Unit,
     onNavigateToReviews: (String) -> Unit,
@@ -60,6 +72,11 @@ fun UserProfile(
     val profileId = profileUserId ?: currentUserId
     val profileInfo = profileViewModel.userInfo.collectAsState().value
     val friendStatus = profileViewModel.friendState.collectAsState().value
+    val isPrivate =  profileInfo != null &&
+            profileUserId != null &&
+            currentUserId != profileUserId &&
+            !profileInfo.isPublic &&
+            friendStatus != FriendStatus.FRIEND
     val tempImageURI = profileViewModel.tempImageURI.collectAsState()
     val reviewCarousel = profileViewModel.reviewCarousel.collectAsState()
     val editPrivileges = profileUserId == null
@@ -94,6 +111,7 @@ fun UserProfile(
             profileViewModel.reviewCarousel()
         }
     }
+
     if (isLoading) {
         LoadingIndicator()
     } else {
@@ -105,19 +123,46 @@ fun UserProfile(
             ) {
                 LoadingIndicator()
             }
-        } else if (currentUserId != profileUserId &&
-            !profileInfo.isPublic &&
-            friendStatus != FriendStatus.FRIEND
-        ) { // Checks if public profile or not
-            Box(
+        } else if (isPrivate) { // Private Profile
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .verticalScroll(
+                        state = scrollState
+                    )
             ) {
+                // Profile Picture
+                ProfilePicture(
+                    profileInfo.profilePicture.toString(),
+                    tempImageURI.value,
+                    editPrivileges = false
+                ) {}
+
+                // Display Name
+                Text(
+                    text = profileInfo.displayName.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(vertical = dimens.medium3)
+                )
+
+                // Friend Button
+                FriendButton(
+                    friendStatus,
+                    profileId.toString(),
+                    sessionViewModel.userInfo.collectAsState().value
+                )
+
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = "Profile is private",
-                    tint = MaterialTheme.colorScheme.background
+                    tint = Color.White,
+                    modifier = Modifier.size(200.dp)
+                )
+                Text(
+                    text = "Profile is private",
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         } else { // Display profile
@@ -130,6 +175,20 @@ fun UserProfile(
                         state = scrollState
                     )
             ) {
+                // Settings
+                if (editPrivileges) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        SettingsButton(
+                            sessionViewModel = sessionViewModel,
+                            onLogoutClick = onLogoutClick
+                        )
+                    }
+                }
+
+
                 // Profile Picture
                 ProfilePicture(
                     profileInfo.profilePicture.toString(),
@@ -142,7 +201,9 @@ fun UserProfile(
 
                 // Display Name
                 Text(
-                    text = profileInfo.displayName.toString()
+                    text = profileInfo.displayName.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(vertical = dimens.medium3)
                 )
 
                 // Friend Button
@@ -194,6 +255,95 @@ fun UserProfile(
     }
 
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsButton(
+    sessionViewModel: SessionViewModel,
+    onLogoutClick: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var displayName by remember { mutableStateOf(sessionViewModel.userInfo.value?.displayName ?: "") }
+    var isPublic by remember { mutableStateOf(sessionViewModel.userInfo.value?.isPublic != false) }
+
+    IconButton(
+        onClick = { expanded = true },
+        modifier = Modifier.padding(end = dimens.medium3)
+    ) {
+        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+    }
+
+    if (expanded) {
+        ModalBottomSheet(onDismissRequest = { expanded = false }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimens.medium3),
+                verticalArrangement = Arrangement.spacedBy(dimens.medium2)
+            ) {
+                Text("Account Settings", style = MaterialTheme.typography.titleMedium)
+
+                OutlinedTextField(
+                    value = displayName,
+                    onValueChange = { displayName = it },
+                    label = { Text("Display Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // TODO: Email field
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    enabled = false,
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Public Profile")
+                    Switch(
+                        checked = isPublic,
+                        onCheckedChange = { isPublic = it }
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        if (displayName.isNotEmpty()) {
+                            sessionViewModel.updateUserInfo(displayName, isPublic)
+                            expanded = false
+                        } else {
+                            // TODO: Display error message
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Changes")
+                }
+
+                Button(
+                    onClick = {
+                        expanded = false
+                        sessionViewModel.logout()
+                        onLogoutClick()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Logout")
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun FriendButton(

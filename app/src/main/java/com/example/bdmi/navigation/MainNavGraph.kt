@@ -86,7 +86,6 @@ fun MainNestedNavGraph(
         composable(MainRoutes.Notifications.route) {
             NotificationsScreen(
                 sessionViewModel = sessionViewModel,
-                onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
                     navController.navigate("user_profile/$userId") {
                         restoreState = true
@@ -118,9 +117,6 @@ fun MainNestedNavGraph(
                     rootNavController.navigate(OnboardingRoutes.Root.route) {
                         popUpTo(0) { inclusive = true }
                     }
-                },
-                navigateToUserSearch = {
-                    navController.navigate("friend_search")
                 },
                 onNavigateToFriendList = { userId ->
                     navController.navigate("friends/$userId")
@@ -275,7 +271,6 @@ fun MainNestedNavGraph(
             val userId = it.arguments?.getString("userId").toString()
             FriendListScreen(
                 userId = userId,
-                onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
                     navController.navigate("user_profile/$userId") {
                         restoreState = true
@@ -286,7 +281,6 @@ fun MainNestedNavGraph(
 
         composable("friend_search") {
             FriendSearch(
-                onNavigateBack = { navController.navigateUp() },
                 onProfileClick = { userId ->
                     navController.navigate("user_profile/$userId") {
                         restoreState = true
@@ -312,8 +306,8 @@ fun MainNestedNavGraph(
                 userId = userId,
                 onListClick = { (userId, listId) ->
                     navController.navigate("watchlist/$userId/$listId")
-                },
-                onNavigateBack = { navController.navigateUp() })
+                }
+            )
         }
 
         composable("watchlist/{userId}/{listId}") { backStackEntry ->
@@ -327,8 +321,7 @@ fun MainNestedNavGraph(
                     navController.navigate("movie_detail/$movieId") {
                         launchSingleTop = true
                     }
-                },
-                onNavigateBack = { navController.navigateUp() }
+                }
             )
         }
 
@@ -337,7 +330,6 @@ fun MainNestedNavGraph(
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             UserReviews(
                 userId = userId,
-                onNavigateBack = { navController.navigateUp() },
                 onMovieClick = { movieId ->
                     navController.navigate("movie_detail/$movieId") {
                         restoreState = true
