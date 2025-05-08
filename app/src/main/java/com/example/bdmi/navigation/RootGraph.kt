@@ -37,7 +37,7 @@ fun RootNavGraph(
 
         // Main nav graph that includes home, search, bookmarks, profile, and notifications
         composable(MainRoutes.Root.route) {
-            AppTheme(darkTheme = darkTheme.value) {
+            AppTheme(darkTheme = true) {
                 MainScreen(
                     rootNavController = navController,
                     sessionViewModel = sessionViewModel,

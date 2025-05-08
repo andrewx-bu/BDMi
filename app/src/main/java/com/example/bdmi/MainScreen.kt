@@ -21,9 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Badge
@@ -49,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -227,7 +224,7 @@ fun TopBar(
     TopAppBar(
         title = {
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.bdmi_logo),
                 contentDescription = "BDMi",
                 modifier = Modifier
                     .size(dimens.logoSizeMedium)
@@ -275,18 +272,18 @@ fun TopBar(
                 }
             }
 
-            Spacer(Modifier.width(dimens.medium1))
-
-            IconButton(onClick = onThemeClick) {
-                Icon(
-                    imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                    contentDescription = "Toggle Theme",
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier
-                        .rotate(rotation)
-                        .size(dimens.iconMedium)
-                )
-            }
+//            Spacer(Modifier.width(dimens.medium1))
+//
+//            IconButton(onClick = onThemeClick) {
+//                Icon(
+//                    imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+//                    contentDescription = "Toggle Theme",
+//                    tint = MaterialTheme.colorScheme.secondary,
+//                    modifier = Modifier
+//                        .rotate(rotation)
+//                        .size(dimens.iconMedium)
+//                )
+//            }
 
             Spacer(Modifier.width(dimens.medium1))
         },

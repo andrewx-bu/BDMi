@@ -1,12 +1,15 @@
 package com.example.bdmi.ui.onboarding
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,41 +32,46 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(dimens.medium1)
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
     ) {
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            shape = RoundedCornerShape(dimens.medium1),
-            modifier = Modifier.padding(dimens.small2)
-        )
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            shape = RoundedCornerShape(dimens.medium1),
-            modifier = Modifier.padding(dimens.small2),
-            visualTransformation = PasswordVisualTransformation()
-        )
-        Button(
-            onClick = {
-                Log.d(TAG, "Login button clicked")
-                sessionViewModel.login(email, password) { userInfo ->
-                    if (userInfo != null) {
-                        onLoginClick()
-                    } else {
-                        Log.d(TAG, "Login failed")
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimens.medium1)
+        ) {
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                shape = RoundedCornerShape(dimens.medium1),
+                modifier = Modifier.padding(dimens.small2)
+            )
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                shape = RoundedCornerShape(dimens.medium1),
+                modifier = Modifier.padding(dimens.small2),
+                visualTransformation = PasswordVisualTransformation()
+            )
+            Button(
+                onClick = {
+                    Log.d(TAG, "Login button clicked")
+                    sessionViewModel.login(email, password) { userInfo ->
+                        if (userInfo != null) {
+                            onLoginClick()
+                        } else {
+                            Log.d(TAG, "Login failed")
+                        }
                     }
                 }
+            ) {
+                Text(text = "Login")
             }
-        ) {
-            Text(text = "Login")
         }
     }
+
 }
