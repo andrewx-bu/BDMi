@@ -72,5 +72,39 @@ app/
 |
 └── MainActivity.kt     # App entry point and root navigation host
 ```
-
+## Navigation
+```
+RootNavGraph
+|
+├── "onboarding" ─── "start"
+│                       ├── "login" ────── "root"
+│                       ├── "register" ─── "root"
+├── "root"
+     ├── "notification"
+     │       ├── "user_profile/{userId}"
+     │
+     ├── "search"
+     │       ├── "movie_deatil/{movieId}"
+     │
+     ├── "friend_search"
+     │       ├── "user_profile/{userId}"
+     │
+     ├── "watchlists"
+     │       ├── "watchlists/{userId}" ── "watchlist/{userId}/{listId}" 
+     │                                             ├── "movie_detail/{movieId}"
+     ├── "user_profile/{userId}"
+     │       ├── "watchlists/{userId}"
+     │       ├── "user_reviews/{userId}"
+     │       ├── "friends/{userId}"
+     │       ├── "movie_detail/{movieId}"
+     │
+     ├── "home"
+             ├── "movie_detail/{movieId}"
+                        ├── "user_profile/{userId}"
+                        ├── "reviews/{movieId}" ────── "user_profile/{userId}"
+                        ├── "person/{personId}" ────── "movie_detail/{movieId}"
+                        ├── "genre/{genreId}" ──────── "movie_detail/{movieId}"
+                        ├── "studio/{studioId}" ────── "movie_detail/{movieId}"
+                        ├── "country/{countryCode}" ── "movie_detail/{movieId}"
+```
 
