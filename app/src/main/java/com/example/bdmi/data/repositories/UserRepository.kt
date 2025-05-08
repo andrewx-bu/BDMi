@@ -24,6 +24,7 @@ class UserRepository @Inject constructor(
         val userDoc = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
         userListener?.remove() // Clear old listener if any
         userListener = userDoc.addSnapshotListener { snapshot, error ->
+            Log.d("UserRepository", "Snapshot listener triggered. Exists: ${snapshot?.exists()}")
             if (error != null) {
                 Log.w("UserRepository", "Listen failed.", error)
                 onUserChanged(null)
@@ -47,7 +48,7 @@ class UserRepository @Inject constructor(
     // Creates a user in FirebaseAuth first, then adds user info to Firestore
     fun createUser(
         userInformation: HashMap<String, Any>,
-        onComplete: (UserInfo?) -> Unit
+        onComplete: (String?) -> Unit
     ) {
         val dbFunction = "createUser"
 
@@ -73,7 +74,7 @@ class UserRepository @Inject constructor(
                         createPublicProfile(userId, profileInfo) {
                             Log.d("$TAG$dbFunction", "Public profile created")
 
-                            onComplete(profileInfo)
+                            onComplete(userId)
                         }
                     }
                     .addOnFailureListener { e ->
@@ -104,30 +105,6 @@ class UserRepository @Inject constructor(
             .addOnFailureListener { e ->
                 Log.e("$TAG$dbFunction", "Error adding public profile", e)
                 onComplete(false)
-            }
-    }
-
-    // Loads a user's profile from the publicProfiles collection
-    fun loadUser(
-        userId: String,
-        onComplete: (UserInfo?) -> Unit
-    ) {
-        val dbFunction = "loadProfile"
-        db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
-            .get()
-            .addOnSuccessListener { profileDoc ->
-                if (profileDoc.exists()) {
-                    val profileInfo = profileDoc.toObject(UserInfo::class.java)
-                    Log.d("$TAG$dbFunction", "Profile found")
-                    onComplete(profileInfo)
-                } else {
-                    Log.d("$TAG$dbFunction", "No profile found")
-                    onComplete(null)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("$TAG$dbFunction", "Error loading profile", e)
-                onComplete(null)
             }
     }
 

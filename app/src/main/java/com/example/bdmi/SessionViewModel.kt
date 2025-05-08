@@ -113,7 +113,6 @@ class SessionViewModel @Inject constructor(
         }
     }
 
-    // TODO: Job for Andrew
     private fun loadDiscoverMovies() {
 
     }
@@ -161,15 +160,20 @@ class SessionViewModel @Inject constructor(
         Log.d(TAG, "Registering user with email: ${userInformation["email"]}")
 
         viewModelScope.launch {
-            userRepository.createUser(userInformation) { loadedUserInfo ->
-                if (loadedUserInfo != null) {
-                    _userInfo.value = loadedUserInfo
-                    _isLoggedIn.value = true
-                    loadCachedInfo()
-                    sessionManager.saveUserId(loadedUserInfo.userId.toString())
-                    Log.d(TAG, "User registered: ${_userInfo.value}")
-                    onComplete(true)
-                } else onComplete(false)
+            userRepository.createUser(userInformation) { userId ->
+                if (userId != null) {
+                    loadUser(userId) { loadedUserInfo ->
+                        if (loadedUserInfo != null) {
+                            _userInfo.value = loadedUserInfo
+                            _isLoggedIn.value = true
+                            sessionManager.saveUserId(userId)
+                            loadCachedInfo()
+                        }
+
+                        Log.d("UserViewModel", "User logged in: ${_userInfo.value}")
+                        onComplete(true)
+                    }
+                }
             }
         }
     }

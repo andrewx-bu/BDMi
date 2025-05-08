@@ -27,7 +27,8 @@ class ReviewRepository @Inject constructor(
                 .addOnSuccessListener { documentSnapshot ->
                     val movieData = documentSnapshot.toObject(MovieMetrics::class.java)
                     Log.d("$TAG$dbFunction", "Movie data retrieved: $movieData")
-                    onComplete(movieData!!)
+                    if (movieData != null)
+                        onComplete(movieData)
                 }
                 .addOnFailureListener { e ->
                     Log.w("$TAG$dbFunction", "Error getting movie data", e)
