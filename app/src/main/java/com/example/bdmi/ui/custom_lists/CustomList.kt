@@ -293,13 +293,13 @@ fun MediaListItem(
         )
         Text(
             text = media.title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(start = dimens.small3)
         )
         Text(
             text = media.releaseDate,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.padding(start = dimens.small3)
         )
@@ -427,7 +427,7 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
             .width(switchWidth)
             .height(switchHeight)
             .background(
-                MaterialTheme.colorScheme.primary,
+                Color(0xFFFAC400),
                 shape = RoundedCornerShape(roundedCorner)
             )
             .clip(RoundedCornerShape(roundedCorner))
@@ -437,7 +437,7 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
                 .offset(x = offsetX)
                 .width(switchWidth / 2)
                 .fillMaxHeight(),
-            color = Color.Red,
+            color = Color.White,
             shape = shape,
             tonalElevation = 6.dp,
             shadowElevation = 6.dp
@@ -452,7 +452,7 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.GridView,
                 contentDescription = "Grid View",
-                tint = if (isGridView) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                tint = Color.Black,
                 modifier = Modifier
                     .weight(1f)
                     .size(switchHeight * .7f)
@@ -460,10 +460,10 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ViewList,
                 contentDescription = "List View",
-                tint = if (isGridView) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
+                tint = Color.Black,
                 modifier = Modifier
                     .weight(1f)
-                    .size(switchHeight * .9f)
+                    .size(switchHeight * .8f)
             )
         }
     }
@@ -472,5 +472,5 @@ fun MediaDisplaySwitchButton(isGridView: Boolean, onToggle: () -> Unit) {
 @Preview
 @Composable
 fun ShowComposable() {
-    MediaDisplaySwitchButton(isGridView = true, onToggle = {})
+    MediaDisplaySwitchButton(isGridView = false, onToggle = {})
 }

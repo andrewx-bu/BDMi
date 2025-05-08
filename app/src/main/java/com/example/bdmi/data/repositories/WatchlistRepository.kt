@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import javax.inject.Inject
 
 // Constants
@@ -95,7 +96,7 @@ class WatchlistRepository @Inject constructor(
             db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
                 .collection(LISTS_COLLECTION)
         }
-        collectionRef.orderBy("timestamp")
+        collectionRef.orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val lists = querySnapshot.toObjects(CustomList::class.java)
@@ -106,7 +107,6 @@ class WatchlistRepository @Inject constructor(
                 Log.w("$TAG$dbFunction", "Error getting lists", e)
                 onComplete(emptyList())
             }
-
     }
 
     // Checks if the movie/show is already in the list

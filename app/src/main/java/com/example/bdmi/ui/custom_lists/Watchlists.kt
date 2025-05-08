@@ -1,23 +1,31 @@
 package com.example.bdmi.ui.custom_lists
 
+import android.graphics.fonts.FontStyle
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bdmi.SessionViewModel
 import com.example.bdmi.data.repositories.CustomList
@@ -114,28 +123,59 @@ fun WatchlistList(
 }
 
 @Composable
-fun WatchlistItem(list: CustomList, onListClick: () -> Unit) {
-    Row(
+fun WatchlistItem(
+    list: CustomList,
+    onListClick: () -> Unit
+) {
+    Card(
         modifier = Modifier
-            .padding(vertical = dimens.medium3)
-            .clickable {
-                onListClick()
-            }
             .fillMaxWidth()
-            .height(dimens.movieRowHeight)
+            .padding(vertical = dimens.small2)
+            .clickable { onListClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(text = "${list.name} | ${list.numOfItems} movies/shows")
+        Column(modifier = Modifier.padding(dimens.medium2)) {
             Text(
-                text = list.description,
-                maxLines = 2,
+                text = list.name,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
+            Spacer(Modifier.height(dimens.small1))
+
+            Text(
+                text = "${list.numOfItems} ${if (list.numOfItems == 1) "movie/show" else "movies/shows"}",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            )
+
+            if (list.description.isNotBlank()) {
+                Spacer(Modifier.height(dimens.small2))
+                Text(
+                    text = list.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            if (list.isPublic) {
+                Spacer(Modifier.height(dimens.small3))
+                Text(
+                    text = "Public List",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun AddListButton(onClick: (CustomList) -> Unit) {
@@ -143,57 +183,77 @@ fun AddListButton(onClick: (CustomList) -> Unit) {
     var description by remember { mutableStateOf("") }
     var isPublic by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-    val toast = Toast.makeText(LocalContext.current, "Name cannot be empty", Toast.LENGTH_SHORT)
-    IconButton(
-        onClick = { showDialog = true }
-    ) {
+
+    val context = LocalContext.current
+    val toast = remember {
+        Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT)
+    }
+
+    IconButton(onClick = { showDialog = true }) {
         Icon(Icons.Default.Add, contentDescription = "Add List")
     }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Create List") },
+            title = { Text("Create Watchlist") },
             text = {
-                Column {
-                    Text("Name:")
-                    TextField(
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(dimens.medium2),
+                    modifier = Modifier.padding(vertical = dimens.medium1)
+                ) {
+                    OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
+                        label = { Text("List Name") },
+                        singleLine = true,
+                        isError = name.isBlank()
                     )
-                    Text("Description:")
-                    TextField(
+
+                    OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
+                        label = { Text("Description (optional)") },
+                        maxLines = 3
                     )
-                    Text("Public:")
-                    Switch(
-                        checked = isPublic,
-                        onCheckedChange = { isPublic = it }
-                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Make Public")
+                        Switch(
+                            checked = isPublic,
+                            onCheckedChange = { isPublic = it }
+                        )
+                    }
                 }
             },
             confirmButton = {
                 Button(onClick = {
-                    if (name != "") {
+                    if (name.isNotBlank()) {
                         onClick(
                             CustomList(
-                                name = name,
-                                description = description,
+                                name = name.trim(),
+                                description = description.trim(),
                                 isPublic = isPublic
                             )
                         )
+                        // Reset and close
+                        name = ""
+                        description = ""
+                        isPublic = false
                         showDialog = false
                     } else {
                         toast.show()
                     }
-
                 }) {
                     Text("Confirm")
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                OutlinedButton(onClick = {
                     showDialog = false
                     name = ""
                     description = ""
