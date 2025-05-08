@@ -98,11 +98,18 @@ class MovieDetailViewModel @Inject constructor(
         }
     }
 
-    fun addToWatchlist(userId: String, listId: String, item: MediaItem) {
+    fun addToWatchlist(userId: String, listId: String, item: MediaItem, onComplete: (String) -> Unit) {
         Log.d(TAG, "Adding item to watchlist: $item")
 
         viewModelScope.launch {
-            watchlistRepository.addToList(listId, userId, item)
+            watchlistRepository.checkIfItemInList(listId, userId, item.id) { itemInList ->
+                if (!itemInList) {
+                    watchlistRepository.addToList(listId, userId, item)
+                    onComplete("Movie added to list")
+                } else {
+                    onComplete("Movie already in list")
+                }
+            }
         }
     }
 
@@ -134,7 +141,7 @@ class MovieDetailViewModel @Inject constructor(
     fun createReview(
         userId: String, movieId: Int,
         movieReview: MovieReview, userReview: UserReview,
-        onComplete: (Boolean) -> Unit
+        onComplete: (String) -> Unit
     ) {
         Log.d(TAG, "Creating review: $movieReview")
         if (_userReview.value != null)
@@ -146,25 +153,26 @@ class MovieDetailViewModel @Inject constructor(
             reviewRepository.createReview(userId, movieId, movieReview, userReview) {
                 if (it) {
                     Log.d(TAG, "Review created successfully")
-                    onComplete(true)
+                    onComplete("Review created successfully")
                 } else {
                     Log.d(TAG, "Review creation failed")
-                    onComplete(false)
+                    onComplete("Unable to create review")
                 }
             }
         }
     }
 
-    fun deleteReview(userId: String, movieId: Int, onComplete: (Boolean) -> Unit) {
+    fun deleteReview(userId: String, movieId: Int, onComplete: (String) -> Unit) {
         viewModelScope.launch {
             reviewRepository.deleteReview(userId, movieId) {
                 if (it) {
                     Log.d(TAG, "Review deleted successfully")
                     _carouselReviews.value = _carouselReviews.value.drop(1)
                     _userReview.value = null
-                    onComplete(true)
+                    onComplete("Review deleted successfully")
                 } else {
                     Log.d(TAG, "Review deletion failed")
+                    onComplete("Unable to delete review")
                 }
             }
         }
@@ -173,10 +181,18 @@ class MovieDetailViewModel @Inject constructor(
 
     fun createRating(
         userId: String, movieId: Int,
-        rating: Float, onComplete: (Boolean) -> Unit
+        rating: Float, onComplete: (String) -> Unit
     ) {
         viewModelScope.launch {
-            reviewRepository.setRating(userId, movieId, rating)
+            reviewRepository.setRating(userId, movieId, rating) {
+                if (it) {
+                    Log.d(TAG, "Rating created successfully")
+                    onComplete("Rating created successfully")
+                } else {
+                    Log.d(TAG, "Rating creation failed")
+                    onComplete("Unable to create rating")
+                }
+            }
         }
     }
 }

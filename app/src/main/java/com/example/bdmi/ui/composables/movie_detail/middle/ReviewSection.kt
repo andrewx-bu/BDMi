@@ -57,7 +57,7 @@ fun ReviewSection(
                 ShimmeringDivider()
             }
             Text(
-                text = "REVIEWS",
+                text = "RATINGS",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 modifier = Modifier.padding(horizontal = dimens.small3)
@@ -81,6 +81,32 @@ fun ReviewSection(
                 totalRatings = totalRatings,
                 ratingBreakdown = ratingBreakdown
             )
+        } else {
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(vertical = dimens.medium2)
+            ) {
+                Text("No reviews available")
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .graphicsLayer { scaleX = -1f }
+            ) {
+                ShimmeringDivider()
+            }
+            Text(
+                text = "FEATURED REVIEWS",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.padding(horizontal = dimens.small3)
+            )
+            Box(modifier = Modifier.weight(1f)) {
+                ShimmeringDivider()
+            }
         }
         if (reviews.isEmpty()) {
             Column (
@@ -92,25 +118,6 @@ fun ReviewSection(
             }
         } else {
             val currentReviewIndex by remember { derivedStateOf { pagerState.currentPage % reviews.size } }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .graphicsLayer { scaleX = -1f }
-                ) {
-                    ShimmeringDivider()
-                }
-                Text(
-                    text = "FEATURED",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(horizontal = dimens.small3)
-                )
-                Box(modifier = Modifier.weight(1f)) {
-                    ShimmeringDivider()
-                }
-            }
-
             // Scrollable Review Cards
             HorizontalPager(state = pagerState) { page ->
                 val reviewIndex = page % reviews.size

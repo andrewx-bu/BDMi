@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import javax.inject.Inject
 
 // Constants
@@ -20,6 +21,8 @@ class WatchlistRepository @Inject constructor(
     fun createList(userId: String, list: CustomList, onComplete: (CustomList?) -> Unit) {
         val dbFunction = "CreateList"
 
+        val userProfileRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
+
         db.collection(PUBLIC_PROFILES_COLLECTION)
             .document(userId)
             .collection(LISTS_COLLECTION)
@@ -27,16 +30,17 @@ class WatchlistRepository @Inject constructor(
             .addOnSuccessListener { documentReference ->
                 Log.d("$TAG$dbFunction", "List created with ID: ${documentReference.id}")
                 val listId = documentReference.id
-                documentReference.update("listId", listId)
-                    .addOnSuccessListener {
-                        Log.d("$TAG$dbFunction", "List ID updated successfully")
-                        val updatedList = list.copy(listId = listId)
-                        onComplete(updatedList)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("$TAG$dbFunction", "Error updating list ID", e)
-                        onComplete(null)
-                    }
+                db.runTransaction { transaction ->
+                    transaction.update(documentReference, "listId", listId)
+                    transaction.update(userProfileRef, "listCount", FieldValue.increment(1))
+                }.addOnSuccessListener {
+                    Log.d("$TAG$dbFunction", "List ID updated successfully")
+                    val updatedList = list.copy(listId = listId)
+                    onComplete(updatedList)
+                }.addOnFailureListener { e ->
+                    Log.w("$TAG$dbFunction", "Error updating list ID", e)
+                    onComplete(null)
+                }
             }
             .addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error adding list", e)
@@ -118,7 +122,7 @@ class WatchlistRepository @Inject constructor(
             .collection(LISTS_COLLECTION).document(listId)
             .collection(ITEMS_COLLECTION)
             .whereEqualTo("id", id)
-            .get()
+            .get(Source.CACHE)
             .addOnSuccessListener { querySnapshot ->
                 val itemExists = !querySnapshot.isEmpty
                 onComplete(itemExists)
@@ -185,6 +189,7 @@ class WatchlistRepository @Inject constructor(
 
     fun deleteList(userId: String, listId: String, onComplete: (Boolean) -> Unit) {
         val dbFunction = "DeleteList"
+        val userRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
         val listRef = db.collection(PUBLIC_PROFILES_COLLECTION).document(userId)
             .collection(LISTS_COLLECTION).document(listId)
         val itemsRef = listRef.collection(ITEMS_COLLECTION)
@@ -198,7 +203,7 @@ class WatchlistRepository @Inject constructor(
 
                 // Delete the list document after deleting all items
                 batch.delete(listRef)
-
+                batch.update(userRef, "listCount", FieldValue.increment(-1))
                 batch.commit()
                     .addOnSuccessListener {
                         Log.d("$TAG$dbFunction", "List and items deleted successfully")
@@ -214,7 +219,6 @@ class WatchlistRepository @Inject constructor(
                 onComplete(false)
             }
     }
-
 
     fun updateListInfo(
         userId: String,

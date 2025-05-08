@@ -1,6 +1,7 @@
 package com.example.bdmi.ui.custom_lists
 
 import android.graphics.fonts.FontStyle
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,21 +57,22 @@ fun WatchlistsScreen(
     onListClick: (Pair<String, String>) -> Unit,
 ) {
     val currentUserId =
-        if (sessionViewModel != null) sessionViewModel.userInfo.collectAsState().value?.userId
+        if (sessionViewModel != null) loggedInUserId
         else userId
     val watchlistViewModel: WatchlistViewModel = hiltViewModel()
     val lists = watchlistViewModel.lists.collectAsState()
 
     LaunchedEffect(currentUserId) {
-        if (currentUserId != null) {
-            if (sessionViewModel == null && loggedInUserId != userId)
-                watchlistViewModel.getLists(currentUserId, publicOnly = true)
-            else
-                watchlistViewModel.getLists(currentUserId)
+        currentUserId?.let { uid ->
+            val isOwnProfile = uid == sessionViewModel?.userInfo?.value?.userId
+            val publicOnly = !isOwnProfile
+            Log.d("WatchlistsScreen", "isOwnProfile: $isOwnProfile, publicOnly: $publicOnly")
+            watchlistViewModel.getLists(uid, publicOnly = publicOnly)
         }
     }
+
     if (sessionViewModel != null) {
-        LaunchedEffect(lists) {
+        LaunchedEffect(lists.value) {
             if (lists.value.isNotEmpty())
                 sessionViewModel.updateWatchlists(lists.value)
         }

@@ -76,9 +76,12 @@ class ReviewRepository @Inject constructor(
                 transaction.set(profileReviewDoc, userReview)
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Review created successfully")
-                setRating(userId, movieId, movieReview.rating)
-
-                onComplete(true)
+                setRating(userId, movieId, movieReview.rating) {
+                    if (it)
+                        onComplete(true)
+                    else
+                        onComplete(false)
+                }
             }.addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error creating review", e)
 
@@ -101,14 +104,13 @@ class ReviewRepository @Inject constructor(
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(movieDoc)
+                val profileSnapshot = transaction.get(profileDoc)
 
                 // Gets new values for review count and average meta data
                 val reviewCount = snapshot.getDouble("reviewCount")?: 0.0
                 val newReviewCount = reviewCount - 1
                 transaction.update(movieDoc, "reviewCount", newReviewCount)
                 transaction.delete(reviewDoc)
-
-                val profileSnapshot = transaction.get(profileDoc)
 
                 val profileReviewCount = profileSnapshot.getLong("reviewCount")?: 0
                 val newProfileReviewCount = if (profileReviewCount > 0) profileReviewCount - 1 else 0
@@ -197,7 +199,7 @@ class ReviewRepository @Inject constructor(
      * Whenever a user rates a movie, this function is called
      * Updates the rating meta data with new values that depend if a user has rated before
      */
-    fun setRating(userId: String, movieId: Int, rating: Float) {
+    fun setRating(userId: String, movieId: Int, rating: Float, onComplete: (Boolean) -> Unit) {
         val dbFunction = "SetRating"
         Log.d("$TAG$dbFunction", "Setting rating for user $userId and movie $movieId")
 
@@ -249,8 +251,10 @@ class ReviewRepository @Inject constructor(
                 transaction.set(ratingDoc, mapOf("rating" to rating))
             }.addOnSuccessListener {
                 Log.d("$TAG$dbFunction", "Rating set successfully")
+                onComplete(true)
             }.addOnFailureListener { e ->
                 Log.w("$TAG$dbFunction", "Error setting rating", e)
+                onComplete(false)
             }
         }
     }

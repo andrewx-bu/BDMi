@@ -1,6 +1,7 @@
 package com.example.bdmi.ui.composables.movie_detail
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +68,7 @@ fun MenuButton(
     val loggedIn = sessionViewModel.isLoggedIn.collectAsState().value
     val movieDetails = sessionViewModel.selectedMovie.collectAsState().value
     val userReview = sessionViewModel.selectedMovieReview.collectAsState().value
+    val msgToast = Toast.makeText(LocalContext.current, "", Toast.LENGTH_SHORT)
 
     if (movieDetails != null) {
         IconButton(
@@ -123,10 +126,9 @@ fun MenuButton(
                         movieDetailViewModel.deleteReview(
                             userId.toString(),
                             movieDetails.id
-                        ) {
-                            if (it) {
-                                Log.d("MenuButton", "Review deleted successfully")
-                            }
+                        ) { msg ->
+                            msgToast.setText(msg)
+                            msgToast.show()
                         }
                     }
                 )
@@ -150,6 +152,7 @@ fun MenuButton(
     }
 
     if (showWriteReviewSheet && movieDetails != null && userInfo != null) {
+
         ModalBottomSheet(
             onDismissRequest = { showWriteReviewSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -168,10 +171,9 @@ fun MenuButton(
                         movieDetails.id,
                         userReview = uReview,
                         movieReview = movieReview
-                    ) {
-                        if (it) {
-                            Log.d("WriteReview", "Review created successfully")
-                        }
+                    ) { msg ->
+                        msgToast.setText(msg)
+                        msgToast.show()
                     }
                 },
                 onDismiss = {
@@ -193,10 +195,13 @@ fun MenuButton(
                         userId.toString(),
                         movieDetails.id,
                         rating
-                    ) {}
+                    ) { msg ->
+                        msgToast.setText(msg)
+                        msgToast.show()
+                    }
                 },
                 onDismiss = {
-                    showWriteReviewSheet = false
+                    showRatingSheet = false
                 }
             )
         }
@@ -210,7 +215,7 @@ fun WatchlistDropdown(
     onWatchlistClose: () -> Unit
 ) {
     val movieDetailViewModel: MovieDetailViewModel = hiltViewModel()
-
+    val msgToast = Toast.makeText(LocalContext.current, "", Toast.LENGTH_SHORT)
     DropdownMenu(
         expanded = true,
         onDismissRequest = { onWatchlistClose() },
@@ -227,7 +232,11 @@ fun WatchlistDropdown(
                             title = movieDetails.title,
                             posterPath = movieDetails.posterPath.toString(),
                             releaseDate = movieDetails.releaseDate
-                        )
+                        ),
+                        onComplete = { msg ->
+                            msgToast.setText(msg)
+                            msgToast.show()
+                        }
                     )
                     onWatchlistClose()
                 }
