@@ -21,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.bdmi.data.utils.VoiceToTextParser
 import com.example.bdmi.navigation.RootNavGraph
-import com.example.bdmi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -36,9 +35,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            AppTheme(darkTheme = true) {
-                RootNavigation(voiceToTextParser)
-            }
+            RootNavigation(voiceToTextParser)
         }
     }
 }
@@ -51,11 +48,16 @@ fun RootNavigation(voiceToTextParser: VoiceToTextParser) {
     val isInitialized = sessionViewModel.isInitialized.collectAsState()
 
     if (!isInitialized.value) {
-        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)) {
+
             Image(
                 painter = painterResource(id = R.drawable.bdmi_logo),
                 contentDescription = "BDMi",
-                modifier = Modifier.align(Alignment.Center).size(250.dp)
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(250.dp)
             )
         }
     } else {
