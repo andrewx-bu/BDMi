@@ -3,6 +3,8 @@
 A modern Android app for discovering and reviewing movies with added social features.  
 Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 
+ _TODO: Add pictures_
+
 ---
 ## Table of Contents
 - [Features](#features)
@@ -161,7 +163,22 @@ The app defines a `sealed class APIError`, which categorizes different types of 
 ---
 <a id="database"></a>
 ## Database
-_TODO: Describe Firestore collections and subcollections, data layout, and aggregation logic._
+The app uses **Firebase Firestore** as its NoSQL backend, organized into three main collections:
+1. `users` – Stores account-related information (e.g., userId, email)
+2. `publicProfiles` – Contains publicly visible profile data (e.g., profilePicture, watchlists, reviews)
+3. `movies` – Stores metadata for movies visited in the app (e.g., review counts, rating breakdown)
+
+Each of these collections includes purpose-specific subcollections. For example, `publicProfiles` includes a `friends` subcollection for mutual friend tracking. In hindsight, this structure may be more appropriate here than in the `users` collection.
+
+All Firestore interactions are encapsulated in feature-specific repositories under the `data/` directory. These repositories are used by our ViewModels, following a clean **repository pattern** to separate business logic from data access. This helps avoid duplication and ensures consistent access patterns across screens.
+
+To manage read efficiency, particularly in the `movies` collection (which supports aggregate stats like review counts), we **manually update aggregate fields**. Firestore treats each document read as billable, so relying on server-side aggregation could result in prohibitively high read costs at scale. To optimize performance:
+- We first check the **local snapshot cache** to avoid unnecessary reads.
+- If the movie isn’t present locally, it’s added to the database with all counters initialized to `0`.
+
+This design ensures scalability for a **read-heavy** workload without sacrificing reactivity or accuracy.
+
+Schema: _TODO: Add picture_
 
 ---
 <a id="sensor"></a>
@@ -180,6 +197,8 @@ The app wraps Android’s `SpeechRecognizer` in a Kotlin class (`VoiceToTextPars
 `stopListening()` simply flips `isSpeaking = false` and tells the recognizer to stop.
 Recognition callbacks (`onResults`, `onError`, `onReadyForSpeech`, etc.) update the `MutableStateFlow` so the UI can react accordingly.
 
+ _TODO: Add pictures_
+
 ---
 <a id="multi-device-support"></a>
 ## Multi-Device Support
@@ -193,6 +212,9 @@ A simple `when(window.widthSizeClass)` chooses which set to provide into `Materi
 Tablets in landscape mode switch to a two‑pane `Row` for `MovieDetail` screen:
 - Left pane shows the main detail overview: backdrop and poster, synopsis, ratings, etc.
 - Right pane holds the `TabRow` and its associated content (cast, crew, explore, etc.)
+
+ _TODO: Add pictures_
+
 ---
 <a id="ui"></a>
 ## UI
@@ -202,3 +224,5 @@ We follow a clear MVVM pattern:
 1. View layer simply observes state and emits user events.
 2. ViewModel holds all business logic: fetching, pagination, filters, and exposes a `StateFlow<UIState>`.
 3. `UIState` is simply an interface with two values: `isLoading: Boolean` and `error: APIError?`. The ViewModel sends this data to the UI, which displays states (error, loading, OK) accordingly.
+
+ _TODO: Add pictures_
