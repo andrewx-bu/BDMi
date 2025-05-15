@@ -1,35 +1,46 @@
-# BDMi
+# BDMi  
 **IMDb backwards.**  
-A modern Android app for discovering and reviewing movies with added social features. 
+A modern Android app for discovering and reviewing movies with added social features.  
 Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 
 ---
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Local Development Setup](#local-development-setup)
+- [Project Structure](#project-structure)
+- [Navigation](#navigation)
+---
+<a id="features"></a>
 ## Features
 
-- Browse trending, popular, upcoming, or top-rated movies
-- Explore by genre, actor, country, or production studio
-- Filter by rating, vote count, release date, and more
-- Search for movies and other users
-- Write reviews with star ratings and spoiler tags
-- View detailed movie information including cast, crew, and studios
-- Add and manage friends with a mutual friendship system
-- Access friends’ reviews and public watchlists
-- Create and organize custom watchlists (public or private)
-- Responsive UI optimized for both phones and tablets
+- Browse trending, popular, upcoming, or top-rated movies  
+- Explore by genre, actor, country, or production studio  
+- Filter by rating, vote count, release date, and more  
+- Search for movies and other users  
+- Write reviews with star ratings and spoiler tags  
+- View detailed movie information including cast, crew, and studios  
+- Add and manage friends with a mutual friendship system  
+- Access friends’ reviews and public watchlists  
+- Create and organize custom watchlists (public or private)  
+- Responsive UI optimized for both phones and tablets  
 ---
+<a id="tech-stack"></a>
 ## Tech Stack
 
-- **Kotlin, Jetpack Compose**
-- **Hilt** – Dependency injection framework for clean architecture.
-- **[TMDB API](https://developer.themoviedb.org/docs/getting-started)** – Source of movie data.
-- **Retrofit** – Type-safe HTTP client.
-- **Moshi** – JSON parser integrated with Retrofit.
-- **OkHttp** – Underlying network client for Retrofit with logging and interceptors.
-- **Firebase Firestore** – NoSQL cloud database for real-time data sync.
-- **Firebase Authentication** – Secure user login and session management.
-- **Coil** – Fast image loading library optimized for Compose.
-- **[Cloudinary](https://cloudinary.com/)** – Cloud storage for user images and movie posters.
+- **Kotlin, Jetpack Compose**  
+- **Hilt** – Dependency injection framework for clean architecture  
+- **[TMDB API](https://developer.themoviedb.org/docs/getting-started)** – Source of movie data  
+- **Retrofit** – Type-safe HTTP client  
+- **Moshi** – JSON parser integrated with Retrofit  
+- **OkHttp** – Underlying network client for Retrofit with logging and interceptors  
+- **Firebase Firestore** – NoSQL cloud database for real-time data sync  
+- **Firebase Authentication** – Secure user login and session management  
+- **Coil** – Fast image loading library optimized for Compose  
+- **[Cloudinary](https://cloudinary.com/)** – Cloud storage for user images and movie posters  
 ---
+<a id="local-development-setup"></a>
 ## Local Development Setup
 
 To get started with running this app locally, follow these steps:
@@ -37,15 +48,15 @@ To get started with running this app locally, follow these steps:
 ### Setup Instructions
 
 1. **Firebase Setup**  
-   - Download the `google-services.json` file from your Firebase project (make sure the Android app is added with package name `com.example.bdmi`).
-   - Enable Firebase Authentication and enable Email/Password sign in option.
-   - Place the `google-services.json` file inside your project's `app/` directory (the file should be added to .gitignore).
+   - Download the `google-services.json` file from your Firebase project (make sure the Android app is added with package name `com.example.bdmi`).  
+   - Enable Firebase Authentication and enable Email/Password sign in option.  
+   - Place the `google-services.json` file inside your project's `app/` directory (the file should be added to .gitignore).  
 
-2. **API Keys**
-   - Acquire an API key from [TMDB](https://developer.themoviedb.org/docs/getting-started).
-   - Create a Cloudinary account from [here](https://cloudinary.com/console).
+2. **API Keys**  
+   - Acquire an API key from [TMDB](https://developer.themoviedb.org/docs/getting-started).  
+   - Create a Cloudinary account from [here](https://cloudinary.com/console).  
 
-3. **Secrets Configuration**
+3. **Secrets Configuration**  
    - Add the following to your `local.properties` file (the file should be added to .gitignore):
 
    ```properties
@@ -56,6 +67,7 @@ To get started with running this app locally, follow these steps:
    CLOUDINARY_API_SECRET=your_cloudinary_secret
    ```
 ---
+<a id="project-structure"></a>
 ## Project Structure
 ```
 app/
@@ -75,6 +87,7 @@ app/
 |
 └── MainActivity.kt     # App entry point and root navigation host
 ```
+<a id="navigation"></a>
 ## Navigation
 ```
 RootNavGraph
