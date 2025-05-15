@@ -166,14 +166,39 @@ _TODO: Describe Firestore collections and subcollections, data layout, and aggre
 ---
 <a id="sensor"></a>
 ## Sensor
-_TODO: Document SpeechRecognizer integration, voice-to-text parser, and reactive state handling._
+The app wraps Android’s `SpeechRecognizer` in a Kotlin class (`VoiceToTextParser`). It exposes a `StateFlow<VoiceToTextParserState>` that the UI collects to reactively show:
+- `spokenText` (the latest recognized speech)
+- `isSpeaking` (whether the mic is currently listening)
+- `error` (any recognition error)
+
+`startListening()`:
+1. Resets state & checks availability
+2. Builds an `Intent` for free‑form speech recognition
+3. Attaches itself as a `RecognitionListener`
+4. Calls `recognizer.startListening(...)` and sets `isSpeaking = true`
+
+`stopListening()` simply flips `isSpeaking = false` and tells the recognizer to stop.
+Recognition callbacks (`onResults`, `onError`, `onReadyForSpeech`, etc.) update the `MutableStateFlow` so the UI can react accordingly.
 
 ---
 <a id="multi-device-support"></a>
 ## Multi-Device Support
-_TODO: Explain how window size classes and dimension-based theming are used to adapt to tablets and phones._
+Upon launch, the app detects the screen width dimension using Jetpack’s Window Size Classes and a simple DP check. Orientation is locked on phones, but tablets are allowed to rotate from portrait to landscape. We define three sets: Medium (Most Phones), Large (Most Tablets in Portrait), and Expanded (Most Tablets in Landscape). Each bundles together:
+- `Dimens` (paddings, icon sizes, etc.)
+- `Typography` (font sizes, weights, etc.)
+- `UIConstants` (grid counts, aspect ratios, etc.)
 
+A simple `when(window.widthSizeClass)` chooses which set to provide into `MaterialTheme`. The UI simply references `dimens.someValue` or `MaterialTheme.typography.someSize` and automatically scales up or down.
+
+Tablets in landscape mode switch to a two‑pane `Row` for `MovieDetail` screen:
+- Left pane shows the main detail overview: backdrop and poster, synopsis, ratings, etc.
+- Right pane holds the `TabRow` and its associated content (cast, crew, explore, etc.)
 ---
 <a id="ui"></a>
 ## UI
-_TODO: Describe theming with Material 3, dark/light mode, and scaffold-based screen structure._
+At the top level, every screen lives inside a standard `Compose Scaffold` that provides a TopAppBar, BottomNavigation, and Floating Action Button. Inside its `content {...}` block we host a `NavHost`, where each destination corresponds to a composable screen.
+
+We follow a clear MVVM pattern: 
+1. View layer simply observes state and emits user events.
+2. ViewModel holds all business logic: fetching, pagination, filters, and exposes a `StateFlow<UIState>`.
+3. `UIState` is simply an interface with two values: `isLoading: Boolean` and `error: APIError?`. The ViewModel sends this data to the UI, which displays states (error, loading, OK) accordingly.
