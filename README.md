@@ -188,7 +188,7 @@ To manage read efficiency, particularly in the `movies` collection (which suppor
 
 This design ensures scalability for a **read-heavy** workload without sacrificing reactivity or accuracy.
 
-Schema: _TODO: Add picture_
+<img src="app/src/main/java/com/example/bdmi/screenshots/schema.png" width="1200" alt="Schema">
 
 ---
 <a id="sensor"></a>
@@ -207,7 +207,7 @@ The app wraps Android’s `SpeechRecognizer` in a Kotlin class (`VoiceToTextPars
 `stopListening()` simply flips `isSpeaking = false` and tells the recognizer to stop.
 Recognition callbacks (`onResults`, `onError`, `onReadyForSpeech`, etc.) update the `MutableStateFlow` so the UI can react accordingly.
 
- _TODO: Add pictures_
+<img src="app/src/main/java/com/example/bdmi/screenshots/Sensor.png" width="300" alt="Sensor">
 
 ---
 <a id="multi-device-support"></a>
@@ -223,7 +223,9 @@ Tablets in landscape mode switch to a two‑pane `Row` for `MovieDetail` screen:
 - Left pane shows the main detail overview: backdrop and poster, synopsis, ratings, etc.
 - Right pane holds the `TabRow` and its associated content (cast, crew, explore, etc.)
 
- _TODO: Add pictures_
+<img src="app/src/main/java/com/example/bdmi/screenshots/Multi.png" height="500" alt="Home Screen">
+<img src="app/src/main/java/com/example/bdmi/screenshots/Multi1.png" height="500" alt="Movie Detail Screen">
+<img src="app/src/main/java/com/example/bdmi/screenshots/Multi2.png" height="500" alt="Actor Screen">
 
 ---
 <a id="ui"></a>
@@ -235,4 +237,8 @@ We follow a clear MVVM pattern:
 2. ViewModel holds all business logic: fetching, pagination, filters, and exposes a `StateFlow<UIState>`.
 3. `UIState` is simply an interface with two values: `isLoading: Boolean` and `error: APIError?`. The ViewModel sends this data to the UI, which displays states (error, loading, OK) accordingly.
 
- _TODO: Add pictures_
+<div align="center">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI2.png" width="300" alt="Onboarding Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI3.png" width="300" alt="Onboarding Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI4.png" width="300" alt="Onboarding Screen">
+</div>
