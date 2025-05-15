@@ -43,7 +43,9 @@ To get started with running this app locally, follow these steps:
 ---
 ## Features
 
-- Browse trending, popular, and genre-specific movies
+- Browse trending, popular, upcoming, or top-rated movies
+- Explore by genre, actor, country, production studio, and more  
+- Filter by rating, vote count, release date, and more
 - Search for movies and other users
 - Write reviews with star ratings and spoiler tags
 - View detailed movie information including cast, crew, and studios
@@ -60,14 +62,14 @@ app/
 │   ├── api/models/     # API models (JSON responses to Kotlin data classes)
 │   ├── repositories/   # Abstraction layer for Firestore and API interactions
 |   |                     Also contains all data classes/objects
-|   ├── utils/          # Singleton modules for dependency injection (di), and other misc. objects and functions
+|   ├── utils/          # Singleton modules for dependency injection, and other misc. objects and functions
 │
 ├── navigation/         # Navigation graphs and route definitions
 |
 ├── ui/                 # Jetpack Compose UI components
 |   ├── composables/... # Screen specific UI elements
 │   ├── profile/        # Profile screens and corresponding Hilt View Models
-│   ├── theme/          # Colors, typography, UI constants, UI dimensions 
+│   ├── theme/          # Colors, Typography, UI constants, UI dimensions
 |   ├── .../            # Remaining other screen composables and corresponding view models
 |
 └── MainActivity.kt     # App entry point and root navigation host
@@ -91,7 +93,7 @@ RootNavGraph
      │
      ├── "watchlists"
      │       ├── "watchlists/{userId}" ── "watchlist/{userId}/{listId}" 
-     │                                             ├── "movie_detail/{movieId}"
+     │                  ├── "movie_detail/{movieId}"
      ├── "user_profile/{userId}"
      │       ├── "watchlists/{userId}"
      │       ├── "user_reviews/{userId}"
@@ -107,4 +109,3 @@ RootNavGraph
                         ├── "studio/{studioId}" ────── "movie_detail/{movieId}"
                         ├── "country/{countryCode}" ── "movie_detail/{movieId}"
 ```
-
