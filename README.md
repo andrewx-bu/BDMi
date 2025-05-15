@@ -5,16 +5,19 @@ Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 
 ---
 ## Table of Contents
-
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Local Development Setup](#local-development-setup)
 - [Project Structure](#project-structure)
 - [Navigation](#navigation)
+- [API](#api)
+- [Database](#database)
+- [Sensor](#sensor)
+- [Multi-Device Support](#multi-device-support)
+- [UI](#ui)
 ---
 <a id="features"></a>
 ## Features
-
 - Browse trending, popular, upcoming, or top-rated movies  
 - Explore by genre, actor, country, or production studio  
 - Filter by rating, vote count, release date, and more  
@@ -28,7 +31,6 @@ Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 ---
 <a id="tech-stack"></a>
 ## Tech Stack
-
 - **Kotlin, Jetpack Compose**  
 - **Hilt** – Dependency injection framework for clean architecture  
 - **[TMDB API](https://developer.themoviedb.org/docs/getting-started)** – Source of movie data  
@@ -42,23 +44,17 @@ Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 ---
 <a id="local-development-setup"></a>
 ## Local Development Setup
-
 To get started with running this app locally, follow these steps:
-
 ### Setup Instructions
-
 1. **Firebase Setup**  
    - Download the `google-services.json` file from your Firebase project (make sure the Android app is added with package name `com.example.bdmi`).  
    - Enable Firebase Authentication and enable Email/Password sign in option.  
    - Place the `google-services.json` file inside your project's `app/` directory (the file should be added to .gitignore).  
-
 2. **API Keys**  
    - Acquire an API key from [TMDB](https://developer.themoviedb.org/docs/getting-started).  
    - Create a Cloudinary account from [here](https://cloudinary.com/console).  
-
 3. **Secrets Configuration**  
    - Add the following to your `local.properties` file (the file should be added to .gitignore):
-
    ```properties
    TMDB_API_KEY=your_tmdb_key
 
@@ -123,3 +119,61 @@ RootNavGraph
                         ├── "studio/{studioId}" ────── "movie_detail/{movieId}"
                         ├── "country/{countryCode}" ── "movie_detail/{movieId}"
 ```
+<a id="api"></a>
+## API
+This API structure follows a layered architecture built with Jetpack libraries and Retrofit, using dependency injection via Hilt and separation of concerns between API, data, and UI layers.
+
+At the lowest layer, the `APIService` interface defines all the TMDB endpoints using Retrofit annotations. Each endpoint returns either movie lists or detailed objects like movie info, companies, or people. Pagination, filtering, and sorting are handled directly through query parameters, while certain endpoints use `append_to_response` to bundle multiple sub-responses for ease of use and performance efficiency.
+
+Above this, the `MovieRepository` acts as a single source of truth for network data. It wraps each API call in a `Result` using `runCatching`, allowing easy error handling and keeping Retrofit logic out of the UI layer.
+
+Dependency injection is managed through `TMDBModule`, which provides configured instances of `Retrofit`, `OkHttp`, and `Moshi`, all scoped to the app’s lifecycle via `@Singleton`. Logging is enabled for network calls to aid in debugging.
+
+ViewModels maintain a `StateFlow`-based `UIState`, loading data concurrently with coroutines (`async/await`), and expose functions to support pagination, filtering, and sorting. The ViewModel logic ensures clean state updates and is easily testable thanks to Hilt-provided dependencies.
+
+The app defines a `sealed class APIError`, which categorizes different types of API failures into clear, structured cases. This includes `NetworkError` for connectivity issues, `ServerError` for HTTP error responses (like 404 or 500), `EmptyResponseError` when no data is returned, and a catch-all `GenericError` for unexpected exceptions. A helper extension function `Throwable.toAPIError()` maps thrown exceptions to appropriate `APIError` types, making error handling consistent across the app.
+1. 10 Unique API Endpoints Used:
+   - `getPopularMovies`: Fetches trending movies in the US (20 per page).
+   - `getNowPlayingMovies`: Lists movies currently in US theaters.
+   - `getUpcomingMovies`: Shows upcoming movie releases.
+   - `getTopRatedMovies`: Retrieves top-rated movies of all time.
+   - `discoverMovies`: Flexible movie discovery with filters (genre, country, rating, etc.).
+   - `searchMovies`: Returns movies matching a search query.
+   - `getMovieDetails`: Returns full movie details + optional data via `append_to_response`.
+   - `getMovieWatchProviders`: Lists streaming platforms where the movie is available.
+   - `getCompanyDetails`: Fetches production company information.
+   - `getPersonDetails`: Provides person details and combined film credits.
+2. Pagination:
+   - All list-fetching endpoints return paginated results (20 movies per page).
+   - Supported via the `page` query parameter.
+3. Chained API calls via `append_to_response`:
+   - Used in `getMovieDetails` and `getPersonDetails` to bundle multiple data requests into one.
+   - Reduces network requests and improves screen load times.
+4. Filtering and Sorting:
+   - `discoverMovies` supports sorting by popularity, revenue, release date, etc.
+   - Can filter by genre, country, person, company, vote average, and vote count.
+5. Region and Language Awareness:
+   - Endpoints default to the `US` region and `en-US` language where applicable.
+6. Screens Covered by APIs:
+   - Home Screen: `getNowPlayingMovies`, `getPopularMovies`, `getTopRatedMovies`, `getUpcomingMovies`
+   - Search Screen: `searchMovies`
+   - Detail Screens: `getMovieDetails`, `getMovieWatchProviders`, `getCompanyDetails`, `getPersonDetails`, `discoverMovies`.
+---
+<a id="database"></a>
+## Database
+_TODO: Describe Firestore collections and subcollections, data layout, and aggregation logic._
+
+---
+<a id="sensor"></a>
+## Sensor
+_TODO: Document SpeechRecognizer integration, voice-to-text parser, and reactive state handling._
+
+---
+<a id="multi-device-support"></a>
+## Multi-Device Support
+_TODO: Explain how window size classes and dimension-based theming are used to adapt to tablets and phones._
+
+---
+<a id="ui"></a>
+## UI
+_TODO: Describe theming with Material 3, dark/light mode, and scaffold-based screen structure._
