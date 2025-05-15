@@ -11,7 +11,6 @@ Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main3.png" width="300" alt="Search Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main4.png" width="300" alt="Watchlists Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main5.png" width="300" alt="List Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/UI1.png" width="300" alt="View Profile Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main6.png" width="300" alt="User Profile Screen">
 </div>
 
@@ -238,6 +237,7 @@ We follow a clear MVVM pattern:
 3. `UIState` is simply an interface with two values: `isLoading: Boolean` and `error: APIError?`. The ViewModel sends this data to the UI, which displays states (error, loading, OK) accordingly.
 
 <div align="center">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI1.png" width="300" alt="View Profile Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/UI2.png" width="300" alt="Onboarding Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/UI3.png" width="300" alt="Onboarding Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/UI4.png" width="300" alt="Onboarding Screen">
