@@ -3,7 +3,17 @@
 A modern Android app for discovering and reviewing movies with added social features.  
 Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 
- _TODO: Add pictures_
+<div align="center">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI.png" width="300" alt="Onboarding Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main.png" width="300" alt="Home Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main1.png" width="300" alt="Movie Detail Screen Top">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main2.png" width="300" alt="Movie Detail Screen Bottom">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main3.png" width="300" alt="Search Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main4.png" width="300" alt="Watchlists Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main5.png" width="300" alt="List Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/UI1.png" width="300" alt="View Profile Screen">
+  <img src="app/src/main/java/com/example/bdmi/screenshots/Main6.png" width="300" alt="User Profile Screen">
+</div>
 
 ---
 ## Table of Contents
