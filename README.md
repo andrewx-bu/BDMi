@@ -4,14 +4,8 @@ A modern Android app for discovering and reviewing movies with added social feat
 Built with Kotlin, Jetpack Compose, TMDB API, and Firebase.
 
 <div align="center">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/UI.png" width="300" alt="Onboarding Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main.png" width="300" alt="Home Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/Main1.png" width="300" alt="Movie Detail Screen Top">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/Main2.png" width="300" alt="Movie Detail Screen Bottom">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/Main3.png" width="300" alt="Search Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/Main4.png" width="300" alt="Watchlists Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/Main5.png" width="300" alt="List Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/Main6.png" width="300" alt="User Profile Screen">
 </div>
 
 ---
@@ -102,11 +96,6 @@ RootNavGraph
 ├── "onboarding" ─── "start"
 │                       ├── "login" ────── "root"
 │                       ├── "register" ─── "root"
-├── "root"
-     ├── "notification"
-     │       ├── "user_profile/{userId}"
-     │
-     ├── "search"
      │       ├── "movie_detail/{movieId}"
      │
      ├── "friend_search"
@@ -118,6 +107,11 @@ RootNavGraph
      ├── "user_profile/{userId}"
      │       ├── "watchlists/{userId}"
      │       ├── "user_reviews/{userId}"
+├── "root"
+     ├── "notification"
+     │       ├── "user_profile/{userId}"
+     │
+     ├── "search"
      │       ├── "friends/{userId}"
      │       ├── "movie_detail/{movieId}"
      │
@@ -132,17 +126,6 @@ RootNavGraph
 ```
 <a id="api"></a>
 ## API
-This API structure follows a layered architecture built with Jetpack libraries and Retrofit, using dependency injection via Hilt and separation of concerns between API, data, and UI layers.
-
-At the lowest layer, the `APIService` interface defines all the TMDB endpoints using Retrofit annotations. Each endpoint returns either movie lists or detailed objects like movie info, companies, or people. Pagination, filtering, and sorting are handled directly through query parameters, while certain endpoints use `append_to_response` to bundle multiple sub-responses for ease of use and performance efficiency.
-
-Above this, the `MovieRepository` acts as a single source of truth for network data. It wraps each API call in a `Result` using `runCatching`, allowing easy error handling and keeping Retrofit logic out of the UI layer.
-
-Dependency injection is managed through `TMDBModule`, which provides configured instances of `Retrofit`, `OkHttp`, and `Moshi`, all scoped to the app’s lifecycle via `@Singleton`. Logging is enabled for network calls to aid in debugging.
-
-ViewModels maintain a `StateFlow`-based `UIState`, loading data concurrently with coroutines (`async/await`), and expose functions to support pagination, filtering, and sorting. The ViewModel logic ensures clean state updates and is easily testable thanks to Hilt-provided dependencies.
-
-The app defines a `sealed class APIError`, which categorizes different types of API failures into clear, structured cases. This includes `NetworkError` for connectivity issues, `ServerError` for HTTP error responses (like 404 or 500), `EmptyResponseError` when no data is returned, and a catch-all `GenericError` for unexpected exceptions. A helper extension function `Throwable.toAPIError()` maps thrown exceptions to appropriate `APIError` types, making error handling consistent across the app.
 1. 10 Unique API Endpoints Used:
    - `getPopularMovies`: Fetches trending movies in the US (20 per page).
    - `getNowPlayingMovies`: Lists movies currently in US theaters.
@@ -206,8 +189,6 @@ The app wraps Android’s `SpeechRecognizer` in a Kotlin class (`VoiceToTextPars
 `stopListening()` simply flips `isSpeaking = false` and tells the recognizer to stop.
 Recognition callbacks (`onResults`, `onError`, `onReadyForSpeech`, etc.) update the `MutableStateFlow` so the UI can react accordingly.
 
-<img src="app/src/main/java/com/example/bdmi/screenshots/Sensor.png" width="300" alt="Sensor">
-
 ---
 <a id="multi-device-support"></a>
 ## Multi-Device Support
@@ -222,9 +203,7 @@ Tablets in landscape mode switch to a two‑pane `Row` for `MovieDetail` screen:
 - Left pane shows the main detail overview: backdrop and poster, synopsis, ratings, etc.
 - Right pane holds the `TabRow` and its associated content (cast, crew, explore, etc.)
 
-<img src="app/src/main/java/com/example/bdmi/screenshots/Multi.png" height="500" alt="Home Screen">
 <img src="app/src/main/java/com/example/bdmi/screenshots/Multi1.png" height="500" alt="Movie Detail Screen">
-<img src="app/src/main/java/com/example/bdmi/screenshots/Multi2.png" height="500" alt="Actor Screen">
 
 ---
 <a id="ui"></a>
@@ -239,6 +218,4 @@ We follow a clear MVVM pattern:
 <div align="center">
   <img src="app/src/main/java/com/example/bdmi/screenshots/UI1.png" width="300" alt="View Profile Screen">
   <img src="app/src/main/java/com/example/bdmi/screenshots/UI2.png" width="300" alt="Onboarding Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/UI3.png" width="300" alt="Onboarding Screen">
-  <img src="app/src/main/java/com/example/bdmi/screenshots/UI4.png" width="300" alt="Onboarding Screen">
 </div>
